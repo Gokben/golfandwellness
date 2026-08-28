@@ -14,7 +14,7 @@
             <img class="classic-login-logo" src="{{ asset('images/golf-and-wellness-logo.png') }}" alt="Golf and Wellness Turkey">
             <h1>Kullanıcı Girişi</h1>
             <p>Golf acente yönetim sistemine erişmek için giriş yapın.</p>
-            <form class="login-form classic-login-form" onsubmit="event.preventDefault(); window.location.assign('{{ route('preview') }}')">
+            <form class="login-form classic-login-form" onsubmit="event.preventDefault(); window.location.assign('{{ route('home') }}')">
                 <label><span>E-posta adresi</span><input type="email" autocomplete="username" placeholder="ad.soyad@acente.com" required autofocus></label>
                 <label>
                     <span>Şifre</span>
