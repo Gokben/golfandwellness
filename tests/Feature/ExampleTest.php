@@ -20,6 +20,6 @@ class ExampleTest extends TestCase
     public function test_login_and_desktop_preview_are_available(): void
     {
         $this->get('/login')->assertOk()->assertSee('Kullanıcı Girişi');
-        $this->get('/preview')->assertRedirect('/');
+        $this->get('/preview')->assertRedirect('/golf/');
     }
 }
