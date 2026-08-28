@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
-    base: '/golfandwellness/',
+    base: '/golfandwellness-live/',
     plugins: [vue(), tailwindcss()],
     build: {
         outDir: 'dist-pages',
