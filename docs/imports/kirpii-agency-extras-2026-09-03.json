@@ -1,0 +1,306 @@
+{
+  "source": "https://acente.kirpii.com/Agency",
+  "inspectedOn": "2026-09-03",
+  "agencies": [
+    {
+      "code": "AQUAMICE",
+      "href": "/Agency/Update/63",
+      "name": "AQUAMICE",
+      "rows": [
+        {
+          "Age": "01211",
+          "BChd": "0",
+          "BInf": "0",
+          "BPrice": "15",
+          "Currency": "EU",
+          "Description": "GOLF BAG",
+          "FirstDates": "2018-12-01",
+          "LastDates": "2019-12-31",
+          "Obligation": false,
+          "PT": "PP",
+          "SChd": "0",
+          "SInf": "0",
+          "SPrice": "15"
+        },
+        {
+          "Age": "01211",
+          "BChd": "0",
+          "BInf": "0",
+          "BPrice": "10",
+          "Currency": "EU",
+          "Description": "GOLD",
+          "FirstDates": "2018-12-01",
+          "LastDates": "2019-01-01",
+          "Obligation": false,
+          "PT": "PP",
+          "SChd": "0",
+          "SInf": "0",
+          "SPrice": "10"
+        }
+      ]
+    },
+    {
+      "code": "ATL",
+      "href": "/Agency/Update/25",
+      "name": "ATLANTIC GOLF",
+      "rows": []
+    },
+    {
+      "code": "BG",
+      "href": "/Agency/Update/4",
+      "name": "BIRDIE GOLF",
+      "rows": []
+    },
+    {
+      "code": "BON",
+      "href": "/Agency/Update/5",
+      "name": "BOUNTY",
+      "rows": []
+    },
+    {
+      "code": "BRYSMR",
+      "href": "/Agency/Update/58",
+      "name": "BRYAN SOMERS TRAVEL",
+      "rows": []
+    },
+    {
+      "code": "CLASSIC",
+      "href": "/Agency/Update/56",
+      "name": "CLASSIC REISEN",
+      "rows": []
+    },
+    {
+      "code": "DNM",
+      "href": "/Agency/Update/81",
+      "name": "DENEME",
+      "rows": []
+    },
+    {
+      "code": "DTS",
+      "href": "/Agency/Update/6",
+      "name": "DERTOUR",
+      "rows": []
+    },
+    {
+      "code": "DIA",
+      "href": "/Agency/Update/10",
+      "name": "DIANA",
+      "rows": []
+    },
+    {
+      "code": "EXCLUSIVE",
+      "href": "/Agency/Update/57",
+      "name": "EXCLUSIVE TOURS",
+      "rows": []
+    },
+    {
+      "code": "GGT",
+      "href": "/Agency/Update/28",
+      "name": "GLOBAL GOLF TIME",
+      "rows": []
+    },
+    {
+      "code": "GW",
+      "href": "/Agency/Update/38",
+      "name": "GOLF & WELLNESS",
+      "rows": []
+    },
+    {
+      "code": "GDEL",
+      "href": "/Agency/Update/40",
+      "name": "GOLF DELIGHTS",
+      "rows": []
+    },
+    {
+      "code": "GER",
+      "href": "/Agency/Update/3",
+      "name": "GOLF ESCAPES",
+      "rows": []
+    },
+    {
+      "code": "GF",
+      "href": "/Agency/Update/41",
+      "name": "GOLF FRIENDS",
+      "rows": []
+    },
+    {
+      "code": "GMOT",
+      "href": "/Agency/Update/43",
+      "name": "GOLF MOTION",
+      "rows": []
+    },
+    {
+      "code": "GFR",
+      "href": "/Agency/Update/59",
+      "name": "GOLF RESAN TRAVEL",
+      "rows": []
+    },
+    {
+      "code": "GSLO",
+      "href": "/Agency/Update/44",
+      "name": "GOLF SLOVENIA",
+      "rows": []
+    },
+    {
+      "code": "GH",
+      "href": "/Agency/Update/45",
+      "name": "GOLFING HOLIDAYS",
+      "rows": []
+    },
+    {
+      "code": "GO",
+      "href": "/Agency/Update/46",
+      "name": "GOTP",
+      "rows": []
+    },
+    {
+      "code": "GDIRECT",
+      "href": "/Agency/Update/47",
+      "name": "GREEN FEES DIRECT",
+      "rows": []
+    },
+    {
+      "code": "HIO",
+      "href": "/Agency/Update/60",
+      "name": "HIO GOLF TRAVEL",
+      "rows": []
+    },
+    {
+      "code": "KD",
+      "href": "/Agency/Update/64",
+      "name": "KD TOURISM",
+      "rows": []
+    },
+    {
+      "code": "KOMU",
+      "href": "/Agency/Update/48",
+      "name": "KOMU GROUP",
+      "rows": []
+    },
+    {
+      "code": "LILY",
+      "href": "/Agency/Update/49",
+      "name": "LILY TOURS",
+      "rows": []
+    },
+    {
+      "code": "PRCVYG",
+      "href": "/Agency/Update/50",
+      "name": "PARCOUR VOYAGE",
+      "rows": []
+    },
+    {
+      "code": "PTOUCH",
+      "href": "/Agency/Update/61",
+      "name": "PERSONAL TOUCH",
+      "rows": []
+    },
+    {
+      "code": "RHOLEDAU",
+      "href": "/Agency/Update/51",
+      "name": "REISEBURO HOLLEDAU",
+      "rows": []
+    },
+    {
+      "code": "SG",
+      "href": "/Agency/Update/52",
+      "name": "S GUIDE",
+      "rows": []
+    },
+    {
+      "code": "sdf",
+      "href": "/Agency/Update/79",
+      "name": "sdf",
+      "rows": []
+    },
+    {
+      "code": "SOLOS",
+      "href": "/Agency/Update/53",
+      "name": "SOLOS HOLIDAYS",
+      "rows": []
+    },
+    {
+      "code": "STARTIDDEN",
+      "href": "/Agency/Update/62",
+      "name": "STARTIDDEN TRAVEL",
+      "rows": []
+    },
+    {
+      "code": "SUN",
+      "href": "/Agency/Update/54",
+      "name": "SUN GOLF HOLIDAYS",
+      "rows": []
+    },
+    {
+      "code": "YZLM AGENCY",
+      "href": "/Agency/Update/80",
+      "name": "YAZILIM AGENCY",
+      "rows": []
+    },
+    {
+      "code": "YOUR",
+      "href": "/Agency/Update/55",
+      "name": "YOUR TRAVEL",
+      "rows": []
+    }
+  ],
+  "options": [
+    {
+      "name": "Description_AcenteExtras",
+      "options": [
+        "TEXTIL AND SOUVENIER",
+        "GOLD",
+        "LEATHER",
+        "GOLF BAG",
+        "RETURN",
+        "ONE WAY",
+        "ONE WAY TRF",
+        "RETURN TRF",
+        "GOLF LESSON",
+        "ANTALYA SHOPPING TOUR",
+        "HAMAM",
+        "ISTANBUL TURU",
+        "CAPPADOCIA",
+        "PAMUKKALE",
+        "JEEP SAFARI",
+        "OLYMPOS TELEFERIK",
+        "ALANYA TURU",
+        "PERGE ASPENDOS KURSUNLU",
+        "PERGE ASPENDOS SIDE",
+        "PERGE ASPENDOS",
+        "RAFTING",
+        "DEMRE MYRA",
+        "ANTALYA CITY TOUR",
+        "YAT TURU"
+      ]
+    },
+    {
+      "name": "Currency_AcenteExtras",
+      "options": [
+        "USD",
+        "GBP",
+        "TL",
+        "EU"
+      ]
+    },
+    {
+      "name": "PT_AcenteExtras",
+      "options": [
+        "PP",
+        "PROOM",
+        "FIX"
+      ]
+    },
+    {
+      "name": "Age_AcenteExtras",
+      "options": [
+        "01211",
+        "03411",
+        "06711",
+        "0237",
+        "06712",
+        "0347"
+      ]
+    }
+  ]
+}

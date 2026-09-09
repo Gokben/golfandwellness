@@ -1,0 +1,8 @@
+<?php
+
+return [
+    'host' => 'localhost',
+    'database' => 'krpsoftc_golf',
+    'username' => 'krpsoftc_rates',
+    'password' => 'CHANGE_ME',
+];

@@ -3,6 +3,16 @@
 use Illuminate\Support\Str;
 use Pdo\Mysql;
 
+// Reuse the hosting account's private DB configuration without copying its password.
+$setupConfig = [];
+if ($setupConfigFile = env('SETUP_DB_CONFIG')) {
+    if (!is_file($setupConfigFile)) throw new RuntimeException('Private setup database configuration is missing.');
+    $setupConfig = require $setupConfigFile;
+    if (!is_array($setupConfig) || array_diff(['host', 'database', 'username', 'password'], array_keys($setupConfig))) {
+        throw new RuntimeException('Private setup database configuration is invalid.');
+    }
+}
+
 return [
 
     /*
@@ -31,6 +41,20 @@ return [
     */
 
     'connections' => [
+
+        // Keep existing application/SQLite data separate from setup records.
+        'setup_mysql' => [
+            'driver' => 'mysql',
+            'host' => $setupConfig['host'] ?? env('SETUP_DB_HOST', '127.0.0.1'),
+            'port' => $setupConfig['port'] ?? env('SETUP_DB_PORT', '3306'),
+            'database' => $setupConfig['database'] ?? env('SETUP_DB_DATABASE', 'golf_setup'),
+            'username' => $setupConfig['username'] ?? env('SETUP_DB_USERNAME', 'golf_setup'),
+            'password' => $setupConfig['password'] ?? env('SETUP_DB_PASSWORD', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+        ],
 
         'sqlite' => [
             'driver' => 'sqlite',

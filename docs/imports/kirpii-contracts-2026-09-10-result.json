@@ -1,0 +1,25 @@
+{
+  "source": "https://acente.kirpii.com/GolfCourse/Index",
+  "sourceRows": 327,
+  "eligibleRows": 325,
+  "existing": 4,
+  "added": 321,
+  "unchanged": 4,
+  "conflicts": [],
+  "excluded": [
+    {
+      "courseKey": "YZLMGOLF",
+      "count": 2,
+      "reason": "Course is absent locally"
+    },
+    {
+      "courseKey": "Zeynep Golf",
+      "count": 0,
+      "reason": "Course is absent locally"
+    }
+  ],
+  "total": 325,
+  "versionBefore": 2,
+  "versionAfter": 3,
+  "verifiedAt": "2026-09-09T22:00:40.210Z"
+}

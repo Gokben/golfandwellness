@@ -2,12 +2,29 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import HotelBoardTypes from './HotelBoardTypes.vue';
 import HotelModule from './HotelModule.vue';
+import ReservationModule from './ReservationModule.vue';
+import GolfReservationModule from './GolfReservationModule.vue';
+import AgenciesModule from './AgenciesModule.vue';
+import VouchersModule from './VouchersModule.vue';
+import HotelGolfPackagesModule from './HotelGolfPackagesModule.vue';
+import GolfCourseModule from './GolfCourseModule.vue';
+import GolfGamesModule from './GolfGamesModule.vue';
+import GolfTeeTimesModule from './GolfTeeTimesModule.vue';
+import GolfCourseDetailsModule from './GolfCourseDetailsModule.vue';
+import ParityModule from './ParityModule.vue';
+import AgeTablesModule from './AgeTablesModule.vue';
+import UsersModule from './UsersModule.vue';
+import VehicleCardsModule from './VehicleCardsModule.vue';
+import OperationRecordsModule from './OperationRecordsModule.vue';
+import SetupRecordsModule from './SetupRecordsModule.vue';
+import ExchangeCurrencyModule from './ExchangeCurrencyModule.vue';
 
 type ModuleItem = { id: string; title: string; subtitle: string; icon: string; color: string };
 type Geometry = { x: number; y: number; width: number; height: number };
 type AppWindow = Geometry & {
     uid: number;
     module: ModuleItem;
+    recordTitle?: string;
     minimized: boolean;
     maximized: boolean;
     z: number;
@@ -20,13 +37,23 @@ const modules: ModuleItem[] = [
     { id: 'dashboard', title: 'Ana Sayfa', subtitle: 'Günlük görünüm', icon: '⌂', color: '#0067b8' },
     { id: 'quotes', title: 'Teklifler', subtitle: 'Yeni teklif ve hesaplama', icon: '₺', color: '#0078d4' },
     { id: 'reservations', title: 'Rezervasyonlar', subtitle: 'Bireysel ve grup', icon: '▣', color: '#2589d8' },
-    { id: 'customers', title: 'Müşteriler', subtitle: 'B2B ve B2C kartları', icon: '♙', color: '#106ebe' },
+    { id: 'customers', title: 'Acenteler', subtitle: 'Acente kartları ve tanımları', icon: '♙', color: '#106ebe' },
     { id: 'hotels', title: 'Oteller', subtitle: 'Oda ve kontenjan', icon: 'H', color: '#2b579a' },
     { id: 'courses', title: 'Golf Sahaları', subtitle: 'Tee time yönetimi', icon: '⚑', color: '#0099bc' },
     { id: 'contracts', title: 'Kontratlar', subtitle: 'Fiyat ve aksiyonlar', icon: '§', color: '#005a9e' },
     { id: 'operations', title: 'Operasyon', subtitle: 'Transfer ve hizmetler', icon: '↔', color: '#3a78b4' },
     { id: 'finance', title: 'Finans', subtitle: 'Ödeme ve hareketler', icon: '₿', color: '#4f6fad' },
     { id: 'reports', title: 'Raporlar', subtitle: 'Satış ve operasyon', icon: '▥', color: '#365f91' },
+    { id: 'setup', title: 'Kurulum', subtitle: 'Temel tanımlar', icon: '⚙', color: '#365f91' },
+];
+const agencyMenuItems: { label: string; icon: string; module: ModuleItem }[] = [
+    {label:'Acente Kartları',icon:'♙',module:modules.find(item=>item.id==='customers')!},
+    {label:'Vouchers',icon:'▤',module:{id:'agency-vouchers',title:'Vouchers',subtitle:'Acente voucher numara listesi',icon:'▤',color:'#106ebe'}},
+];
+const golfMenuItems: { label: string; icon: string; module: ModuleItem }[] = [
+    { label: 'TeeTimes', icon: '◷', module: { id: 'golf-tee-times', title: 'TeeTimes', subtitle: 'Golf sahası başlangıç saatleri', icon: '◷', color: '#0099bc' } },
+    { label: 'Oyunlar', icon: '⚑', module: { id: 'golf-games', title: 'Oyunlar', subtitle: 'Golf sahalarına göre oyunlar', icon: '⚑', color: '#0099bc' } },
+    { label: 'Golf Sahası Kartları', icon: '▤', module: modules.find(item => item.id === 'courses')! },
 ];
 const hotelMenuItems: { label: string; icon: string; module: ModuleItem }[] = [
     { label: 'Pansiyon Tipleri', icon: '♜', module: { id: 'hotel-board-types', title: 'Pansiyon Tipleri', subtitle: 'Otel pansiyon tanımları', icon: '♜', color: '#2b579a' } },
@@ -37,18 +64,49 @@ const hotelMenuItems: { label: string; icon: string; module: ModuleItem }[] = [
     { label: 'Otel + Golf Paketleri', icon: '♜', module: { id: 'hotel-golf-packages', title: 'Otel + Golf Paketleri', subtitle: 'Konaklama ve golf paketleri', icon: '♜', color: '#2b579a' } },
     { label: 'Satış Durdurma', icon: '◆', module: { id: 'hotel-stop-sales', title: 'Satış Durdurma', subtitle: 'Stop-sale tarih ve koşulları', icon: '◆', color: '#2b579a' } },
 ];
+const reservationMenuItems: { label: string; icon: string; module: ModuleItem }[] = [
+    { label: 'Golf', icon: '⚑', module: { id: 'reservation-golf', title: 'Golf Rezervasyonu', subtitle: 'Golf rezervasyon listesi ve kartı', icon: '⚑', color: '#2589d8' } },
+    { label: 'Otel', icon: 'H', module: { id: 'reservation-hotel', title: 'Otel Rezervasyonu', subtitle: 'Otel rezervasyon listesi ve kartı', icon: 'H', color: '#2589d8' } },
+    { label: 'Otel + Golf', icon: '♜', module: { id: 'reservation-hotel-golf', title: 'Otel + Golf Rezervasyonu', subtitle: 'Paket rezervasyon listesi ve kartı', icon: '♜', color: '#2589d8' } },
+];
+const operationMenuItems: { label: string; icon: string; module: ModuleItem }[] = [
+    { label: 'Yönler', icon: '↔', module: { id: 'directions', title: 'Yönler', subtitle: 'Transfer yön tanımları', icon: '↔', color: '#3a78b4' } },
+    { label: 'Araç Tipleri', icon: '▣', module: { id: 'vehicle-types', title: 'Araç Tipleri', subtitle: 'Araç tipi tanımları', icon: '▣', color: '#3a78b4' } },
+    { label: 'Araç Kartları', icon: '▤', module: { id: 'vehicle-cards', title: 'Araç Kartları', subtitle: 'Araç, şoför ve plaka kartları', icon: '▤', color: '#3a78b4' } },
+    { label: 'Rehberler', icon: '♟', module: { id: 'guides', title: 'Rehberler', subtitle: 'Rehber tanımları', icon: '♟', color: '#3a78b4' } },
+];
+const setupMenuItems: { label: string; icon: string; module: ModuleItem }[] = [
+    { label: 'Uyruk', icon: '◉', module: { id: 'citizens', title: 'Uyruklar', subtitle: 'Uyruk tanımları', icon: '◉', color: '#365f91' } },
+    { label: 'Market', icon: '₺', module: { id: 'markets', title: 'Marketler', subtitle: 'Market tanımları', icon: '₺', color: '#365f91' } },
+    { label: 'Parity', icon: '≡', module: { id: 'parity', title: 'Parity', subtitle: 'Kişi ve oda tipi parity tanımları', icon: '≡', color: '#365f91' } },
+    { label: 'İptal Nedenleri', icon: '×', module: { id: 'cancel-reasons', title: 'İptal Nedenleri', subtitle: 'İptal neden tanımları', icon: '×', color: '#365f91' } },
+    { label: 'Ekstra Satışlar', icon: '⊕', module: { id: 'extra-sellings', title: 'Ekstra Satışlar', subtitle: 'Ekstra satış ve hizmet tanımları', icon: '⊕', color: '#365f91' } },
+    { label: 'Otel & Golf Ekstraları', icon: '✦', module: { id: 'hotel-golf-extras', title: 'Otel & Golf Ekstraları', subtitle: 'Otel ve golf ekstra tanımları', icon: '✦', color: '#365f91' } },
+    { label: 'Yaş Tabloları', icon: '▦', module: { id: 'age-tables', title: 'Yaş Tabloları', subtitle: 'Bebek ve çocuk yaş aralıkları', icon: '▦', color: '#365f91' } },
+    { label: 'Kullanıcılar', icon: '♙', module: { id: 'setup-users', title: 'Kullanıcılar', subtitle: 'Kullanıcı kartları ve iletişim bilgileri', icon: '♙', color: '#365f91' } },
+    { label: 'Döviz Kurları', icon: '₺', module: { id: 'exchange-currency', title: 'Döviz Kurları', subtitle: 'Döviz alış ve satış kurları', icon: '₺', color: '#365f91' } },
+];
+const golfCourseDetailsModule: ModuleItem = { id: 'golf-course-details', title: 'Golf Sahası Detayları', subtitle: 'Golf sahası açıklama ve ayarları', icon: '⚑', color: '#0099bc' };
 
 const workspace = ref<HTMLElement | null>(null);
 const windows = ref<AppWindow[]>([]);
 const activeId = ref<number | null>(null);
 const startOpen = ref(true);
-const sidebarView = ref<'main' | 'hotels'>('main');
+const sidebarView = ref<'main' | 'hotels' | 'courses' | 'reservations' | 'setup' | 'operations'>('main');
 const selectedHotelMenuId = ref<string | null>(null);
+const selectedReservationMenuId = ref<string | null>(null);
+const reservationsExpanded = ref(false);
+const agenciesExpanded = ref(false);
+const operationsExpanded = ref(false);
+const setupExpanded = ref(false);
+const desktopReservationMenu = ref(false);
+const desktopOperationMenu = ref(false);
 const notificationsOpen = ref(false);
 const hotelDetailOpen = ref(false);
 const boardTypeEditing = ref(false);
 const hotelTypeEditing = ref(false);
 const regionEditing = ref(false);
+const courseEditing = ref(false);
 const theme = ref<'light' | 'dark'>('light');
 const currentTime = ref('');
 const notifications = ref([
@@ -63,6 +121,10 @@ let pointerAction: PointerAction | null = null;
 const unreadCount = computed(() => notifications.value.filter(item => !item.read).length);
 const openModuleIds = computed(() => new Set(windows.value.filter(item => !item.minimized).map(item => item.module.id)));
 const hotelBranchActive = computed(() => openModuleIds.value.has('hotels') || hotelMenuItems.some(item => openModuleIds.value.has(item.module.id)));
+const golfBranchActive = computed(() => golfMenuItems.some(item => openModuleIds.value.has(item.module.id)));
+const reservationBranchActive = computed(() => reservationMenuItems.some(item => openModuleIds.value.has(item.module.id)));
+const operationBranchActive = computed(() => operationMenuItems.some(item => openModuleIds.value.has(item.module.id)));
+const setupBranchActive = computed(() => setupMenuItems.some(item => openModuleIds.value.has(item.module.id)));
 
 function updateClock() {
     currentTime.value = new Intl.DateTimeFormat('tr-TR', { hour: '2-digit', minute: '2-digit' }).format(new Date());
@@ -77,7 +139,7 @@ function focusWindow(item: AppWindow) {
 function defaultGeometry(module?: ModuleItem): Geometry {
     const width = workspace.value?.clientWidth ?? 1100;
     const height = workspace.value?.clientHeight ?? 720;
-    if (module && ['hotel-board-types', 'hotel-types', 'hotel-regions'].includes(module.id)) {
+    if (module && ['hotel-board-types', 'hotel-types', 'hotel-regions', 'hotel-room-types', 'hotel-catalogs'].includes(module.id)) {
         const panelWidth = Math.min(560, Math.max(320, width - 24));
         const panelHeight = Math.min(340, Math.max(260, height - 24));
         return {
@@ -110,8 +172,25 @@ function openModule(module: ModuleItem) {
 }
 
 function sidebarModuleClick(module: ModuleItem) {
+    if (module.id === 'customers') { agenciesExpanded.value = !agenciesExpanded.value; return; }
+    if (module.id === 'reservations') {
+        reservationsExpanded.value = !reservationsExpanded.value;
+        return;
+    }
     if (module.id === 'hotels') {
         sidebarView.value = 'hotels';
+        return;
+    }
+    if (module.id === 'courses') {
+        sidebarView.value = 'courses';
+        return;
+    }
+    if (module.id === 'operations') {
+        sidebarView.value = 'operations';
+        return;
+    }
+    if (module.id === 'setup') {
+        sidebarView.value = 'setup';
         return;
     }
     openModule(module);
@@ -119,6 +198,28 @@ function sidebarModuleClick(module: ModuleItem) {
 
 function openHotelSubModule(module: ModuleItem) {
     selectedHotelMenuId.value = module.id;
+    openModule(module);
+}
+function openReservationSubModule(module: ModuleItem) {
+    selectedReservationMenuId.value = module.id;
+    desktopReservationMenu.value = false;
+    reservationsExpanded.value = true;
+    sidebarView.value = 'main';
+    openModule(module);
+}
+function openOperationSubModule(module: ModuleItem) {
+    sidebarView.value = 'operations';
+    operationsExpanded.value = true;
+    desktopOperationMenu.value = false;
+    openModule(module);
+}
+function openSetupSubModule(module: ModuleItem) { setupExpanded.value = true; openModule(module); }
+function openGolfCourseDetails() { openModule(golfCourseDetailsModule); }
+function desktopModuleClick(module: ModuleItem) {
+    if (module.id === 'reservations') { desktopReservationMenu.value = true; return; }
+    if (module.id === 'operations') { desktopOperationMenu.value = true; return; }
+    desktopReservationMenu.value = false;
+    desktopOperationMenu.value = false;
     openModule(module);
 }
 
@@ -172,6 +273,10 @@ function closeOrGoBack(item: AppWindow) {
     }
     if (item.module.id === 'hotel-regions' && regionEditing.value) {
         window.dispatchEvent(new CustomEvent('vox-hotel-regions-back'));
+        return;
+    }
+    if (item.module.id === 'courses' && courseEditing.value) {
+        window.dispatchEvent(new CustomEvent('vox-courses-back'));
         return;
     }
     if (item.module.id === 'hotels') {
@@ -272,7 +377,11 @@ function toggleNotifications() {
 }
 
 function markNotificationsRead() { notifications.value.forEach(item => { item.read = true; }); }
-function leavePreview() { window.location.replace(props.loginUrl); }
+function leavePreview() {
+    const logout = document.querySelector<HTMLFormElement>('#golf-logout');
+    if (logout) logout.requestSubmit();
+    else window.location.replace(props.loginUrl);
+}
 
 onMounted(() => {
     theme.value = window.localStorage.getItem('vox-golf-theme') === 'dark' ? 'dark' : 'light';
@@ -294,15 +403,15 @@ onBeforeUnmount(() => {
     <div class="vox-desktop" :class="[`theme-${theme}`, { 'menu-open': startOpen, 'menu-closed': !startOpen }]">
         <aside id="vox-sidebar" class="vox-sidebar" :class="{ 'is-open': startOpen }">
             <template v-if="sidebarView === 'main'">
-                <button v-for="item in modules.slice(1)" :key="item.id" class="sidebar-item" :class="{ active: item.id === 'hotels' ? hotelBranchActive : openModuleIds.has(item.id) }" type="button" @click="sidebarModuleClick(item)">
-                    <span class="module-icon" :style="{ background: item.color }">{{ item.icon }}</span><span><b>{{ item.title }}</b></span><i v-if="item.id === 'hotels'" class="sidebar-caret">›</i>
-                </button>
+                <template v-for="item in modules.slice(1).filter(item => item.id !== 'contracts')" :key="item.id"><button class="sidebar-item" :class="{ active: item.id === 'hotels' ? hotelBranchActive : item.id === 'courses' ? golfBranchActive : item.id === 'reservations' ? (reservationBranchActive || reservationsExpanded) : item.id === 'operations' ? (operationBranchActive || sidebarView === 'operations') : item.id === 'setup' ? (setupBranchActive || sidebarView === 'setup') : openModuleIds.has(item.id) }" type="button" @click="sidebarModuleClick(item)">
+                    <span class="module-icon" :style="{ background: item.color }">{{ item.icon }}</span><span><b>{{ item.title }}</b></span><i v-if="item.id === 'customers' || item.id === 'hotels' || item.id === 'courses' || item.id === 'reservations' || item.id === 'operations' || item.id === 'setup'" class="sidebar-caret">›</i>
+                </button><div v-if="item.id === 'customers' && agenciesExpanded" class="sidebar-reservation-items" aria-label="Acenteler alt menüsü"><button v-for="subItem in agencyMenuItems" :key="subItem.module.id" class="sidebar-item sidebar-subitem" type="button" :class="{active:openModuleIds.has(subItem.module.id)}" @click="openModule(subItem.module)"><span class="module-icon">{{ subItem.icon }}</span><span><b>{{ subItem.label }}</b></span></button></div><div v-if="item.id === 'reservations' && reservationsExpanded" class="sidebar-reservation-items"><button v-for="subItem in reservationMenuItems" :key="subItem.module.id" class="sidebar-item sidebar-subitem" type="button" :class="{ active: selectedReservationMenuId === subItem.module.id || openModuleIds.has(subItem.module.id) }" @click="openReservationSubModule(subItem.module)"><span class="module-icon">{{ subItem.icon }}</span><span><b>{{ subItem.label }}</b></span></button></div></template>
                 <button class="sidebar-item sidebar-logout" type="button" @click="leavePreview">
                     <span class="module-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 3h8v18h-8M14 12H4m3-3-3 3 3 3" /></svg></span>
                     <span><b>Çıkış</b></span>
                 </button>
             </template>
-            <section v-else class="sidebar-menu-view" aria-label="Oteller menüsü">
+            <section v-else-if="sidebarView === 'hotels'" class="sidebar-menu-view" aria-label="Oteller menüsü">
                 <button class="sidebar-menu-title" type="button" title="Ana menüye dön" @click="sidebarView = 'main'"><span class="module-icon">H</span><b>Oteller</b><i>‹</i></button>
                 <div class="sidebar-menu-items">
                     <button v-for="subItem in hotelMenuItems" :key="subItem.module.id" class="sidebar-item sidebar-subitem" type="button" :class="{ active: selectedHotelMenuId === subItem.module.id || openModuleIds.has(subItem.module.id) }" @click="openHotelSubModule(subItem.module)">
@@ -310,26 +419,64 @@ onBeforeUnmount(() => {
                     </button>
                 </div>
             </section>
+            <section v-else-if="sidebarView === 'courses'" class="sidebar-menu-view" aria-label="Golf Sahaları menüsü">
+                <button class="sidebar-menu-title" type="button" title="Ana menüye dön" @click="sidebarView = 'main'"><span class="module-icon">⚑</span><b>Golf Sahaları</b><i>‹</i></button>
+                <div class="sidebar-menu-items"><button v-for="subItem in golfMenuItems" :key="subItem.module.id" class="sidebar-item sidebar-subitem" type="button" :class="{ active: openModuleIds.has(subItem.module.id) }" @click="openModule(subItem.module)"><span class="module-icon">{{ subItem.icon }}</span><span><b>{{ subItem.label }}</b></span></button></div>
+            </section>
+            <section v-else-if="sidebarView === 'setup'" class="sidebar-menu-view" aria-label="Kurulum menüsü">
+                <button class="sidebar-menu-title" type="button" title="Ana menüye dön" @click="sidebarView = 'main'"><span class="module-icon">⚙</span><b>Kurulum</b><i>‹</i></button>
+                <div class="sidebar-menu-items"><button v-for="subItem in setupMenuItems" :key="subItem.module.id" class="sidebar-item sidebar-subitem" type="button" :class="{ active: openModuleIds.has(subItem.module.id) }" @click="openSetupSubModule(subItem.module)"><span class="module-icon">{{ subItem.icon }}</span><span><b>{{ subItem.label }}</b></span></button></div>
+            </section>
+            <section v-else-if="sidebarView === 'operations'" class="sidebar-menu-view" aria-label="Operasyon menüsü">
+                <button class="sidebar-menu-title" type="button" title="Ana menüye dön" @click="sidebarView = 'main'"><span class="module-icon">↔</span><b>Operasyon</b><i>‹</i></button>
+                <div class="sidebar-menu-items"><button v-for="subItem in operationMenuItems" :key="subItem.module.id" class="sidebar-item sidebar-subitem" type="button" :class="{ active: openModuleIds.has(subItem.module.id) }" @click="openOperationSubModule(subItem.module)"><span class="module-icon">{{ subItem.icon }}</span><span><b>{{ subItem.label }}</b></span></button></div>
+            </section>
         </aside>
 
         <main ref="workspace" class="desktop-workspace" @pointerdown.self="notificationsOpen = false">
             <div class="desktop-shortcuts" aria-label="Masaüstü kısayolları">
-                <button v-for="item in modules.slice(1)" :key="item.id" type="button" @click="openModule(item)">
+                <template v-if="!desktopReservationMenu && !desktopOperationMenu"><button v-for="item in modules.slice(1).filter(item => !['setup', 'customers', 'contracts', 'finance'].includes(item.id))" :key="item.id" type="button" @click="desktopModuleClick(item)">
                     <span class="desktop-shortcut-icon" :style="{ background: item.color }">{{ item.icon }}</span>
                     <b>{{ item.title }}</b>
-                </button>
+                </button></template>
+                <template v-else-if="desktopReservationMenu"><button v-for="item in reservationMenuItems" :key="item.module.id" type="button" @click="openReservationSubModule(item.module)"><span class="desktop-shortcut-icon" :style="{ background: item.module.color }">{{ item.icon }}</span><b>{{ item.label }} Rezervasyonu</b></button></template>
+                <template v-else><button v-for="item in operationMenuItems" :key="item.module.id" type="button" @click="openOperationSubModule(item.module)"><span class="desktop-shortcut-icon" :style="{ background: item.module.color }">{{ item.icon }}</span><b>{{ item.label }}</b></button></template>
             </div>
             <section v-for="item in windows" v-show="!item.minimized" :key="item.uid" class="app-window" :class="{ maximized: item.maximized, active: activeId === item.uid }" :style="windowStyle(item)" @pointerdown="focusWindow(item)">
                 <div class="window-titlebar" @dblclick="toggleMaximize(item)" @pointerdown.stop="beginPointer($event, item, 'move')">
-                    <span class="module-icon module-icon--tiny" :style="{ background: item.module.color }">{{ item.module.icon }}</span><strong>{{ item.module.title }}</strong>
-                    <div class="window-controls" @pointerdown.stop><button type="button" title="Simge durumuna küçült" @click.stop="minimizeWindow(item)">—</button><button type="button" title="Büyüt / geri yükle" @click.stop="toggleMaximize(item)">{{ item.maximized ? '❐' : '□' }}</button><button type="button" :title="(item.module.id === 'hotels' && hotelDetailOpen) || (item.module.id === 'hotel-board-types' && boardTypeEditing) || (item.module.id === 'hotel-types' && hotelTypeEditing) || (item.module.id === 'hotel-regions' && regionEditing) ? 'Geri dön' : 'Çıkış'" @click.stop="closeOrGoBack(item)">×</button></div>
+                    <span class="module-icon module-icon--tiny" :style="{ background: item.module.color }">{{ item.module.icon }}</span><strong :title="item.recordTitle ? `${item.module.title} — ${item.recordTitle}` : item.module.title">{{ item.module.title }}<template v-if="item.recordTitle"> — {{ item.recordTitle }}</template></strong>
+                    <div class="window-controls" @pointerdown.stop><button type="button" title="Simge durumuna küçült" @click.stop="minimizeWindow(item)">—</button><button type="button" title="Büyüt / geri yükle" @click.stop="toggleMaximize(item)">{{ item.maximized ? '❐' : '□' }}</button><button type="button" :title="(item.module.id === 'hotels' && hotelDetailOpen) || (item.module.id === 'courses' && courseEditing) || (item.module.id === 'hotel-board-types' && boardTypeEditing) || (item.module.id === 'hotel-types' && hotelTypeEditing) || (item.module.id === 'hotel-regions' && regionEditing) ? 'Geri dön' : 'Çıkış'" @click.stop="closeOrGoBack(item)">×</button></div>
                 </div>
-                <div v-if="!['hotels', 'hotel-board-types', 'hotel-types', 'hotel-regions'].includes(item.module.id)" class="window-toolbar"><button type="button">＋ Yeni Kayıt</button><button type="button">↻ Yenile</button><button type="button">⌕ Ara</button><span></span><small>Son güncelleme: bugün</small></div>
+                <div v-if="!['hotels', 'customers', 'agency-vouchers', 'hotel-golf-packages', 'courses', 'golf-tee-times', 'golf-games', 'golf-course-details', 'contracts', 'parity', 'citizens', 'markets', 'cancel-reasons', 'extra-sellings', 'hotel-golf-extras', 'age-tables', 'setup-users', 'exchange-currency', 'directions', 'vehicle-types', 'vehicle-cards', 'guides', 'reservation-golf', 'reservation-hotel', 'reservation-hotel-golf', 'hotel-board-types', 'hotel-types', 'hotel-regions', 'hotel-room-types', 'hotel-catalogs'].includes(item.module.id)" class="window-toolbar"><button type="button">＋ Yeni Kayıt</button><button type="button">↻ Yenile</button><button type="button">⌕ Ara</button><span></span><small>Son güncelleme: bugün</small></div>
                 <div v-else-if="item.module.id === 'hotel-board-types' && !boardTypeEditing" class="window-toolbar"><span></span><button type="button" @click="createBoardType">＋ Yeni Kayıt</button></div>
                 <div v-else-if="item.module.id === 'hotel-types' && !hotelTypeEditing" class="window-toolbar"><span></span><button type="button" @click="createHotelType">＋ Yeni Kayıt</button></div>
                 <div v-else-if="item.module.id === 'hotel-regions' && !regionEditing" class="window-toolbar"><span></span><button type="button" @click="createHotelRegion">＋ Yeni Kayıt</button></div>
-                <div class="window-content" :class="{ 'window-content--board-types': ['hotel-board-types', 'hotel-types', 'hotel-regions'].includes(item.module.id), 'window-content--no-toolbar': item.module.id === 'hotels' || (item.module.id === 'hotel-board-types' && boardTypeEditing) || (item.module.id === 'hotel-types' && hotelTypeEditing) || (item.module.id === 'hotel-regions' && regionEditing) }">
-                    <HotelModule v-if="item.module.id === 'hotels'" @detail-state="hotelDetailOpen = $event" />
+                <div class="window-content" :class="{ 'window-content--board-types': ['hotel-board-types', 'hotel-types', 'hotel-regions', 'hotel-room-types', 'hotel-catalogs'].includes(item.module.id), 'window-content--no-toolbar': item.module.id === 'hotels' || item.module.id === 'customers' || ['agency-vouchers', 'hotel-golf-packages', 'courses', 'golf-tee-times', 'golf-games', 'golf-course-details', 'contracts', 'parity', 'citizens', 'markets', 'cancel-reasons', 'extra-sellings', 'hotel-golf-extras', 'age-tables', 'setup-users', 'exchange-currency', 'directions', 'vehicle-types', 'vehicle-cards', 'guides', 'reservation-golf', 'reservation-hotel', 'reservation-hotel-golf'].includes(item.module.id) || (item.module.id === 'hotel-board-types' && boardTypeEditing) || (item.module.id === 'hotel-types' && hotelTypeEditing) || (item.module.id === 'hotel-regions' && regionEditing) }">
+                    <GolfReservationModule v-if="item.module.id === 'reservation-golf'" />
+                    <ReservationModule v-else-if="['reservation-hotel', 'reservation-hotel-golf'].includes(item.module.id)" />
+                    <AgenciesModule v-else-if="item.module.id === 'customers'" @record-title="item.recordTitle = $event" />
+                    <VouchersModule v-else-if="item.module.id === 'agency-vouchers'" />
+                    <HotelGolfPackagesModule v-else-if="item.module.id === 'hotel-golf-packages'" />
+                    <GolfCourseModule v-else-if="item.module.id === 'courses'" @edit-state="courseEditing = $event" @record-title="item.recordTitle = $event" @open-details="openGolfCourseDetails" />
+                    <GolfTeeTimesModule v-else-if="item.module.id === 'golf-tee-times'" />
+                    <GolfGamesModule v-else-if="item.module.id === 'golf-games'" @record-title="item.recordTitle = $event" />
+                    <GolfCourseDetailsModule v-else-if="item.module.id === 'golf-course-details'" />
+                    <ParityModule v-else-if="item.module.id === 'contracts'" />
+                    <ParityModule v-else-if="item.module.id === 'parity'" />
+                    <SetupRecordsModule v-else-if="item.module.id === 'citizens'" kind="citizens" />
+                    <SetupRecordsModule v-else-if="item.module.id === 'markets'" kind="markets" />
+                    <SetupRecordsModule v-else-if="item.module.id === 'cancel-reasons'" kind="cancel-reasons" />
+                    <SetupRecordsModule v-else-if="item.module.id === 'extra-sellings'" kind="extra-sellings" />
+                    <SetupRecordsModule v-else-if="item.module.id === 'hotel-golf-extras'" kind="hotel-golf-extras" />
+                    <AgeTablesModule v-else-if="item.module.id === 'age-tables'" />
+                    <UsersModule v-else-if="item.module.id === 'setup-users'" />
+                    <ExchangeCurrencyModule v-else-if="item.module.id === 'exchange-currency'" />
+                    <VehicleCardsModule v-else-if="item.module.id === 'vehicle-cards'" />
+                    <HotelBoardTypes v-else-if="item.module.id === 'directions'" kind="direction" />
+                    <HotelBoardTypes v-else-if="item.module.id === 'vehicle-types'" kind="vehicle" />
+                    <HotelBoardTypes v-else-if="item.module.id === 'guides'" kind="guide" />
+                    <HotelBoardTypes v-else-if="item.module.id === 'hotel-room-types'" kind="room" /><HotelBoardTypes v-else-if="item.module.id === 'hotel-catalogs'" kind="catalog" />
+                    <HotelModule v-else-if="item.module.id === 'hotels'" @detail-state="hotelDetailOpen = $event" />
                     <HotelBoardTypes v-else-if="item.module.id === 'hotel-board-types'" @edit-state="boardTypeEditing = $event" @record-count="resizeBoardTypeWindow" />
                     <HotelBoardTypes v-else-if="item.module.id === 'hotel-types'" kind="hotel" @edit-state="hotelTypeEditing = $event" @record-count="resizeHotelTypeWindow" />
                     <HotelBoardTypes v-else-if="item.module.id === 'hotel-regions'" kind="region" @edit-state="regionEditing = $event" @record-count="resizeHotelRegionWindow" />

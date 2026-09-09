@@ -13,6 +13,9 @@ export default defineConfig({
         tailwindcss(),
     ],
     server: {
+        proxy: {
+            '/api': 'http://127.0.0.1:8001',
+        },
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },

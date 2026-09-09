@@ -1,4 +1,5 @@
 import '../css/app.css';
+import './setupVoxDialogs';
 import { createApp } from 'vue';
 import VoxDesktop from './components/VoxDesktop.vue';
 

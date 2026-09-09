@@ -1,34 +1,21 @@
 <script setup lang="ts">
+import HotelDetailTabs from './HotelDetailTabs.vue';
+import { voxConfirm, voxAlert } from '../voxDialogs';
+import VoxActionButton from './VoxActionButton.vue';
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 
 const emit = defineEmits<{ detailState: [open: boolean] }>();
 
-type Hotel = {
-    id: number;
-    name: string;
-    code: string;
-    category: string;
-    type: string;
-    catalog: string;
-    roomType: string;
-    location1: string;
-    location2: string;
-    status: boolean;
-    country: string;
-    city: string;
-    address: string;
-    phone: string;
-    smsPhone: string;
-    fax: string;
-    email: string;
-    website: string;
-    createdBy: string;
-    createdAt: string;
-    updatedBy: string;
-    updatedAt: string;
-    active: boolean;
-};
-
+import { useHotels, type Hotel } from '../entities';
+import { useCatalog } from '../catalogs';
+import { useVoxMessages } from '../useVoxMessages';
+const hotelStore = useHotels();
+const hotels = hotelStore.records;
+useVoxMessages([hotelStore.storageError]);
+const typeStore = useCatalog('hotel');
+const roomStore = useCatalog('room');
+const regionStore = useCatalog('region');
+const catalogStore = useCatalog('catalog');
 const hotelTypeNames: Record<string, string> = {
     '1': 'Holiday Village',
     '2': 'Golf Hotel',
@@ -43,7 +30,9 @@ const hotelTypeCodes: Record<string, string> = {
     'Spa Hotel': 'Spa',
     'Golf Hotel': 'Golf',
 };
-const hotelTypeOptions = ref(['Holiday V', 'City', 'Resort', 'Spa', 'Golf']);
+const hotelTypeOptions = computed(() => typeStore.records.value.map(row => row.code));
+const roomTypeOptions = computed(() => roomStore.records.value.map(row => row.code));
+const legacyRoomTypeMap: Record<string, string> = { '41': 'STD', '85': 'VILLA', '58': 'Suite' };
 
 function resolveHotelTypeNames(value: string) {
     return value.split(',').map(typeId => hotelTypeNames[typeId.trim()] ?? typeId.trim()).filter(Boolean).join(', ');
@@ -53,7 +42,12 @@ function resolveHotelTypeCodes(value: string) {
     return value.split(',').map(typeName => hotelTypeCodes[typeName.trim()] ?? typeName.trim()).filter(Boolean).join(', ');
 }
 
-const regionOptions = ref(['Kadriye', 'Side', 'Kundu', 'Muratpaşa', 'Manavgat', 'Acısu', 'Üç Kum Tepesi', 'Kapadokya', 'Belek', 'Antalya']);
+function resolveRoomTypeCodes(value: string) {
+    const values = String(value ?? '').split(',').map(item => legacyRoomTypeMap[item.trim()] ?? item.trim()).filter(Boolean);
+    return values.join(', ');
+}
+
+const regionOptions = computed(() => regionStore.records.value.map(row => row.name));
 const countryOptions = ['Türkiye'];
 const cityOptionsByCountry: Record<string, string[]> = {
     Türkiye: [
@@ -92,6 +86,7 @@ function normalizeHotel(hotel: Hotel): Hotel {
     return {
         ...hotel,
         type: resolveHotelTypeCodes(resolveHotelTypeNames(hotel.type)),
+        roomType: resolveRoomTypeCodes(hotel.roomType),
         location1: resolveRegionName(hotel.location1),
         location2: resolveRegionName(hotel.location2),
         phone: formatPhone(hotel.phone),
@@ -101,26 +96,7 @@ function normalizeHotel(hotel: Hotel): Hotel {
     };
 }
 
-const hotels = ref<Hotel[]>([
-    { id: 20, name: 'Gloria Golf Resort', code: 'GGR', category: '5*', type: '2, 3, 4', catalog: '3', roomType: '41, 85, 58', location1: '2', location2: '22', status: true, country: '213', city: '6416', address: 'Gloria Hotel', phone: '0242 7100500', smsPhone: '234234', fax: '', email: '', website: 'www.gloria.com.tr', createdBy: '1', createdAt: '24.07.2017 10:39', updatedBy: '2', updatedAt: '06.05.2019 14:26', active: true },
-    { id: 21, name: 'Regnum Carya Golf Hotel & Spa', code: 'Regnum Carya', category: '5*', type: '4, 3', catalog: '5', roomType: '41, 85, 58', location1: '2', location2: '22', status: true, country: '213', city: '6416', address: 'Kadriye Bölgesi Üçkum Tepesi 07500', phone: '02427103434', smsPhone: '', fax: '', email: '', website: 'www.regnumhotels.com', createdBy: '1', createdAt: '24.07.2017 10:40', updatedBy: '2', updatedAt: '06.05.2019 14:28', active: true },
-    { id: 23, name: 'Sueno Deluxe Hotel', code: 'Sueno Deluxe', category: '5*', type: '5, 4, 3', catalog: '5', roomType: '58, 85, 41', location1: '2', location2: '22', status: true, country: '213', city: '6416', address: 'Belek Mahallesi', phone: '02427103000', smsPhone: '', fax: '', email: '', website: 'www.sueno.com.tr', createdBy: '1', createdAt: '24.07.2017 09:42', updatedBy: '2', updatedAt: '06.05.2019 14:30', active: true },
-    { id: 25, name: 'Sueno Golf Belek', code: 'Sueno Golf', category: '5*', type: '4, 2', catalog: '5', roomType: '58, 85, 41', location1: '2', location2: '22', status: true, country: '213', city: '6416', address: 'Sueno', phone: '', smsPhone: '', fax: '', email: '', website: 'www.sueno.com.tr', createdBy: '1', createdAt: '24.07.2017 10:44', updatedBy: '2', updatedAt: '06.05.2019 14:30', active: true },
-    { id: 26, name: 'Cornelia Diamond Hotel', code: 'Cornelia Diamond', category: '5*', type: '2, 3, 4', catalog: '5', roomType: '41, 85, 58', location1: '2', location2: '22', status: true, country: '213', city: '6416', address: 'İskele mevkii 07506', phone: '02427101600', smsPhone: '', fax: '', email: '', website: 'www.corneliaresort.com', createdBy: '2', createdAt: '24.07.2017 11:25', updatedBy: '2', updatedAt: '06.05.2019 14:26', active: true },
-    { id: 27, name: 'Cornelia De Luxe Hotel', code: 'Cornelia DeLuxe', category: '5*', type: '2, 3, 4', catalog: '5', roomType: '41, 85, 58', location1: '2', location2: '22', status: true, country: '213', city: '6416', address: 'İleribaşı Mevkii 07506', phone: '0242 710 15 00', smsPhone: '', fax: '', email: '', website: 'www.corneliaresort.com', createdBy: '2', createdAt: '24.07.2017 11:44', updatedBy: '2', updatedAt: '17.05.2019 13:27', active: true },
-    { id: 28, name: 'Gloria Serenity Resort', code: 'GSR', category: '5*', type: '4, 3, 2', catalog: '5', roomType: '85, 58, 41', location1: '2', location2: '22', status: true, country: '213', city: '6416', address: 'Belek Mahallesi', phone: '02427102300', smsPhone: '', fax: '', email: '', website: 'www.gloria.com.tr', createdBy: '2', createdAt: '24.07.2017 11:52', updatedBy: '2', updatedAt: '06.05.2019 14:27', active: true },
-    { id: 29, name: 'Gloria Verde Resort', code: 'GVR', category: '5*', type: '4, 3, 2', catalog: '5', roomType: '41, 85, 58', location1: '16', location2: '22', status: true, country: '213', city: '6416', address: 'İleribaşı Mevkii', phone: '0242 7100500', smsPhone: '', fax: '', email: '', website: 'www.gloria.com.tr', createdBy: '2', createdAt: '24.07.2017 11:55', updatedBy: '2', updatedAt: '06.05.2019 14:27', active: true },
-    { id: 30, name: 'Kaya Palazzo Hotel', code: 'Kaya Palazzo', category: '5*', type: '2, 4', catalog: '5', roomType: '58, 85, 41', location1: '2', location2: '22', status: true, country: '213', city: '6416', address: 'Çamlık Cad 07500', phone: '0242 710 15 00', smsPhone: '', fax: '', email: '', website: 'www.kayahotels.com', createdBy: '2', createdAt: '24.07.2017 12:00', updatedBy: '2', updatedAt: '06.05.2019 14:27', active: true },
-    { id: 31, name: 'Kaya Belek Hotel', code: 'Kaya Belek', category: '5*', type: '4, 2', catalog: '5', roomType: '85, 58, 41', location1: '22', location2: '21', status: true, country: '213', city: '6416', address: 'Çamlık Cad 07500', phone: '02427104000', smsPhone: '', fax: '', email: '', website: 'www.kayahotels.com', createdBy: '2', createdAt: '24.07.2017 12:01', updatedBy: '2', updatedAt: '06.05.2019 14:27', active: true },
-    { id: 32, name: 'Kempinski Hotel The Dome', code: 'Kempinski', category: '5*', type: '2, 3, 4', catalog: '5', roomType: '41, 85, 58', location1: '2', location2: '22', status: true, country: '213', city: '6416', address: 'Kadriye Mahallesi, Yeni Mahalle Uckumtepesi Caddesi No 20-2 Kadriye, 07500', phone: '(0242) 710 13 00', smsPhone: '', fax: '', email: '', website: 'www.kempinski.com', createdBy: '2', createdAt: '24.07.2017 12:05', updatedBy: '2', updatedAt: '06.05.2019 14:28', active: true },
-    { id: 33, name: 'Maxx Royal Belek Golf Resort', code: 'Maxx Royal', category: '5*', type: '4, 3, 2', catalog: '5', roomType: '41, 85, 58', location1: '2', location2: '22', status: true, country: '213', city: '6416', address: 'Belek Mahallesi, İskele Mevkii, 07500 Belek / Serik / Antalya', phone: '0242 7102700', smsPhone: '', fax: '', email: '', website: 'www.maxxroyal.com', createdBy: '2', createdAt: '24.07.2017 13:39', updatedBy: '2', updatedAt: '06.05.2019 14:28', active: true },
-    { id: 34, name: 'Sirene Golf Hotel', code: 'Sirene', category: '5*', type: '4, 2', catalog: '5', roomType: '41, 85, 58', location1: '15', location2: '22', status: true, country: '213', city: '6416', address: 'Yeni Mah., Üçkum Tepesi Caddesi No:18, 07500 Kadriye, Serik / Antalya', phone: '0242 710 08 00', smsPhone: '0242 710 08 00', fax: '', email: '', website: 'www.sirene.com.tr', createdBy: '2', createdAt: '26.07.2017 10:42', updatedBy: '2', updatedAt: '06.05.2019 14:29', active: true },
-    { id: 41, name: 'Voyage Belek Golf & SPA', code: 'Voyage Belek', category: '5*', type: '4, 3, 2', catalog: '5', roomType: '58, 85, 41', location1: '2', location2: '22', status: true, country: '213', city: '6416', address: 'Belek', phone: '0242 7102500', smsPhone: '', fax: '', email: '', website: 'www.voyagehotel.com', createdBy: '2', createdAt: '26.07.2017 11:39', updatedBy: '2', updatedAt: '06.05.2019 14:30', active: true },
-    { id: 42, name: 'Robinson Club Nobilis', code: 'Robinson Nobilis', category: '5*', type: '2', catalog: '5', roomType: '41, 85, 58', location1: '16', location2: '22', status: true, country: '213', city: '6416', address: 'Belek Mahallesi, Acısu Mevkii, 07500 Serik / Antalya', phone: '(0242) 710 03 00', smsPhone: '', fax: '', email: '', website: 'www.robinson.com', createdBy: '2', createdAt: '26.07.2017 11:58', updatedBy: '2', updatedAt: '06.05.2019 14:29', active: true },
-    { id: 53, name: 'Titanic Deluxe Belek', code: 'Titanic', category: '5*', type: '4, 2', catalog: '5', roomType: '58, 85, 41', location1: '16', location2: '22', status: true, country: '213', city: '6416', address: 'Üçkumtepesi Beşgöz Caddesi 72/1 Kadriye / Belek / Antalya', phone: '+90 242 710 44 44', smsPhone: '', fax: '', email: '', website: 'www.titanic.com.tr', createdBy: '2', createdAt: '26.07.2017 13:03', updatedBy: '2', updatedAt: '06.05.2019 14:30', active: true },
-    { id: 54, name: 'Zeynep Golf Resort', code: 'Zeynep Golf', category: '5*', type: '2, 4', catalog: '5', roomType: '41, 58, 85', location1: '16', location2: '22', status: true, country: '213', city: '6416', address: 'Taşlıburun Mevki, Belek, Serik, Antalya', phone: '(0242) 725 41 80', smsPhone: '', fax: '', email: '', website: 'www.zeynepgolfresort.com', createdBy: '2', createdAt: '26.07.2017 13:08', updatedBy: '2', updatedAt: '06.05.2019 14:31', active: true },
-    { id: 57, name: 'Lykia World Hotel', code: 'Lykia', category: '5*', type: '2, 3, 4', catalog: '5', roomType: '41, 85, 58', location1: '17', location2: '22', status: true, country: '213', city: '6416', address: 'Denizyaka Mah. Kamışlı Göl Küme Evleri No.1, 07550 Manavgat / Antalya', phone: '90 242 7441915', smsPhone: '', fax: '', email: '', website: 'www.lykiagroup.com', createdBy: '2', createdAt: '26.07.2017 15:13', updatedBy: '2', updatedAt: '06.05.2019 14:28', active: true },
-].map(normalizeHotel));
+
 
 const query = ref('');
 const selectedHotel = ref<Hotel | null>(null);
@@ -130,6 +106,12 @@ const selectedHotelTypes = computed<string[]>({
     get: () => selectedHotel.value?.type.split(',').map(type => type.trim()).filter(Boolean) ?? [],
     set: types => {
         if (selectedHotel.value) selectedHotel.value.type = types.join(', ');
+    },
+});
+const selectedRoomTypes = computed<string[]>({
+    get: () => selectedHotel.value?.roomType.split(',').map(roomType => roomType.trim()).filter(Boolean) ?? [],
+    set: roomTypes => {
+        if (selectedHotel.value) selectedHotel.value.roomType = roomTypeOptions.value.filter(roomType => roomTypes.includes(roomType)).join(', ');
     },
 });
 const availableCityOptions = computed(() => selectedHotel.value ? cityOptionsByCountry[selectedHotel.value.country] ?? [] : []);
@@ -160,7 +142,7 @@ const hotelColumnWidths = reactive<Record<HotelColumnKey, number>>({ name: 190, 
 let stopHotelColumnResize: (() => void) | null = null;
 
 function hotelColumnValue(hotel: Hotel, key: HotelColumnKey) {
-    return key === 'type' ? resolveHotelTypeCodes(hotel.type) : String(hotel[key] ?? '');
+    return key === 'type' ? resolveHotelTypeCodes(resolveHotelTypeNames(hotel.type)) : ['location1', 'location2'].includes(key) ? resolveRegionName(String(hotel[key] ?? '')) : String(hotel[key] ?? '');
 }
 
 const filteredHotels = computed(() => {
@@ -214,7 +196,7 @@ function beginHotelColumnResize(event: PointerEvent, key: HotelColumnKey) {
 
 function openHotel(hotel: Hotel) {
     selectedHotelId.value = hotel.id;
-    selectedHotel.value = { ...hotel };
+    selectedHotel.value = normalizeHotel(JSON.parse(JSON.stringify(hotel)));
     creatingHotel.value = false;
     activeCardTab.value = 'information';
     emit('detailState', true);
@@ -260,29 +242,28 @@ function closeHotelCard() {
     emit('detailState', false);
 }
 
-function deleteHotel(hotel: Hotel) {
-    if (!window.confirm(`${hotel.name} kaydını silmek istediğinize emin misiniz?`)) return;
-    hotels.value = hotels.value.filter(item => item.id !== hotel.id);
+async function deleteHotel(hotel: Hotel) {
+    if (!await voxConfirm(`${hotel.name} kaydını silmek istediğinize emin misiniz?`)) return;
+    if (!await hotelStore.commit(hotels.value.filter(item => item.id !== hotel.id))) return;
     if (selectedHotelId.value === hotel.id) selectedHotelId.value = null;
-    window.localStorage.setItem('vox-golf-hotels', JSON.stringify(hotels.value));
+
 }
 
-function saveHotel() {
+async function saveHotel() {
     if (!selectedHotel.value) return;
     selectedHotel.value.name = selectedHotel.value.name.trim();
     selectedHotel.value.code = selectedHotel.value.code.trim();
     if (!selectedHotel.value.name || !selectedHotel.value.code) {
-        window.alert('Otel Adı ve Kısa Kod alanları zorunludur.');
+        void voxAlert('Otel Adı ve Kısa Kod alanları zorunludur.', 'error');
         return;
     }
     const savedHotel = normalizeHotel({ ...selectedHotel.value });
-    if (creatingHotel.value) hotels.value.push(savedHotel);
-    else {
-        const index = hotels.value.findIndex(hotel => hotel.id === savedHotel.id);
-        if (index >= 0) hotels.value[index] = savedHotel;
-    }
+    if (!hotelStore.ready.value || hotelStore.busy.value) return;
+    if (hotels.value.some(row => row.id !== savedHotel.id && row.code.toLocaleUpperCase() === savedHotel.code.toLocaleUpperCase())) { await voxAlert('Bu otel kodu zaten kullanılıyor.', 'error'); return; }
+    const next = creatingHotel.value ? [...hotels.value, savedHotel] : hotels.value.map(row => row.id === savedHotel.id ? savedHotel : row);
+    if (!await hotelStore.commit(next)) return;
     selectedHotelId.value = savedHotel.id;
-    window.localStorage.setItem('vox-golf-hotels', JSON.stringify(hotels.value));
+
     closeHotelCard();
 }
 
@@ -305,35 +286,7 @@ onMounted(() => {
             window.localStorage.removeItem('vox-golf-hotel-column-order');
         }
     }
-    const savedHotelTypes = window.localStorage.getItem('vox-golf-hotel-types');
-    if (savedHotelTypes) {
-        try {
-            const parsedHotelTypes = JSON.parse(savedHotelTypes) as { name: string; code: string }[];
-            if (Array.isArray(parsedHotelTypes) && parsedHotelTypes.every(type => type.name && type.code)) hotelTypeOptions.value = parsedHotelTypes.map(type => type.code);
-        } catch {
-            window.localStorage.removeItem('vox-golf-hotel-types');
-        }
-    }
-    const savedRegions = window.localStorage.getItem('vox-golf-regions');
-    if (savedRegions) {
-        try {
-            const parsedRegions = JSON.parse(savedRegions) as { name: string; code: string }[];
-            if (Array.isArray(parsedRegions) && parsedRegions.every(region => region.name && region.code)) regionOptions.value = parsedRegions.map(region => region.name);
-        } catch {
-            window.localStorage.removeItem('vox-golf-regions');
-        }
-    }
-    const saved = window.localStorage.getItem('vox-golf-hotels');
-    if (!saved) return;
-    try {
-        const parsed = JSON.parse(saved) as Hotel[];
-        if (Array.isArray(parsed)) {
-            hotels.value = parsed.map(normalizeHotel);
-            window.localStorage.setItem('vox-golf-hotels', JSON.stringify(hotels.value));
-        }
-    } catch {
-        window.localStorage.removeItem('vox-golf-hotels');
-    }
+
 });
 onBeforeUnmount(() => {
     stopHotelColumnResize?.();
@@ -363,7 +316,7 @@ onBeforeUnmount(() => {
                     </thead>
                     <tbody>
                         <tr v-for="hotel in filteredHotels" :key="hotel.id" :class="{ selected: selectedHotelId === hotel.id }" tabindex="0" @click="selectedHotelId = hotel.id" @dblclick="openHotel(hotel)" @keydown.enter="openHotel(hotel)">
-                            <td v-for="column in hotelColumns" :key="column.key"><b v-if="column.key === 'name'">{{ hotelColumnValue(hotel, column.key) || '—' }}</b><template v-else>{{ hotelColumnValue(hotel, column.key) || '—' }}</template></td><td class="hotel-row-actions"><div><button type="button" class="row-open" :aria-label="`${hotel.name} kaydını düzenle`" title="Düzenle" @click.stop="openHotel(hotel)"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M13 5H6.5A1.5 1.5 0 0 0 5 6.5v11A1.5 1.5 0 0 0 6.5 19h11a1.5 1.5 0 0 0 1.5-1.5V11" /><path d="m9 15 .8-3.2L17 4.6l2.4 2.4-7.2 7.2L9 15Zm6.8-9.2 2.4 2.4" /></svg></button><button type="button" class="row-delete" :aria-label="`${hotel.name} kaydını sil`" title="Sil" @click.stop="deleteHotel(hotel)"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 8v9m4-9v9m4-9v9M5 5h14M9 5V3h6v2m2 0-1 15H8L7 5" /></svg></button></div></td>
+                            <td v-for="column in hotelColumns" :key="column.key"><b v-if="column.key === 'name'">{{ hotelColumnValue(hotel, column.key) || '—' }}</b><template v-else>{{ hotelColumnValue(hotel, column.key) || '—' }}</template></td><td class="hotel-row-actions"><div><VoxActionButton action="edit" :aria-label="`${hotel.name} kaydını düzenle`" title="Düzenle" @click.stop="openHotel(hotel)" /><VoxActionButton action="delete" :aria-label="`${hotel.name} kaydını sil`" title="Sil" @click.stop="deleteHotel(hotel)" /></div></td>
                         </tr>
                         <tr v-if="filteredHotels.length === 0" class="empty-row"><td colspan="9">Aramanızla eşleşen otel bulunamadı.</td></tr>
                     </tbody>
@@ -389,9 +342,17 @@ onBeforeUnmount(() => {
                     </details>
                 </div>
                 <label class="col-2"><span>Otel Kategorisi</span><select v-model="selectedHotel.category"><option v-for="category in ['1*', '2*', '3*', '4*', '5*']" :key="category" :value="category">{{ category }}</option></select></label>
-                <label class="col-4"><span>Otel Oda Tipi</span><input v-model="selectedHotel.roomType" type="text"></label>
+                <div class="col-4 hotel-type-field">
+                    <span>Otel Oda Tipi</span>
+                    <details class="hotel-type-select">
+                        <summary :title="selectedRoomTypes.join(', ')">{{ selectedRoomTypes.join(', ') || 'Oda tipi seçin' }}</summary>
+                        <div class="hotel-type-options">
+                            <label v-for="roomType in roomTypeOptions" :key="roomType"><input v-model="selectedRoomTypes" type="checkbox" :value="roomType"><span>{{ roomType }}</span></label>
+                        </div>
+                    </details>
+                </div>
 
-                <label class="col-2"><span>Katalog Kodu</span><input v-model="selectedHotel.catalog" type="text"></label>
+                <label class="col-2"><span>Katalog Kodu</span><select v-model="selectedHotel.catalog"><option value="">Seçiniz</option><option v-for="catalog in catalogStore.records.value" :key="catalog.code" :value="catalog.code">{{ catalog.code }} {{ catalog.name }}</option><option v-if="selectedHotel.catalog && !catalogStore.records.value.some(row => row.code === selectedHotel!.catalog)" :value="selectedHotel.catalog">{{ selectedHotel.catalog }} (eski kayıt)</option></select></label>
                 <label class="col-2"><span>Durum</span><select v-model="selectedHotel.status"><option :value="true">Aktif</option><option :value="false">Pasif</option></select></label>
                 <label class="col-2"><span>Bölge</span><select v-model="selectedHotel.location1"><option value="">Seçiniz</option><option v-for="region in regionOptions" :key="`region-${region}`" :value="region">{{ region }}</option></select></label>
                 <label class="col-2"><span>Alt Bölge</span><select v-model="selectedHotel.location2"><option value="">Seçiniz</option><option v-for="region in regionOptions" :key="`subregion-${region}`" :value="region">{{ region }}</option></select></label>
@@ -401,10 +362,11 @@ onBeforeUnmount(() => {
                 <label class="address-field"><span>Adres</span><textarea v-model="selectedHotel.address"></textarea></label>
                 <label class="telephone-field"><span>Telefon</span><input v-model="selectedHotel.phone" type="tel" placeholder="0242 710 05 00" @blur="selectedHotel.phone = formatPhone(selectedHotel.phone)"></label>
                 <label class="sms-field"><span>SMS Telefon</span><input v-model="selectedHotel.smsPhone" type="tel" placeholder="0242 710 05 00" @blur="selectedHotel.smsPhone = formatPhone(selectedHotel.smsPhone)"></label>
+                <label class="fax-field"><span>Faks</span><input v-model="selectedHotel.fax" type="tel"></label>
                 <label class="email-field"><span>E-posta</span><input v-model="selectedHotel.email" type="email"></label>
                 <label class="web-field"><span>Web Adresi</span><input v-model="selectedHotel.website" type="text"></label>
             </form>
-            <section v-else class="hotel-section-placeholder"><span>{{ cardTabs.find(tab => tab.id === activeCardTab)?.icon }}</span><h3>{{ cardTabs.find(tab => tab.id === activeCardTab)?.label }}</h3><p>Bu bölüme ait bilgiler burada gösterilecektir.</p></section>
+            <HotelDetailTabs v-else :hotel="selectedHotel" :tab="activeCardTab" />
             <footer class="card-commandbar"><button type="button" class="save-icon-button" aria-label="Kaydet" title="Kaydet" @click="saveHotel"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 3h12l2 2v16H5V3Z" /><path d="M8 3v6h8V3M8 21v-7h8v7" /></svg></button></footer>
         </template>
     </section>
@@ -427,7 +389,8 @@ onBeforeUnmount(() => {
 .hotel-table tbody tr.selected { background: #c9e7f8; box-shadow: inset 0 0 0 1px #5aa8d7; }
 .hotel-table td b { display: block; color: #233c50; font-size: 11px; }.hotel-table td small { display: block; margin-top: 2px; color: #8ba0af; font-size: 8px; }.hotel-address { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .category-badge { display: inline-block; min-width: 31px; padding: 3px 6px; border: 1px solid #8fc4e8; border-radius: 10px; background: #e9f6fd; color: #0067b8; font-weight: 700; text-align: center; }.status-badge, .card-status { color: #16824b; font-weight: 700; white-space: nowrap; }
-.row-open { width: 25px; height: 25px; border: 1px solid #76b7e3; border-radius: 50%; background: #fff; color: #0078d4; font-size: 18px; line-height: 18px; }.hotel-table tr:hover .row-open { background: #0078d4; color: #fff; }
+
+
 .empty-row td { height: 120px; color: #748797; text-align: center; cursor: default; }
 .hotel-card-header { position: relative; display: flex; align-items: center; gap: 16px; padding: 12px 15px; margin-bottom: 14px; border: 1px solid #afd0e7; border-radius: 4px; background: linear-gradient(135deg,#fff,#eaf5fc); }
 .back-button { align-self: stretch; padding: 0 13px; border: 1px solid #8fb9d6; border-radius: 3px; background: linear-gradient(#fff,#e2eef6); color: #075f9f; font-size: 10px; font-weight: 700; }.back-button:hover { border-color: #0078d4; background: #fff; }
@@ -550,30 +513,12 @@ onBeforeUnmount(() => {
 .status-badge { color: #08783a; font: 700 9px Arial, sans-serif; }
 .hotel-table td.hotel-row-actions { padding: 0 5px; }
 .hotel-row-actions > div { display: flex; align-items: center; justify-content: center; gap: 5px; height: 100%; }
-.row-open {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    box-sizing: border-box;
-    padding: 0;
-    border: 1px solid #168fd2;
-    border-radius: 50%;
-    background: linear-gradient(#fff, #e5f3fc);
-    color: #0877ba;
-    cursor: pointer;
-    appearance: none;
-    box-shadow: inset 0 1px #fff;
-}
-.row-open svg { display: block; width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.row-delete { display: inline-flex; flex: 0 0 26px; align-items: center; justify-content: center; width: 26px; height: 26px; box-sizing: border-box; padding: 0; border: 1px solid #cf6b6b; border-radius: 50%; appearance: none; background: linear-gradient(#fff, #fbe8e8); color: #b22b2b; cursor: pointer; box-shadow: inset 0 1px #fff; }
-.row-delete svg { display: block; width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.row-delete:hover,
-.row-delete:focus { outline: 0; border-color: #a61919; background: #f8d7d7; color: #941414; }
-.hotel-table tr:hover .row-open,
-.row-open:hover,
-.row-open:focus { outline: 0; border-color: #046ba9; background: #d4edfc; color: #045e98; }
+
+
+
+
+
+
 .list-statusbar {
     display: flex;
     flex: 0 0 24px;

@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import VoxDesktop from './components/VoxDesktop.vue';
+import './setupVoxDialogs';
 
 const mount = document.querySelector<HTMLElement>('#app');
 

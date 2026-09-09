@@ -1,0 +1,573 @@
+{
+  "source": "https://acente.kirpii.com/Games",
+  "capturedOn": "2026-09-02",
+  "courses": [
+    {
+      "code": "Carya",
+      "href": "/Games/GolfGames/12",
+      "name": "Carya Course",
+      "heading": "GAMES PAGE ( Carya Course )",
+      "rows": [
+        {
+          "code": "C18 holes",
+          "editHref": "/Games/GolfGamesUpdate/16",
+          "name": "18 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "C2 Round",
+          "editHref": "/Games/GolfGamesUpdate/36",
+          "name": "2 Round Package",
+          "round": 2
+        },
+        {
+          "code": "C9 holes",
+          "editHref": "/Games/GolfGamesUpdate/17",
+          "name": "9 Holes Game",
+          "round": 1
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "Dunes",
+      "href": "/Games/GolfGames/23",
+      "name": "Dunes Course",
+      "heading": "GAMES PAGE ( Dunes Course )",
+      "rows": [
+        {
+          "code": "D18 holes",
+          "editHref": "/Games/GolfGamesUpdate/6",
+          "name": "18 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "D2 Round",
+          "editHref": "/Games/GolfGamesUpdate/70",
+          "name": "2 Round Package",
+          "round": 2
+        },
+        {
+          "code": "D3 Round",
+          "editHref": "/Games/GolfGamesUpdate/32",
+          "name": "3 Round Package",
+          "round": 3
+        },
+        {
+          "code": "D9 holes",
+          "editHref": "/Games/GolfGamesUpdate/7",
+          "name": "9 Holes Game",
+          "round": 1
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "Faldo",
+      "href": "/Games/GolfGames/5",
+      "name": "Faldo Golf Course",
+      "heading": "GAMES PAGE ( Faldo Golf Course )",
+      "rows": [
+        {
+          "code": "F18 holes",
+          "editHref": "/Games/GolfGamesUpdate/27",
+          "name": "18 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "F3 Round",
+          "editHref": "/Games/GolfGamesUpdate/37",
+          "name": "3 Round Package",
+          "round": 3
+        },
+        {
+          "code": "F4 Round.",
+          "editHref": "/Games/GolfGamesUpdate/40",
+          "name": "4 Round Package",
+          "round": 4
+        },
+        {
+          "code": "F5 Round",
+          "editHref": "/Games/GolfGamesUpdate/38",
+          "name": "5 Round Package",
+          "round": 5
+        },
+        {
+          "code": "F9 holes",
+          "editHref": "/Games/GolfGamesUpdate/28",
+          "name": "9 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "F All Day",
+          "editHref": "/Games/GolfGamesUpdate/39",
+          "name": "All Day Ticket",
+          "round": 1
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "Gloria New",
+      "href": "/Games/GolfGames/4",
+      "name": "Gloria New Course",
+      "heading": "GAMES PAGE ( Gloria New Course )",
+      "rows": [
+        {
+          "code": "GN18 holes",
+          "editHref": "/Games/GolfGamesUpdate/29",
+          "name": "18 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "GN 2 rounds",
+          "editHref": "/Games/GolfGamesUpdate/55",
+          "name": "2 round 18 holes",
+          "round": 2
+        },
+        {
+          "code": "GN 3 Rounds",
+          "editHref": "/Games/GolfGamesUpdate/56",
+          "name": "3 rounds 18 holes",
+          "round": 3
+        },
+        {
+          "code": "GN9 holes",
+          "editHref": "/Games/GolfGamesUpdate/30",
+          "name": "9 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "GN Unlimited",
+          "editHref": "/Games/GolfGamesUpdate/57",
+          "name": "GN unlimited",
+          "round": 4
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "Gloria Old",
+      "href": "/Games/GolfGames/8",
+      "name": "Gloria Old Course",
+      "heading": "GAMES PAGE ( Gloria Old Course )",
+      "rows": [
+        {
+          "code": "GO18 holes",
+          "editHref": "/Games/GolfGamesUpdate/23",
+          "name": "18 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "GO 2 Rounds",
+          "editHref": "/Games/GolfGamesUpdate/60",
+          "name": "2 Rounds 18- Hole Games",
+          "round": 2
+        },
+        {
+          "code": "GO 3 Rounds",
+          "editHref": "/Games/GolfGamesUpdate/59",
+          "name": "3 Rounds 18- Holes Game",
+          "round": 3
+        },
+        {
+          "code": "GO9 holes",
+          "editHref": "/Games/GolfGamesUpdate/24",
+          "name": "9 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "GO Unlimited",
+          "editHref": "/Games/GolfGamesUpdate/58",
+          "name": "GO Unlimited",
+          "round": 4
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "Gloria Verde",
+      "href": "/Games/GolfGames/9",
+      "name": "Gloria Verde Course",
+      "heading": "GAMES PAGE ( Gloria Verde Course )",
+      "rows": [
+        {
+          "code": "GV9 holes",
+          "editHref": "/Games/GolfGamesUpdate/22",
+          "name": "9 Holes Game",
+          "round": 1
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "Kaya",
+      "href": "/Games/GolfGames/14",
+      "name": "Kaya Palazzo Course",
+      "heading": "GAMES PAGE ( Kaya Palazzo Course )",
+      "rows": [
+        {
+          "code": "K18 holes",
+          "editHref": "/Games/GolfGamesUpdate/14",
+          "name": "18 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "K9 holes",
+          "editHref": "/Games/GolfGamesUpdate/15",
+          "name": "9 Holes Game",
+          "round": 1
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "Lykia",
+      "href": "/Games/GolfGames/24",
+      "name": "Lykia Links Course",
+      "heading": "GAMES PAGE ( Lykia Links Course )",
+      "rows": [
+        {
+          "code": "L18 holes",
+          "editHref": "/Games/GolfGamesUpdate/3",
+          "name": "18 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "L2 Round",
+          "editHref": "/Games/GolfGamesUpdate/42",
+          "name": "2 Round Package",
+          "round": 2
+        },
+        {
+          "code": "L9 holes",
+          "editHref": "/Games/GolfGamesUpdate/4",
+          "name": "9 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "AD",
+          "editHref": "/Games/GolfGamesUpdate/82",
+          "name": "All Day",
+          "round": 1
+        },
+        {
+          "code": "PACK.",
+          "editHref": "/Games/GolfGamesUpdate/48",
+          "name": "PACKAGE",
+          "round": 1
+        },
+        {
+          "code": "TW",
+          "editHref": "/Games/GolfGamesUpdate/81",
+          "name": "Twilight-Early Bird",
+          "round": 1
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "Montgomerie",
+      "href": "/Games/GolfGames/20",
+      "name": "Montgomerie Course",
+      "heading": "GAMES PAGE ( Montgomerie Course )",
+      "rows": [
+        {
+          "code": "M18 holes",
+          "editHref": "/Games/GolfGamesUpdate/12",
+          "name": "18 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "M2 Round",
+          "editHref": "/Games/GolfGamesUpdate/44",
+          "name": "2 Round Package",
+          "round": 2
+        },
+        {
+          "code": "M3 Round",
+          "editHref": "/Games/GolfGamesUpdate/46",
+          "name": "3 Round Package",
+          "round": 3
+        },
+        {
+          "code": "M4 Round",
+          "editHref": "/Games/GolfGamesUpdate/47",
+          "name": "4 Round Package",
+          "round": 4
+        },
+        {
+          "code": "M9 holes",
+          "editHref": "/Games/GolfGamesUpdate/13",
+          "name": "9 Holes Game",
+          "round": 1
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "National",
+      "href": "/Games/GolfGames/6",
+      "name": "National Golf Course",
+      "heading": "GAMES PAGE ( National Golf Course )",
+      "rows": [
+        {
+          "code": "Na18 holes",
+          "editHref": "/Games/GolfGamesUpdate/25",
+          "name": "18 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "Na9 holes",
+          "editHref": "/Games/GolfGamesUpdate/26",
+          "name": "9 Holes Game",
+          "round": 1
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "NOB",
+      "href": "/Games/GolfGames/32",
+      "name": "Nobilis Golf Course",
+      "heading": "GAMES PAGE ( Nobilis Golf Course )",
+      "rows": [
+        {
+          "code": "Nob18 Holes",
+          "editHref": "/Games/GolfGamesUpdate/49",
+          "name": "18 Holes Games",
+          "round": 1
+        },
+        {
+          "code": "Nob 2 Rounds",
+          "editHref": "/Games/GolfGamesUpdate/62",
+          "name": "2 Round 18 Holes",
+          "round": 2
+        },
+        {
+          "code": "Nob 3 Rounds",
+          "editHref": "/Games/GolfGamesUpdate/63",
+          "name": "3 Rounds 18 Holes",
+          "round": 3
+        },
+        {
+          "code": "Nob 4 Rounds",
+          "editHref": "/Games/GolfGamesUpdate/64",
+          "name": "4 Rounds 18 Holes",
+          "round": 4
+        },
+        {
+          "code": "Nob 5 Rounds",
+          "editHref": "/Games/GolfGamesUpdate/65",
+          "name": "5 Rounds 18 Holes",
+          "round": 5
+        },
+        {
+          "code": "Nob9 Holes",
+          "editHref": "/Games/GolfGamesUpdate/61",
+          "name": "9 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "Twilight",
+          "editHref": "/Games/GolfGamesUpdate/66",
+          "name": "Twilight",
+          "round": 1
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "Pasha",
+      "href": "/Games/GolfGames/10",
+      "name": "Pasha Golf Course",
+      "heading": "GAMES PAGE ( Pasha Golf Course )",
+      "rows": [
+        {
+          "code": "Pa18 holes",
+          "editHref": "/Games/GolfGamesUpdate/20",
+          "name": "18 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "Pa9 holes",
+          "editHref": "/Games/GolfGamesUpdate/21",
+          "name": "9 Holes Game",
+          "round": 1
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "Sultan",
+      "href": "/Games/GolfGames/11",
+      "name": "PGA Sultan Course",
+      "heading": "GAMES PAGE ( PGA Sultan Course )",
+      "rows": [
+        {
+          "code": "S18 holes",
+          "editHref": "/Games/GolfGamesUpdate/18",
+          "name": "18 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "S9 holes",
+          "editHref": "/Games/GolfGamesUpdate/19",
+          "name": "9 Holes Game",
+          "round": 1
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "Pines",
+      "href": "/Games/GolfGames/22",
+      "name": "Pines Course",
+      "heading": "GAMES PAGE ( Pines Course )",
+      "rows": [
+        {
+          "code": "P18 holes",
+          "editHref": "/Games/GolfGamesUpdate/8",
+          "name": "18 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "P2 Round",
+          "editHref": "/Games/GolfGamesUpdate/71",
+          "name": "2 Round Package",
+          "round": 2
+        },
+        {
+          "code": "P3 Round",
+          "editHref": "/Games/GolfGamesUpdate/41",
+          "name": "3 Round Package",
+          "round": 3
+        },
+        {
+          "code": "P9 holes",
+          "editHref": "/Games/GolfGamesUpdate/9",
+          "name": "9 Holes Game",
+          "round": 1
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "Titanic",
+      "href": "/Games/GolfGames/21",
+      "name": "Titanic Course",
+      "heading": "GAMES PAGE ( Titanic Course )",
+      "rows": [
+        {
+          "code": "T18 holes",
+          "editHref": "/Games/GolfGamesUpdate/10",
+          "name": "18 Holes Game",
+          "round": 1
+        },
+        {
+          "code": "T2 Round",
+          "editHref": "/Games/GolfGamesUpdate/33",
+          "name": "2 Rounds package",
+          "round": 2
+        },
+        {
+          "code": "T3 Round",
+          "editHref": "/Games/GolfGamesUpdate/34",
+          "name": "3 Round package",
+          "round": 3
+        },
+        {
+          "code": "T4 Round",
+          "editHref": "/Games/GolfGamesUpdate/45",
+          "name": "4 Round Package",
+          "round": 4
+        },
+        {
+          "code": "T9 holes",
+          "editHref": "/Games/GolfGamesUpdate/11",
+          "name": "9 Holes Game",
+          "round": 1
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "YZLMGOLF",
+      "href": "/Games/GolfGames/33",
+      "name": "YAZILIM DENEME GOLF",
+      "heading": "GAMES PAGE ( YAZILIM DENEME GOLF )",
+      "rows": [
+        {
+          "code": "dene",
+          "editHref": "/Games/GolfGamesUpdate/77",
+          "name": "deneme",
+          "round": 1
+        },
+        {
+          "code": "dene2",
+          "editHref": "/Games/GolfGamesUpdate/78",
+          "name": "deneme2",
+          "round": 1
+        },
+        {
+          "code": "dinle",
+          "editHref": "/Games/GolfGamesUpdate/80",
+          "name": "gönül",
+          "round": 2
+        },
+        {
+          "code": "oyunyazilim",
+          "editHref": "/Games/GolfGamesUpdate/50",
+          "name": "oyun",
+          "round": 1
+        }
+      ],
+      "pages": []
+    },
+    {
+      "code": "Zeynep Golf",
+      "href": "/Games/GolfGames/36",
+      "name": "Zeynep Golf",
+      "heading": "GAMES PAGE ( Zeynep Golf )",
+      "rows": [
+        {
+          "code": "2rnd",
+          "editHref": "/Games/GolfGamesUpdate/54",
+          "name": "2 round gameyuyu",
+          "round": 2
+        },
+        {
+          "code": "de",
+          "editHref": "/Games/GolfGamesUpdate/74",
+          "name": "deneme",
+          "round": 2
+        },
+        {
+          "code": "DNMO",
+          "editHref": "/Games/GolfGamesUpdate/68",
+          "name": "DENEME OYUN",
+          "round": 1
+        },
+        {
+          "code": "bj",
+          "editHref": "/Games/GolfGamesUpdate/79",
+          "name": "gjghjg",
+          "round": 2
+        },
+        {
+          "code": "gygy",
+          "editHref": "/Games/GolfGamesUpdate/76",
+          "name": "gygyyg",
+          "round": 11
+        },
+        {
+          "code": "kokok",
+          "editHref": "/Games/GolfGamesUpdate/69",
+          "name": "kook",
+          "round": 4
+        }
+      ],
+      "pages": []
+    }
+  ]
+}

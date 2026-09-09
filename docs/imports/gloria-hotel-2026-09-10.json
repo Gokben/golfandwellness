@@ -1,0 +1,27 @@
+{
+  "source": "https://acente.kirpii.com/Hotel/Update/20",
+  "hotelId": 20,
+  "information": { "name": "Gloria Golf Resort", "code": "GGR", "type": "Golf, Spa, Resort", "category": "5*", "roomType": "STD, VILLA, Suite", "catalog": "CCC", "status": true, "location1": "Belek", "location2": "Kadriye", "country": "Türkiye", "city": "Antalya", "address": "Gloria Hotel", "phone": "0242 7100500", "smsPhone": "234234", "fax": "", "email": "", "website": "www.gloria.com.tr" },
+  "details": {
+    "contractsStatus": "empty",
+    "accountingStatus": "unavailable",
+    "extras": [
+      { "id": "kirpii-hotel-extra-12", "firstDate": "2019-01-01", "lastDate": "2019-01-01", "description": "New Year Gala", "buyPrice": "110", "sellPrice": "110", "currency": "EUR", "priceType": "PP", "obligation": true, "ageTable": "0237", "buyInfant": "0", "sellInfant": "0", "buyChild": "0", "sellChild": "0" },
+      { "id": "kirpii-hotel-extra-8", "firstDate": "2019-01-01", "lastDate": "2019-01-01", "description": "New Year Gala", "buyPrice": "96", "sellPrice": "96", "currency": "GBP", "priceType": "PP", "obligation": true, "ageTable": "0237", "buyInfant": "0", "sellInfant": "0", "buyChild": "0", "sellChild": "0" }
+    ],
+    "packages": [{
+      "id": "kirpii-hotel-package-6", "name": "1 Round", "firstDate": "2018-11-01", "lastDate": "2018-11-18", "roomType": "Standard", "roomName": "Standart Garden", "contractType": "MAIN", "nights": "1", "calculationType": "Accommodation Base", "status": "ACTIVE",
+      "rounds": [
+        { "id": "29", "rounds": "1", "courseKey": "Gloria Verde", "accommodation": "SNG", "price": "52", "currency": "GBP" },
+        { "id": "28", "rounds": "1", "courseKey": "Gloria Old", "accommodation": "SNG", "price": "52", "currency": "GBP" },
+        { "id": "27", "rounds": "1", "courseKey": "Gloria New", "accommodation": "SNG", "price": "52", "currency": "GBP" },
+        { "id": "21", "rounds": "1", "courseKey": "Gloria Old", "accommodation": "SNG", "price": "52", "currency": "GBP" }
+      ],
+      "bonus": [{ "id": "21", "firstDate": "2018-11-01", "lastDate": "2018-11-18", "daysTill": "0", "reduction": "0", "days": "0", "childReduction": "0", "order": "1", "calculation": "PP" }],
+      "reduction": [{ "id": "21", "firstDate": "2018-11-01", "lastDate": "2018-11-18", "reduction": "0", "payment": "0", "order": "2" }],
+      "golferFree": [{ "id": "21", "firstDate": "2018-11-01", "lastDate": "2018-11-18", "golferPax": "0", "freePax": "0", "payingPax": "0", "order": "3" }],
+      "hotelExtras": [], "golfExtras": [], "rules": []
+    }]
+  },
+  "notes": ["All five tab links inspected. Contracts table and AltOtelKontratGetir/0/20 response contain no rows.", "Golf Packages loaded by keyboard activation; list contains one package. Detail form contains four distinct round rows, including two Gloria Old rows, preserved as separate source records.", "Accounting tab points to menu5 but no such content panel exists on the source page. No accounting data invented.", "Original hotel dates preserved. Source EU currency normalized to EUR. Empty fax and email preserved."]
+}

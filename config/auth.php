@@ -38,6 +38,10 @@ return [
     */
 
     'guards' => [
+        'golf' => [
+            'driver' => 'session',
+            'provider' => 'golf_users',
+        ],
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
@@ -62,6 +66,10 @@ return [
     */
 
     'providers' => [
+        'golf_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\SetupUser::class,
+        ],
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),

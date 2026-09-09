@@ -1,0 +1,2366 @@
+{
+  "imports": [
+    {
+      "hotelId": 21,
+      "source": "https://acente.kirpii.com/Hotel/Update/21",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Regnum Carya Golf Hotel & Spa",
+        "code": "Regnum Carya",
+        "type": "Resort, Spa",
+        "roomType": "STD, VILLA, Suite",
+        "location1": "Belek",
+        "location2": "Kadriye",
+        "address": "Kadriye Bölgesi Üçkum Tepesi 07500\n\n",
+        "phone": "02427103434",
+        "smsPhone": "",
+        "website": "www.regnumhotels.com"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [
+          {
+            "id": "kirpii-hotel-extra-20",
+            "firstDate": "2019-01-01",
+            "lastDate": "2019-01-01",
+            "description": "New Year Gala",
+            "buyPrice": "90",
+            "sellPrice": "90",
+            "currency": "EUR",
+            "priceType": "PP",
+            "obligation": true,
+            "ageTable": "06712",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "45",
+            "sellChild": "45"
+          }
+        ],
+        "packages": [],
+        "contracts": []
+      }
+    },
+    {
+      "hotelId": 23,
+      "source": "https://acente.kirpii.com/Hotel/Update/23",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Sueno Deluxe Hotel",
+        "code": "Sueno Deluxe",
+        "type": "City, Resort, Spa",
+        "roomType": "Suite, VILLA, STD",
+        "location1": "Belek",
+        "location2": "Kadriye",
+        "address": "Belek Mahallesi",
+        "phone": "02427103000",
+        "smsPhone": "",
+        "website": "www.sueno.com.tr"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [
+          {
+            "id": "kirpii-hotel-extra-18",
+            "firstDate": "2019-01-01",
+            "lastDate": "2019-01-01",
+            "description": "New Year Gala",
+            "buyPrice": "50",
+            "sellPrice": "50",
+            "currency": "GBP",
+            "priceType": "PP",
+            "obligation": true,
+            "ageTable": "01211",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "0",
+            "sellChild": "0"
+          },
+          {
+            "id": "kirpii-hotel-extra-17",
+            "firstDate": "2019-01-01",
+            "lastDate": "2019-01-01",
+            "description": "New Year Gala",
+            "buyPrice": "60",
+            "sellPrice": "60",
+            "currency": "EUR",
+            "priceType": "PP",
+            "obligation": true,
+            "ageTable": "01211",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "0",
+            "sellChild": "0"
+          }
+        ],
+        "packages": [],
+        "contracts": []
+      }
+    },
+    {
+      "hotelId": 25,
+      "source": "https://acente.kirpii.com/Hotel/Update/25",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Sueno Golf Belek",
+        "code": "Sueno Golf",
+        "type": "Resort, Golf",
+        "roomType": "Suite, VILLA, STD",
+        "location1": "Belek",
+        "location2": "Kadriye",
+        "address": "Sueno",
+        "phone": "",
+        "smsPhone": "",
+        "website": "www.sueno.com.tr"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [],
+        "packages": [
+          {
+            "id": "kirpii-hotel-package-18",
+            "name": "€ 7N + 2 SUENO",
+            "firstDate": "2019-09-16",
+            "lastDate": "2019-10-10",
+            "roomType": "Standard",
+            "roomName": "Standard Land View",
+            "contractType": "MAIN",
+            "nights": "1",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "59",
+                "rounds": "2",
+                "courseKey": "Dunes",
+                "accommodation": "SNG",
+                "price": "927",
+                "currency": "EUR"
+              },
+              {
+                "id": "58",
+                "rounds": "2",
+                "courseKey": "Dunes",
+                "accommodation": "DBL",
+                "price": "717",
+                "currency": "EUR"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "9",
+                "firstDate": "2019-09-16",
+                "lastDate": "2019-10-10",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "9",
+                "firstDate": "2019-09-16",
+                "lastDate": "2019-10-10",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "9",
+                "firstDate": "2019-09-16",
+                "lastDate": "2019-10-10",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          },
+          {
+            "id": "kirpii-hotel-package-19",
+            "name": "€ 7N + UNLIMITED",
+            "firstDate": "2019-09-19",
+            "lastDate": "2019-10-10",
+            "roomType": "Standard",
+            "roomName": "Standard Land View",
+            "contractType": "MAIN",
+            "nights": "1",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "61",
+                "rounds": "2",
+                "courseKey": "Dunes",
+                "accommodation": "DBL",
+                "price": "717",
+                "currency": "EUR"
+              },
+              {
+                "id": "60",
+                "rounds": "2",
+                "courseKey": "Dunes",
+                "accommodation": "SNG",
+                "price": "927",
+                "currency": "EUR"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "8",
+                "firstDate": "2019-09-19",
+                "lastDate": "2019-10-10",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "8",
+                "firstDate": "2019-09-19",
+                "lastDate": "2019-10-10",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "8",
+                "firstDate": "2019-09-19",
+                "lastDate": "2019-10-10",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          }
+        ],
+        "contracts": []
+      }
+    },
+    {
+      "hotelId": 26,
+      "source": "https://acente.kirpii.com/Hotel/Update/26",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Cornelia Diamond Hotel",
+        "code": "Cornelia Diamond",
+        "type": "Golf, Spa, Resort",
+        "roomType": "STD, VILLA, Suite",
+        "location1": "Belek",
+        "location2": "Kadriye",
+        "address": "İskele mevkii 07506",
+        "phone": "02427101600",
+        "smsPhone": "",
+        "website": "www.corneliaresort.com"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [
+          {
+            "id": "kirpii-hotel-extra-19",
+            "firstDate": "2019-01-01",
+            "lastDate": "2019-01-01",
+            "description": "New Year Gala",
+            "buyPrice": "60",
+            "sellPrice": "60",
+            "currency": "EUR",
+            "priceType": "PP",
+            "obligation": true,
+            "ageTable": "06712",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "30",
+            "sellChild": "30"
+          }
+        ],
+        "packages": [],
+        "contracts": []
+      }
+    },
+    {
+      "hotelId": 27,
+      "source": "https://acente.kirpii.com/Hotel/Update/27",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Cornelia De Luxe Hotel",
+        "code": "Cornelia DeLuxe",
+        "type": "Golf, Spa, Resort",
+        "roomType": "STD, VILLA, Suite",
+        "location1": "Belek",
+        "location2": "Kadriye",
+        "address": "İleribaşı Mevkii 07506",
+        "phone": "0242 710 15 00",
+        "smsPhone": "",
+        "website": "www.corneliaresort.com"
+      },
+      "details": {
+        "contractsStatus": "available",
+        "accountingStatus": "unavailable",
+        "extras": [
+          {
+            "id": "kirpii-hotel-extra-26",
+            "firstDate": "2019-01-01",
+            "lastDate": "2019-05-01",
+            "description": "Room Supplement",
+            "buyPrice": "10",
+            "sellPrice": "15",
+            "currency": "EUR",
+            "priceType": "PP",
+            "obligation": false,
+            "ageTable": "01211",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "0",
+            "sellChild": "0"
+          },
+          {
+            "id": "kirpii-hotel-extra-11",
+            "firstDate": "2018-12-31",
+            "lastDate": "2019-01-01",
+            "description": "New Year Gala",
+            "buyPrice": "60",
+            "sellPrice": "60",
+            "currency": "EUR",
+            "priceType": "PP",
+            "obligation": false,
+            "ageTable": "0237",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "30",
+            "sellChild": "30"
+          },
+          {
+            "id": "kirpii-hotel-extra-10",
+            "firstDate": "",
+            "lastDate": "",
+            "description": "New Year Gala",
+            "buyPrice": "50",
+            "sellPrice": "50",
+            "currency": "GBP",
+            "priceType": "PP",
+            "obligation": false,
+            "ageTable": "0237",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "25",
+            "sellChild": "25",
+            "sourceDateIssue": {
+              "firstDate": "2019-12-31",
+              "lastDate": "2019-01-01"
+            }
+          }
+        ],
+        "packages": [
+          {
+            "id": "kirpii-hotel-package-13",
+            "name": "GBP 7N + 1F",
+            "firstDate": "2018-12-22",
+            "lastDate": "2019-03-31",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "contractType": "ACTION",
+            "nights": "7",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "45",
+                "rounds": "1",
+                "courseKey": "Faldo",
+                "accommodation": "ADD",
+                "price": "595",
+                "currency": "GBP"
+              },
+              {
+                "id": "44",
+                "rounds": "1",
+                "courseKey": "Faldo",
+                "accommodation": "SNG",
+                "price": "721",
+                "currency": "GBP"
+              },
+              {
+                "id": "43",
+                "rounds": "1",
+                "courseKey": "Faldo",
+                "accommodation": "DBL",
+                "price": "595",
+                "currency": "GBP"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "14",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "14",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "14",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          },
+          {
+            "id": "kirpii-hotel-package-14",
+            "name": "GBP 7N + 2F+2Nob",
+            "firstDate": "2018-12-22",
+            "lastDate": "2019-03-31",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "contractType": "ACTION",
+            "nights": "1",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "67",
+                "rounds": "2",
+                "courseKey": "NOB",
+                "accommodation": "ADD",
+                "price": "800",
+                "currency": "GBP"
+              },
+              {
+                "id": "66",
+                "rounds": "2",
+                "courseKey": "NOB",
+                "accommodation": "SNG",
+                "price": "950",
+                "currency": "GBP"
+              },
+              {
+                "id": "65",
+                "rounds": "2",
+                "courseKey": "NOB",
+                "accommodation": "DBL",
+                "price": "800",
+                "currency": "GBP"
+              },
+              {
+                "id": "48",
+                "rounds": "2",
+                "courseKey": "Faldo",
+                "accommodation": "ADD",
+                "price": "653",
+                "currency": "GBP"
+              },
+              {
+                "id": "47",
+                "rounds": "2",
+                "courseKey": "Faldo",
+                "accommodation": "SNG",
+                "price": "779",
+                "currency": "GBP"
+              },
+              {
+                "id": "46",
+                "rounds": "2",
+                "courseKey": "Faldo",
+                "accommodation": "DBL",
+                "price": "653",
+                "currency": "GBP"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "13",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "13",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "13",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          },
+          {
+            "id": "kirpii-hotel-package-15",
+            "name": "GBP 7N + 3F",
+            "firstDate": "2018-12-22",
+            "lastDate": "2019-03-31",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "contractType": "ACTION",
+            "nights": "1",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "51",
+                "rounds": "3",
+                "courseKey": "Faldo",
+                "accommodation": "DBL",
+                "price": "712",
+                "currency": "GBP"
+              },
+              {
+                "id": "50",
+                "rounds": "3",
+                "courseKey": "Faldo",
+                "accommodation": "SNG",
+                "price": "838",
+                "currency": "GBP"
+              },
+              {
+                "id": "49",
+                "rounds": "3",
+                "courseKey": "Faldo",
+                "accommodation": "ADD",
+                "price": "712",
+                "currency": "GBP"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "12",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "12",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "12",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          },
+          {
+            "id": "kirpii-hotel-package-17",
+            "name": "GBP 7N + 4F",
+            "firstDate": "2018-12-22",
+            "lastDate": "2019-09-27",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "contractType": "MAIN",
+            "nights": "7",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "57",
+                "rounds": "4",
+                "courseKey": "Faldo",
+                "accommodation": "ADD",
+                "price": "770",
+                "currency": "GBP"
+              },
+              {
+                "id": "56",
+                "rounds": "4",
+                "courseKey": "Faldo",
+                "accommodation": "SNG",
+                "price": "896",
+                "currency": "GBP"
+              },
+              {
+                "id": "55",
+                "rounds": "4",
+                "courseKey": "Faldo",
+                "accommodation": "DBL",
+                "price": "770",
+                "currency": "GBP"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "10",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-09-27",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "10",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-09-27",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "10",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-09-27",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          },
+          {
+            "id": "kirpii-hotel-package-21",
+            "name": "GBP 7N + 2F ",
+            "firstDate": "2018-12-22",
+            "lastDate": "2019-03-31",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "contractType": "ACTION",
+            "nights": "7",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "70",
+                "rounds": "2",
+                "courseKey": "Faldo",
+                "accommodation": "DBL",
+                "price": "300",
+                "currency": "GBP"
+              },
+              {
+                "id": "69",
+                "rounds": "2",
+                "courseKey": "Faldo",
+                "accommodation": "SNG",
+                "price": "450",
+                "currency": "GBP"
+              },
+              {
+                "id": "68",
+                "rounds": "2",
+                "courseKey": "Faldo",
+                "accommodation": "ADD",
+                "price": "300",
+                "currency": "GBP"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "6",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "6",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "6",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          },
+          {
+            "id": "kirpii-hotel-package-22",
+            "name": "GBP 7N + 1F +1Nob",
+            "firstDate": "2018-12-22",
+            "lastDate": "2019-03-31",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "contractType": "ACTION",
+            "nights": "7",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "76",
+                "rounds": "1",
+                "courseKey": "NOB",
+                "accommodation": "ADD",
+                "price": "595",
+                "currency": "GBP"
+              },
+              {
+                "id": "75",
+                "rounds": "1",
+                "courseKey": "NOB",
+                "accommodation": "SNG",
+                "price": "721",
+                "currency": "GBP"
+              },
+              {
+                "id": "74",
+                "rounds": "1",
+                "courseKey": "NOB",
+                "accommodation": "DBL",
+                "price": "610",
+                "currency": "GBP"
+              },
+              {
+                "id": "73",
+                "rounds": "1",
+                "courseKey": "Faldo",
+                "accommodation": "DBL",
+                "price": "610",
+                "currency": "GBP"
+              },
+              {
+                "id": "72",
+                "rounds": "1",
+                "courseKey": "Faldo",
+                "accommodation": "SNG",
+                "price": "721",
+                "currency": "GBP"
+              },
+              {
+                "id": "71",
+                "rounds": "1",
+                "courseKey": "Faldo",
+                "accommodation": "ADD",
+                "price": "595",
+                "currency": "GBP"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "5",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "5",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "5",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          },
+          {
+            "id": "kirpii-hotel-package-23",
+            "name": "EU 7N + 1F + 1MO + 1T + 1PI",
+            "firstDate": "2018-12-22",
+            "lastDate": "2019-03-31",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "contractType": "ACTION",
+            "nights": "7",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "82",
+                "rounds": "1",
+                "courseKey": "Pines",
+                "accommodation": "DBL",
+                "price": "700",
+                "currency": "EUR"
+              },
+              {
+                "id": "81",
+                "rounds": "1",
+                "courseKey": "Titanic",
+                "accommodation": "DBL",
+                "price": "700",
+                "currency": "EUR"
+              },
+              {
+                "id": "80",
+                "rounds": "1",
+                "courseKey": "Montgomerie",
+                "accommodation": "DBL",
+                "price": "700",
+                "currency": "EUR"
+              },
+              {
+                "id": "79",
+                "rounds": "1",
+                "courseKey": "Faldo",
+                "accommodation": "DBL",
+                "price": "700",
+                "currency": "EUR"
+              },
+              {
+                "id": "78",
+                "rounds": "1",
+                "courseKey": "Faldo",
+                "accommodation": "SNG",
+                "price": "900",
+                "currency": "EUR"
+              },
+              {
+                "id": "77",
+                "rounds": "1",
+                "courseKey": "Faldo",
+                "accommodation": "ADD",
+                "price": "450",
+                "currency": "EUR"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "4",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "4",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "4",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [
+              {
+                "id": "1",
+                "firstDate": "2018-01-01",
+                "lastDate": "2019-01-01",
+                "description": "New Year Gala",
+                "buyPrice": "75",
+                "sellPrice": "50",
+                "priceType": "PP"
+              }
+            ],
+            "golfExtras": [
+              {
+                "id": "3",
+                "firstDate": "2018-01-01",
+                "lastDate": "2019-01-01",
+                "description": "Buggy 18 -Faldo",
+                "buyPrice": "50",
+                "sellPrice": "30",
+                "priceType": "PP"
+              },
+              {
+                "id": "2",
+                "firstDate": "2018-01-01",
+                "lastDate": "2019-01-01",
+                "description": "Trolly -Montgomerie",
+                "buyPrice": "45",
+                "sellPrice": "30",
+                "priceType": "PP"
+              },
+              {
+                "id": "1",
+                "firstDate": "2018-01-01",
+                "lastDate": "2019-01-01",
+                "description": "Driving Range -Titanic",
+                "buyPrice": "40",
+                "sellPrice": "30",
+                "priceType": "PP"
+              }
+            ],
+            "rules": []
+          },
+          {
+            "id": "kirpii-hotel-package-24",
+            "name": "EU 7N + 4F",
+            "firstDate": "2018-12-22",
+            "lastDate": "2019-03-31",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "contractType": "ACTION",
+            "nights": "7",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "88",
+                "rounds": "4",
+                "courseKey": "Faldo",
+                "accommodation": "ADD",
+                "price": "320",
+                "currency": "EUR"
+              },
+              {
+                "id": "87",
+                "rounds": "4",
+                "courseKey": "Faldo",
+                "accommodation": "SNG",
+                "price": "400",
+                "currency": "EUR"
+              },
+              {
+                "id": "86",
+                "rounds": "4",
+                "courseKey": "Faldo",
+                "accommodation": "DBL",
+                "price": "380",
+                "currency": "EUR"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "3",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "3",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "3",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          },
+          {
+            "id": "kirpii-hotel-package-25",
+            "name": "EU 7N + 3F + 1 MO",
+            "firstDate": "2018-12-22",
+            "lastDate": "2019-03-31",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "contractType": "ACTION",
+            "nights": "7",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "97",
+                "rounds": "1",
+                "courseKey": "Montgomerie",
+                "accommodation": "DBL",
+                "price": "300",
+                "currency": "EUR"
+              },
+              {
+                "id": "96",
+                "rounds": "1",
+                "courseKey": "Montgomerie",
+                "accommodation": "SNG",
+                "price": "500",
+                "currency": "EUR"
+              },
+              {
+                "id": "95",
+                "rounds": "1",
+                "courseKey": "Montgomerie",
+                "accommodation": "ADD",
+                "price": "250",
+                "currency": "EUR"
+              },
+              {
+                "id": "91",
+                "rounds": "3",
+                "courseKey": "Faldo",
+                "accommodation": "DBL",
+                "price": "300",
+                "currency": "EUR"
+              },
+              {
+                "id": "90",
+                "rounds": "3",
+                "courseKey": "Faldo",
+                "accommodation": "SNG",
+                "price": "450",
+                "currency": "EUR"
+              },
+              {
+                "id": "89",
+                "rounds": "3",
+                "courseKey": "Faldo",
+                "accommodation": "ADD",
+                "price": "250",
+                "currency": "EUR"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "2",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "2",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "2",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          },
+          {
+            "id": "kirpii-hotel-package-26",
+            "name": "EU 7N + 1F",
+            "firstDate": "2018-12-22",
+            "lastDate": "2019-03-31",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "contractType": "ACTION",
+            "nights": "7",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "100",
+                "rounds": "1",
+                "courseKey": "Faldo",
+                "accommodation": "DBL",
+                "price": "595",
+                "currency": "EUR"
+              },
+              {
+                "id": "99",
+                "rounds": "1",
+                "courseKey": "Faldo",
+                "accommodation": "SNG",
+                "price": "721",
+                "currency": "EUR"
+              },
+              {
+                "id": "98",
+                "rounds": "1",
+                "courseKey": "Faldo",
+                "accommodation": "ADD",
+                "price": "595",
+                "currency": "EUR"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "1",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "1",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "1",
+                "firstDate": "2018-12-22",
+                "lastDate": "2019-03-31",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          },
+          {
+            "id": "kirpii-hotel-package-27",
+            "name": "EURO 7 N + 3 Faldo",
+            "firstDate": "2019-04-26",
+            "lastDate": "2019-05-31",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "contractType": "MAIN",
+            "nights": "7",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "103",
+                "rounds": "3",
+                "courseKey": "Faldo",
+                "accommodation": "DBL",
+                "price": "689",
+                "currency": "EUR"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "28",
+                "firstDate": "2019-04-26",
+                "lastDate": "2019-05-31",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "27",
+                "firstDate": "2019-04-26",
+                "lastDate": "2019-05-31",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "27",
+                "firstDate": "2019-04-26",
+                "lastDate": "2019-05-31",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          },
+          {
+            "id": "kirpii-hotel-package-28",
+            "name": "EURO 7 N + 3 FALDO",
+            "firstDate": "2019-04-26",
+            "lastDate": "2019-05-31",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "contractType": "MAIN",
+            "nights": "7",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "104",
+                "rounds": "3",
+                "courseKey": "Faldo",
+                "accommodation": "SNG",
+                "price": "755",
+                "currency": "EUR"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "29",
+                "firstDate": "2019-04-26",
+                "lastDate": "2019-05-31",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "28",
+                "firstDate": "2019-04-26",
+                "lastDate": "2019-05-31",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "28",
+                "firstDate": "2019-04-26",
+                "lastDate": "2019-05-31",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          },
+          {
+            "id": "kirpii-hotel-package-29",
+            "name": "EURO 7 N + 3 Faldo ",
+            "firstDate": "2019-04-26",
+            "lastDate": "2019-05-31",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "contractType": "MAIN",
+            "nights": "7",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "105",
+                "rounds": "3",
+                "courseKey": "Faldo",
+                "accommodation": "DBL",
+                "price": "689",
+                "currency": "EUR"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "30",
+                "firstDate": "2019-04-26",
+                "lastDate": "2019-05-31",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "29",
+                "firstDate": "2019-04-26",
+                "lastDate": "2019-05-31",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "29",
+                "firstDate": "2019-04-26",
+                "lastDate": "2019-05-31",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          }
+        ],
+        "contracts": [
+          {
+            "id": "kirpii-hotel-contract-53",
+            "name": "test",
+            "firstDate": "2022-11-14",
+            "lastDate": "2023-07-14",
+            "validityFirstDate": "2022-11-14",
+            "validityLastDate": "2023-07-14",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "allotment": "5",
+            "guarantee": "11",
+            "contractType": "ACTION",
+            "status": "ACTIVE",
+            "price": "25",
+            "market": "Euro Zone",
+            "submarket": "",
+            "board": "ALL INCLUSIVE",
+            "calculationType": "Accommodation",
+            "currency": "EUR",
+            "prices": [
+              {
+                "id": "45",
+                "accommodationId": "2",
+                "accommodation": "2",
+                "ageTable": "01211",
+                "pax": "2",
+                "infants": "0",
+                "children": "0",
+                "parity": "2",
+                "price": "50",
+                "currency": "EUR"
+              },
+              {
+                "id": "272",
+                "accommodationId": "1",
+                "accommodation": "1 + 1 Chd + 1  Inf",
+                "ageTable": "01211",
+                "pax": "1",
+                "infants": "1",
+                "children": "1",
+                "parity": "2",
+                "price": "50",
+                "currency": "EUR"
+              },
+              {
+                "id": "271",
+                "accommodationId": "2",
+                "accommodation": "2 + 1 Inf",
+                "ageTable": "01211",
+                "pax": "2",
+                "infants": "1",
+                "children": "0",
+                "parity": "1",
+                "price": "25",
+                "currency": "EUR"
+              },
+              {
+                "id": "270",
+                "accommodationId": "1",
+                "accommodation": "1 + 1 Inf",
+                "ageTable": "01211",
+                "pax": "1",
+                "infants": "1",
+                "children": "0",
+                "parity": "1",
+                "price": "25",
+                "currency": "EUR"
+              },
+              {
+                "id": "49",
+                "accommodationId": "2",
+                "accommodation": "2 + 1 Chd",
+                "ageTable": "01211",
+                "pax": "2",
+                "infants": "0",
+                "children": "1",
+                "parity": "2.5",
+                "price": "62.5",
+                "currency": "EUR"
+              },
+              {
+                "id": "48",
+                "accommodationId": "1",
+                "accommodation": "1 + 2 Chd",
+                "ageTable": "01211",
+                "pax": "1",
+                "infants": "0",
+                "children": "2",
+                "parity": "2.5",
+                "price": "62.5",
+                "currency": "EUR"
+              },
+              {
+                "id": "47",
+                "accommodationId": "1",
+                "accommodation": "1 + 1 Chd",
+                "ageTable": "01211",
+                "pax": "1",
+                "infants": "0",
+                "children": "1",
+                "parity": "2",
+                "price": "50",
+                "currency": "EUR"
+              },
+              {
+                "id": "46",
+                "accommodationId": "3",
+                "accommodation": "3",
+                "ageTable": "01211",
+                "pax": "3",
+                "infants": "0",
+                "children": "0",
+                "parity": "2.7",
+                "price": "67.5",
+                "currency": "EUR"
+              },
+              {
+                "id": "44",
+                "accommodationId": "1",
+                "accommodation": "1",
+                "ageTable": "01211",
+                "pax": "1",
+                "infants": "0",
+                "children": "0",
+                "parity": "1.5",
+                "price": "37.5",
+                "currency": "EUR"
+              }
+            ],
+            "conditions": [],
+            "rules": []
+          },
+          {
+            "id": "kirpii-hotel-contract-45",
+            "name": "Summer 2019 Euro",
+            "firstDate": "2022-11-14",
+            "lastDate": "2025-11-30",
+            "validityFirstDate": "2022-11-14",
+            "validityLastDate": "2026-07-31",
+            "roomType": "Standard",
+            "roomName": "Standard Room Partial View",
+            "allotment": "15",
+            "guarantee": "5",
+            "contractType": "MAIN",
+            "status": "ACTIVE",
+            "price": "100",
+            "market": "Euro Zone",
+            "submarket": "",
+            "board": "ALL INCLUSIVE",
+            "calculationType": "Accommodation",
+            "currency": "EUR",
+            "prices": [
+              {
+                "id": "45",
+                "accommodationId": "2",
+                "accommodation": "2",
+                "ageTable": "01211",
+                "pax": "2",
+                "infants": "0",
+                "children": "0",
+                "parity": "2",
+                "price": "200",
+                "currency": "EUR"
+              },
+              {
+                "id": "46",
+                "accommodationId": "3",
+                "accommodation": "3",
+                "ageTable": "01211",
+                "pax": "3",
+                "infants": "0",
+                "children": "0",
+                "parity": "2.7",
+                "price": "270",
+                "currency": "EUR"
+              },
+              {
+                "id": "47",
+                "accommodationId": "1",
+                "accommodation": "1 + 1 Chd",
+                "ageTable": "01211",
+                "pax": "1",
+                "infants": "0",
+                "children": "1",
+                "parity": "2",
+                "price": "200",
+                "currency": "EUR"
+              },
+              {
+                "id": "48",
+                "accommodationId": "1",
+                "accommodation": "1 + 2 Chd",
+                "ageTable": "01211",
+                "pax": "1",
+                "infants": "0",
+                "children": "2",
+                "parity": "2.5",
+                "price": "250",
+                "currency": "EUR"
+              },
+              {
+                "id": "49",
+                "accommodationId": "2",
+                "accommodation": "2 + 1 Chd",
+                "ageTable": "01211",
+                "pax": "2",
+                "infants": "0",
+                "children": "1",
+                "parity": "2.5",
+                "price": "250",
+                "currency": "EUR"
+              },
+              {
+                "id": "270",
+                "accommodationId": "1",
+                "accommodation": "1 + 1 Inf",
+                "ageTable": "01211",
+                "pax": "1",
+                "infants": "1",
+                "children": "0",
+                "parity": "1",
+                "price": "100",
+                "currency": "EUR"
+              },
+              {
+                "id": "271",
+                "accommodationId": "2",
+                "accommodation": "2 + 1 Inf",
+                "ageTable": "01211",
+                "pax": "2",
+                "infants": "1",
+                "children": "0",
+                "parity": "1",
+                "price": "100",
+                "currency": "EUR"
+              },
+              {
+                "id": "272",
+                "accommodationId": "1",
+                "accommodation": "1 + 1 Chd + 1  Inf",
+                "ageTable": "01211",
+                "pax": "1",
+                "infants": "1",
+                "children": "1",
+                "parity": "2",
+                "price": "200",
+                "currency": "EUR"
+              },
+              {
+                "id": "44",
+                "accommodationId": "1",
+                "accommodation": "1",
+                "ageTable": "01211",
+                "pax": "1",
+                "infants": "0",
+                "children": "0",
+                "parity": "1.5",
+                "price": "150",
+                "currency": "EUR"
+              }
+            ],
+            "conditions": [
+              {
+                "id": "49",
+                "type": "reduction",
+                "firstDate": "2022-11-14",
+                "lastDate": "2026-07-31",
+                "reduction": "0",
+                "payment": "0",
+                "order": "1"
+              },
+              {
+                "id": "56",
+                "type": "stayPay",
+                "firstDate": "2022-11-14",
+                "lastDate": "2025-11-30",
+                "stayDays": "0",
+                "freeDays": "0",
+                "paymentDays": "0",
+                "order": "2",
+                "calculation": "Check In"
+              },
+              {
+                "id": "51",
+                "type": "longStay",
+                "firstDate": "2022-11-14",
+                "lastDate": "2025-11-30",
+                "minStay": "0",
+                "reduction": "0",
+                "order": "4"
+              },
+              {
+                "id": "47",
+                "type": "ageReduction",
+                "firstDate": "2022-11-14",
+                "lastDate": "2026-07-31",
+                "age": "0",
+                "reduction": "0",
+                "order": "5"
+              },
+              {
+                "id": "9",
+                "type": "freePax",
+                "firstDate": "2022-11-14",
+                "lastDate": "2026-07-31",
+                "pax": "0",
+                "freePax": "0",
+                "roomType": "Standard",
+                "roomName": "Standard Room Partial View",
+                "reduction": "0",
+                "order": "7"
+              }
+            ],
+            "rules": [
+              {
+                "id": "2",
+                "appliesTo": "LONG STAY",
+                "excludes": "AGE REDUCTION"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "hotelId": 28,
+      "source": "https://acente.kirpii.com/Hotel/Update/28",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Gloria Serenity Resort",
+        "code": "GSR",
+        "type": "Resort, Spa, Golf",
+        "roomType": "VILLA, Suite, STD",
+        "location1": "Belek",
+        "location2": "Kadriye",
+        "address": "Belek Mahallesi",
+        "phone": "02427102300",
+        "smsPhone": "",
+        "website": "www.gloria.com.tr"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [
+          {
+            "id": "kirpii-hotel-extra-14",
+            "firstDate": "2019-01-01",
+            "lastDate": "2019-01-01",
+            "description": "New Year Gala",
+            "buyPrice": "110",
+            "sellPrice": "110",
+            "currency": "EUR",
+            "priceType": "PP",
+            "obligation": true,
+            "ageTable": "06712",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "0",
+            "sellChild": "0"
+          },
+          {
+            "id": "kirpii-hotel-extra-13",
+            "firstDate": "2019-01-01",
+            "lastDate": "2019-01-01",
+            "description": "New Year Gala",
+            "buyPrice": "96",
+            "sellPrice": "96",
+            "currency": "GBP",
+            "priceType": "PP",
+            "obligation": true,
+            "ageTable": "06712",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "0",
+            "sellChild": "0"
+          }
+        ],
+        "packages": [],
+        "contracts": []
+      }
+    },
+    {
+      "hotelId": 29,
+      "source": "https://acente.kirpii.com/Hotel/Update/29",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Gloria Verde Resort",
+        "code": "GVR",
+        "type": "Resort, Spa, Golf",
+        "roomType": "STD, VILLA, Suite",
+        "location1": "Acısu",
+        "location2": "Kadriye",
+        "address": "İleribaşı Mevkii",
+        "phone": "0242 7100500",
+        "smsPhone": "",
+        "website": "www.gloria.com.tr"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [
+          {
+            "id": "kirpii-hotel-extra-16",
+            "firstDate": "2019-01-01",
+            "lastDate": "2019-01-01",
+            "description": "New Year Gala",
+            "buyPrice": "100",
+            "sellPrice": "100",
+            "currency": "EUR",
+            "priceType": "PP",
+            "obligation": true,
+            "ageTable": "06712",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "0",
+            "sellChild": "0"
+          },
+          {
+            "id": "kirpii-hotel-extra-15",
+            "firstDate": "2019-01-01",
+            "lastDate": "2019-01-01",
+            "description": "New Year Gala",
+            "buyPrice": "87",
+            "sellPrice": "87",
+            "currency": "GBP",
+            "priceType": "PP",
+            "obligation": true,
+            "ageTable": "06712",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "0",
+            "sellChild": "0"
+          }
+        ],
+        "packages": [],
+        "contracts": []
+      }
+    },
+    {
+      "hotelId": 30,
+      "source": "https://acente.kirpii.com/Hotel/Update/30",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Kaya Palazzo Hotel",
+        "code": "Kaya Palazzo",
+        "type": "Golf, Resort",
+        "roomType": "Suite, VILLA, STD",
+        "location1": "Belek",
+        "location2": "Kadriye",
+        "address": "Çamlık Cad 07500",
+        "phone": "0242 710 15 00",
+        "smsPhone": "",
+        "website": "www.kayahotels.com"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [],
+        "packages": [],
+        "contracts": []
+      }
+    },
+    {
+      "hotelId": 31,
+      "source": "https://acente.kirpii.com/Hotel/Update/31",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Kaya Belek Hotel",
+        "code": "Kaya Belek",
+        "type": "Resort, Golf",
+        "roomType": "VILLA, Suite, STD",
+        "location1": "Kadriye",
+        "location2": "Side",
+        "address": "Çamlık Cad 07500",
+        "phone": "02427104000",
+        "smsPhone": "",
+        "website": "www.kayahotels.com"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [],
+        "packages": [],
+        "contracts": []
+      }
+    },
+    {
+      "hotelId": 32,
+      "source": "https://acente.kirpii.com/Hotel/Update/32",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Kempinski Hotel The Dome",
+        "code": "Kempinski",
+        "type": "Golf, Spa, Resort",
+        "roomType": "STD, VILLA, Suite",
+        "location1": "Belek",
+        "location2": "Kadriye",
+        "address": "Kadriye Mahallesi, Yeni Mahalle Uckumtepesi Caddesi No 20-2 Kadriye, 07500",
+        "phone": "(0242) 710 13 00",
+        "smsPhone": "",
+        "website": "www.kempinski.com"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [],
+        "packages": [],
+        "contracts": []
+      }
+    },
+    {
+      "hotelId": 33,
+      "source": "https://acente.kirpii.com/Hotel/Update/33",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Maxx Royal Belek Golf Resort",
+        "code": "Maxx Royal",
+        "type": "Resort, Spa, Golf",
+        "roomType": "STD, VILLA, Suite",
+        "location1": "Belek",
+        "location2": "Kadriye",
+        "address": "Belek Mahallesi, İskele Mevkii, 07500 Belek / Serik/Serik/Antalya",
+        "phone": "0242 7102700",
+        "smsPhone": "",
+        "website": "www.maxxroyal.com"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [
+          {
+            "id": "kirpii-hotel-extra-23",
+            "firstDate": "2019-01-01",
+            "lastDate": "2019-01-01",
+            "description": "New Year Gala",
+            "buyPrice": "122",
+            "sellPrice": "122",
+            "currency": "GBP",
+            "priceType": "PP",
+            "obligation": true,
+            "ageTable": "01211",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "61",
+            "sellChild": "61"
+          },
+          {
+            "id": "kirpii-hotel-extra-22",
+            "firstDate": "2019-01-01",
+            "lastDate": "2019-01-01",
+            "description": "New Year Gala",
+            "buyPrice": "140",
+            "sellPrice": "140",
+            "currency": "EUR",
+            "priceType": "PP",
+            "obligation": true,
+            "ageTable": "01211",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "70",
+            "sellChild": "70"
+          }
+        ],
+        "packages": [],
+        "contracts": []
+      }
+    },
+    {
+      "hotelId": 34,
+      "source": "https://acente.kirpii.com/Hotel/Update/34",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Sirene Golf Hotel",
+        "code": "Sirene",
+        "type": "Resort, Golf",
+        "roomType": "STD, VILLA, Suite",
+        "location1": "Üç Kum Tepesi",
+        "location2": "Kadriye",
+        "address": "Yeni Mah., Üçkum tepesi caddesi No:18, 07500 Kadriye, Serik/Serik/Antalya",
+        "phone": "0242 710 08 00",
+        "smsPhone": "0242 710 08 00",
+        "website": "www.sirene.com.tr"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [],
+        "packages": [],
+        "contracts": []
+      }
+    },
+    {
+      "hotelId": 41,
+      "source": "https://acente.kirpii.com/Hotel/Update/41",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Voyage Belek Golf & SPA",
+        "code": "Voyage Belek",
+        "type": "Resort, Spa, Golf",
+        "roomType": "Suite, VILLA, STD",
+        "location1": "Belek",
+        "location2": "Kadriye",
+        "address": "ff",
+        "phone": "0242 7102500",
+        "smsPhone": "",
+        "website": "www.voyagehotel.com"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [],
+        "packages": [],
+        "contracts": []
+      }
+    },
+    {
+      "hotelId": 42,
+      "source": "https://acente.kirpii.com/Hotel/Update/42",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Robinson Club Nobilis",
+        "code": "Robinson Nobilis",
+        "type": "Golf",
+        "roomType": "STD, VILLA, Suite",
+        "location1": "Acısu",
+        "location2": "Kadriye",
+        "address": "Belek Mahallesi, Acisu Mevkii, 07500 Serik/Antalya",
+        "phone": "(0242) 710 03 00",
+        "smsPhone": "",
+        "website": "www.robinson.com"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [],
+        "packages": [],
+        "contracts": []
+      }
+    },
+    {
+      "hotelId": 53,
+      "source": "https://acente.kirpii.com/Hotel/Update/53",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Titanic Deluxe Belek",
+        "code": "Titanic",
+        "type": "Resort, Golf",
+        "roomType": "Suite, VILLA, STD",
+        "location1": "Acısu",
+        "location2": "Kadriye",
+        "address": "Uckumtepesi Besgoz Caddesi 72/1 Kadriye/Belek Antalya",
+        "phone": "+90 242 710 44 44",
+        "smsPhone": "",
+        "website": "www.titanic.com.tr"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [
+          {
+            "id": "kirpii-hotel-extra-25",
+            "firstDate": "2019-01-01",
+            "lastDate": "2019-01-01",
+            "description": "New Year Gala",
+            "buyPrice": "60",
+            "sellPrice": "60",
+            "currency": "GBP",
+            "priceType": "PP",
+            "obligation": true,
+            "ageTable": "06711",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "30",
+            "sellChild": "30"
+          },
+          {
+            "id": "kirpii-hotel-extra-24",
+            "firstDate": "2019-01-01",
+            "lastDate": "2019-01-01",
+            "description": "New Year Gala",
+            "buyPrice": "65",
+            "sellPrice": "65",
+            "currency": "EUR",
+            "priceType": "PP",
+            "obligation": true,
+            "ageTable": "06711",
+            "buyInfant": "0",
+            "sellInfant": "0",
+            "buyChild": "32.5",
+            "sellChild": "32.5"
+          }
+        ],
+        "packages": [],
+        "contracts": []
+      }
+    },
+    {
+      "hotelId": 57,
+      "source": "https://acente.kirpii.com/Hotel/Update/57",
+      "information": {
+        "category": "5*",
+        "catalog": "NNN",
+        "status": true,
+        "country": "Türkiye",
+        "city": "Antalya",
+        "fax": "",
+        "email": "",
+        "name": "Lykia World Hotel",
+        "code": "Lykia",
+        "type": "Golf, Spa, Resort",
+        "roomType": "STD, VILLA, Suite",
+        "location1": "Manavgat",
+        "location2": "Kadriye",
+        "address": "Denizyaka Mah.Kamışlı Göl Küme Evleri No.1   P.K.07550 Manavgat/ Antalya,Turkey",
+        "phone": "90 242  7441915 ",
+        "smsPhone": "",
+        "website": "www.lykiagroup.com"
+      },
+      "details": {
+        "contractsStatus": "empty",
+        "accountingStatus": "unavailable",
+        "extras": [
+          {
+            "id": "kirpii-hotel-extra-4",
+            "firstDate": "2017-01-01",
+            "lastDate": "2017-01-01",
+            "description": "New Year Gala",
+            "buyPrice": "50",
+            "sellPrice": "245",
+            "currency": "EUR",
+            "priceType": "PP",
+            "obligation": false,
+            "ageTable": "06712",
+            "buyInfant": "0",
+            "sellInfant": "20",
+            "buyChild": "0",
+            "sellChild": "30"
+          }
+        ],
+        "packages": [
+          {
+            "id": "kirpii-hotel-package-5",
+            "name": "4oyun COPY",
+            "firstDate": "2017-12-22",
+            "lastDate": "2017-12-30",
+            "roomType": "Standard",
+            "roomName": "Mainbuilding Parkview",
+            "contractType": "MAIN",
+            "nights": "1",
+            "calculationType": "Check In Base",
+            "status": "ACTIVE",
+            "rounds": [
+              {
+                "id": "19",
+                "rounds": "",
+                "courseKey": "Faldo",
+                "accommodation": "DBL",
+                "price": "620",
+                "currency": "GBP"
+              },
+              {
+                "id": "18",
+                "rounds": "",
+                "courseKey": "Dunes",
+                "accommodation": "DBL",
+                "price": "20",
+                "currency": "GBP"
+              },
+              {
+                "id": "17",
+                "rounds": "",
+                "courseKey": "Gloria Verde",
+                "accommodation": "DBL",
+                "price": "20",
+                "currency": "GBP"
+              },
+              {
+                "id": "16",
+                "rounds": "",
+                "courseKey": "National",
+                "accommodation": "DBL",
+                "price": "20",
+                "currency": "GBP"
+              }
+            ],
+            "bonus": [
+              {
+                "id": "22",
+                "firstDate": "2017-12-22",
+                "lastDate": "2017-12-30",
+                "daysTill": "0",
+                "reduction": "0",
+                "days": "0",
+                "childReduction": "0",
+                "order": "1",
+                "calculation": "PP"
+              }
+            ],
+            "reduction": [
+              {
+                "id": "22",
+                "firstDate": "2017-12-22",
+                "lastDate": "2017-12-30",
+                "reduction": "0",
+                "payment": "0",
+                "order": "2"
+              }
+            ],
+            "golferFree": [
+              {
+                "id": "22",
+                "firstDate": "2017-12-22",
+                "lastDate": "2017-12-30",
+                "golferPax": "0",
+                "freePax": "0",
+                "payingPax": "0",
+                "order": "3"
+              }
+            ],
+            "hotelExtras": [],
+            "golfExtras": [],
+            "rules": []
+          }
+        ],
+        "contracts": []
+      }
+    }
+  ],
+  "notes": [
+    "All sixteen remaining local hotel cards and the additional source-only Zeynep card inspected. Zeynep is absent locally and is not restored.",
+    "Accounting menu5 content does not exist on any source hotel page. No accounting entries invented.",
+    "Only Cornelia De Luxe has hotel contracts: two parents, one child per parent, nine accommodation prices per child. Counts are not separate contracts.",
+    "Cornelia package list has thirteen entries across two pages; Lykia one and Sueno Golf two. All four package subtabs loaded before capture.",
+    "Cornelia extra 10 contains reversed dates 2019-12-31 / 2019-01-01. Preserve both as sourceDateIssue; leave usable dates blank pending correction rather than guessing.",
+    "Lykia package 5 has no selected round count in any of its four price rows. Preserve missing counts and show a warning.",
+    "Some package titles say seven nights while the source night field is one; preserve explicit field values, not inferred title values.",
+    "Source hotel dates retained; earlier season migration applies to golf course contracts. EU normalized to EUR and decimal comma normalized to dot."
+  ]
+}

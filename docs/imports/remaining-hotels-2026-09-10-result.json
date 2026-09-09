@@ -1,0 +1,17 @@
+{
+  "hotels": 16,
+  "changed": 16,
+  "extras": 16,
+  "packages": 16,
+  "rounds": 53,
+  "packageConditions": 48,
+  "packageExtras": 4,
+  "contracts": 2,
+  "roomPrices": 18,
+  "contractConditions": 5,
+  "rules": 1,
+  "versionBefore": 6,
+  "versionAfter": 7,
+  "verifiedAt": "2026-09-09T23:08:48.229Z",
+  "backupCreated": false
+}
