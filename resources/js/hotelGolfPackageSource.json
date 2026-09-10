@@ -1,0 +1,27 @@
+{
+  "source": "https://acente.kirpii.com/GolfCourse/HotelGolfPackages",
+  "verifiedOn": "2026-09-10",
+  "parents": [
+    {"id":"41","name":"ADD PAX + GOLF","code":"ADD PAX + GOLF","firstChildId":156},
+    {"id":"37","name":"DBL PP +Golf","code":"DBL PP +Golf","firstChildId":276},
+    {"id":"1","name":"SNG + GOLF","code":"SNG+GOLF","firstChildId":396}
+  ],
+  "courses": [
+    {"name":"Gloria New Course","key":"Gloria New"},
+    {"name":"Faldo Golf Course","key":"Faldo"},
+    {"name":"National Golf Course","key":"National"},
+    {"name":"Gloria Old Course","key":"Gloria Old"},
+    {"name":"Gloria Verde Course","key":"Gloria Verde"},
+    {"name":"Pasha Golf Course","key":"Pasha"},
+    {"name":"PGA Sultan Course","key":"Sultan"},
+    {"name":"Carya Course","key":"Carya"},
+    {"name":"Kaya Palazzo Course","key":"Kaya"},
+    {"name":"Montgomerie Course","key":"Montgomerie"},
+    {"name":"Titanic Course","key":"Titanic"},
+    {"name":"Pines Course","key":"Pines"},
+    {"name":"Dunes Course","key":"Dunes"},
+    {"name":"Lykia Links Course","key":"Lykia"},
+    {"name":"Nobilis Golf Course","key":"NOB"}
+  ],
+  "notes": ["All 12 pages of each of the three groups read. Every one of 360 observed row ids, names, codes and course assignments verified against this compact representation.","Per course, ids ascend from firstChildId minus eight times the course index: 1 through 7 ROUND, then UNLIMITED / UNL.","The source child update form contains only name, code and golf course. These are package definitions, separate from hotels' priced contracts."]
+}

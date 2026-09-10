@@ -1,0 +1,4 @@
+---
+deployment:
+  tasks:
+    - /usr/local/bin/php /home/krpsoftc/repositories/golfandwellness/scripts/cpanel-deploy.php
