@@ -3,9 +3,11 @@
 declare(strict_types=1);
 if (PHP_SAPI !== 'cli' || !class_exists(ZipArchive::class)) exit(1);
 $root = dirname(__DIR__);
-$out = $root.'/storage/releases/20260910';
+$release = $argv[1] ?? '20260910';
+if (!preg_match('/^[0-9]{8}(?:-[a-z0-9-]+)?$/', $release)) throw new RuntimeException('Invalid release name.');
+$out = $root.'/storage/releases/'.$release;
 if (!is_dir($out)) mkdir($out, 0700, true);
-$path = $out.'/golf-update-20260910.zip';
+$path = $out.'/golf-update-'.$release.'.zip';
 if (file_exists($path)) throw new RuntimeException('Reviewed update already exists.');
 $baseline = new ZipArchive();
 if ($baseline->open($root.'/storage/releases/20260902/golf-release-20260902.zip') !== true) throw new RuntimeException('Missing original release.');

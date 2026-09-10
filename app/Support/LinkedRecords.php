@@ -10,11 +10,14 @@ class LinkedRecords
     private const CATALOGS = ['board-types', 'hotel-types', 'regions', 'room-types', 'catalogs', 'nationalities', 'markets', 'cancel-reasons', 'vehicle-types', 'guides', 'directions'];
     public static function supports(string $kind): bool
     {
-        return in_array($kind, ['hotels', 'agencies', 'agency-vouchers', 'hotel-golf-package-definitions', 'vehicles', 'hotel-reservations', 'golf-reservations', 'course-details'], true)
+        if (in_array($kind, ['proposals-golf', 'proposals-hotel', 'proposals-hotel-golf'], true)) return true;
+        return in_array($kind, ['hotels', 'agencies', 'agency-vouchers', 'hotel-golf-package-definitions', 'hotel-stop-sales', 'vehicles', 'hotel-reservations', 'golf-reservations', 'course-details'], true)
             || (str_starts_with($kind, 'catalog-') && in_array(substr($kind, 8), self::CATALOGS, true));
     }
     public static function validate(string $kind, array $records): array
     {
+        if (str_starts_with($kind, 'proposals-')) return Proposals::validate(substr($kind, 10), $records);
+        if ($kind === 'hotel-stop-sales') return HotelStopSales::validate($records);
         if ($kind === 'hotel-golf-package-definitions') return HotelGolfPackageDefinitions::validate($records);
         if (str_starts_with($kind, 'catalog-')) {
             $check = function (array &$rows, int $depth = 0) use (&$check) {
