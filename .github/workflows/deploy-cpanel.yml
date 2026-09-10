@@ -1,0 +1,40 @@
+name: Build cPanel release
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: golf-cpanel-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node --test tests/proposals.test.mjs
+      - run: npm run build
+      - name: Validate PHP files
+        run: find app/Support scripts/cpanel-deploy.php app/Http/Controllers/SetupRecordsController.php -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Prepare deployment branch
+        run: |
+          git fetch origin cpanel-deploy || true
+          if git show-ref --verify --quiet refs/remotes/origin/cpanel-deploy; then
+            git worktree add "$RUNNER_TEMP/golf-release" origin/cpanel-deploy
+          else
+            mkdir -p "$RUNNER_TEMP/golf-release"
+            git -C "$RUNNER_TEMP/golf-release" init
+          fi
+          node scripts/prepare-cpanel-release.mjs "$RUNNER_TEMP/golf-release"
+          git -C "$RUNNER_TEMP/golf-release" config user.name 'github-actions[bot]'
+          git -C "$RUNNER_TEMP/golf-release" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C "$RUNNER_TEMP/golf-release" add .
+          git -C "$RUNNER_TEMP/golf-release" commit -m "Build release from $GITHUB_SHA"
+          git fetch "$RUNNER_TEMP/golf-release" HEAD
+          git push origin FETCH_HEAD:refs/heads/cpanel-deploy
