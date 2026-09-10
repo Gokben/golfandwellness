@@ -5,11 +5,11 @@ import { apiUrl, apiHeaders } from './api.ts';
 type Snapshot<T> = { initialized: boolean; records: T[]; version: number; importHash: string | null; relatedKinds?: string[] };
 const shared = new Map<string, ReturnType<typeof createMysqlRecords<any>>>();
 export function clearMysqlRecordCache() { shared.clear(); }
-export function useMysqlRecords<T>(kind: string, defaults: T[], valid: (value: unknown) => value is T, legacyKey?: string) {
-    if (!shared.has(kind)) shared.set(kind, createMysqlRecords(kind, defaults, valid, legacyKey));
+export function useMysqlRecords<T>(kind: string, defaults: T[], valid: (value: unknown) => value is T, legacyKey?: string, beforeInitialize?: () => Promise<void>) {
+    if (!shared.has(kind)) shared.set(kind, createMysqlRecords(kind, defaults, valid, legacyKey, beforeInitialize));
     return shared.get(kind)! as ReturnType<typeof createMysqlRecords<T>>;
 }
-export function createMysqlRecords<T>(kind: string, defaults: T[], valid: (value: unknown) => value is T, legacyKey?: string) {
+export function createMysqlRecords<T>(kind: string, defaults: T[], valid: (value: unknown) => value is T, legacyKey?: string, beforeInitialize?: () => Promise<void>) {
     const records = ref<T[]>([]) as Ref<T[]>;
     const storageError = ref('');
     const busy = ref(false);
@@ -43,7 +43,10 @@ export function createMysqlRecords<T>(kind: string, defaults: T[], valid: (value
                 const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(legacy));
                 importHash = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
             }
-            if (!data.initialized) data = await request(url + '/initialize', 'POST', { records: source, importHash });
+            if (!data.initialized) {
+                await beforeInitialize?.();
+                data = await request(url + '/initialize', 'POST', { records: source, importHash });
+            }
             if (legacy !== null && data.importHash !== importHash) throw new Error('MySQL’de farklı kayıtlar var. Tarayıcı yedeğiniz silinmedi; üzerine yazmamak için aktarım durduruldu.');
             records.value = data.records; version = data.version; ready.value = true;
         } catch (error) {

@@ -4,6 +4,29 @@ import { useMysqlRecords, clearMysqlRecordCache } from '../resources/js/useMysql
 beforeEach(() => clearMysqlRecordCache());
 
 const valid = value => value && typeof value.name === 'string';
+test('first import waits for linked records and never writes after their failure', async () => {
+    legacy(null);
+    let release;
+    const dependency = new Promise(resolve => { release = resolve; });
+    let posted = false;
+    globalThis.fetch = async (_, options) => {
+        if (options.method === 'GET') return reply({ initialized: false, records: [], version: 0 });
+        posted = true;
+        return reply({ initialized: true, records: [{ name: 'proposal' }], version: 1 });
+    };
+    const state = useMysqlRecords('dependent', [], valid, undefined, () => dependency);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    assert.equal(posted, false);
+    release();
+    await state.initialized;
+    assert.equal(state.ready.value, true);
+    assert.equal(posted, true);
+    posted = false;
+    const failed = useMysqlRecords('failed-dependency', [], valid, undefined, async () => { throw new Error('Agency unavailable'); });
+    await failed.initialized;
+    assert.equal(posted, false);
+    assert.equal(failed.storageError.value, 'Agency unavailable');
+});
 const reply = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
 function legacy(value) {
     globalThis.window = { localStorage: {
