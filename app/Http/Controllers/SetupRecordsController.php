@@ -17,11 +17,12 @@ class SetupRecordsController extends Controller
     {
         abort_unless(in_array($kind, self::KINDS, true) || \App\Support\LinkedRecords::supports($kind), 404);
         GolfAccess::authorizeApi($request);
+        if($kind==='golf-reservations')\App\Support\GolfReservationPrices::ensure();
     }
 
     private function payload($row): array
     {
-        return $row ? ['initialized' => true, 'records' => \App\Support\Currencies::normalize(json_decode($row->records, true)), 'version' => $row->version, 'importHash' => $row->import_hash]
+        return $row ? ['initialized' => true, 'records' => \App\Support\Currencies::normalize($row->kind==='golf-reservations'?\App\Support\GolfReservationPrices::attach(json_decode($row->records,true)):json_decode($row->records,true)), 'version' => $row->version, 'importHash' => $row->import_hash]
             : ['initialized' => false, 'records' => [], 'version' => 0, 'importHash' => null];
     }
 
@@ -35,6 +36,7 @@ class SetupRecordsController extends Controller
     {
         $data = $request->validate(['records' => 'present|array|max:5000']);
         $records = \App\Support\Currencies::normalize($data['records']);
+        \App\Support\DateRules::validate($records);
         if (!array_is_list($records)) throw ValidationException::withMessages(['records' => 'Kayıtlar bir liste olmalıdır.']);
         if (\App\Support\LinkedRecords::supports($kind)) return \App\Support\LinkedRecords::validate($kind, $records);
         if ($kind === 'hotel-golf-extras') {
@@ -255,13 +257,29 @@ class SetupRecordsController extends Controller
         return $db->transaction(function () use ($db, $kind, $records, $version) {
             $row = $db->table('setup_record_sets')->where('kind', $kind)->lockForUpdate()->first();
             if (!$row || (int) $row->version !== (int) $version) return response()->json(['message' => 'Kayıtlar başka bir pencerede değişti. Listeyi yeniden yükleyin.'], 409);
+            $voucherChanged=false;
+            if(in_array($kind,['hotel-reservations','golf-reservations'],true)){
+                $before=json_decode($row->records,true);
+                $newIds=array_diff(array_column($records,'id'),array_column($before,'id'));
+                if($newIds){
+                    $voucherSet=$db->table('setup_record_sets')->where('kind','agency-vouchers')->lockForUpdate()->first();
+                    $vouchers=$voucherSet?json_decode($voucherSet->records,true):[];
+                    $records=\App\Support\ReservationVouchers::assign($before,$records,$vouchers);
+                    $db->table('setup_record_sets')->where('kind','agency-vouchers')->update(['records'=>json_encode($vouchers,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR),'version'=>$voucherSet->version+1,'updated_at'=>now()]);
+                    $voucherChanged=true;
+                }else{
+                    $unused=[];$records=\App\Support\ReservationVouchers::assign($before,$records,$unused);
+                }
+            }
+            if($kind==='golf-reservations')$records=\App\Support\GolfReservationPrices::persist($db,json_decode($row->records,true),$records);
             $db->table('setup_record_backups')->insert(['kind' => $kind, 'version' => $row->version, 'records' => $row->records, 'created_at' => now()]);
             $db->table('setup_record_sets')->where('kind', $kind)->update([
                 'records' => json_encode($records, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
                 'version' => $version + 1, 'updated_at' => now(),
             ]);
             $related = \App\Support\LinkedRecords::syncReferences($db, $kind, json_decode($row->records, true), $records);
-            return response()->json($this->payload($db->table('setup_record_sets')->where('kind', $kind)->first()) + ['relatedKinds' => $related]);
+            if($voucherChanged)$related[]='agency-vouchers';
+            return response()->json($this->payload($db->table('setup_record_sets')->where('kind', $kind)->first()) + ['relatedKinds' => array_values(array_unique($related))]);
         });
     }
 }

@@ -60,14 +60,14 @@ async function save() {
                 <div class="tee-table"><table><thead><tr><th>Golf Sahası</th><th>Tarih</th><th>Saat</th><th>Pax</th><th>Fiyat</th><th>Para Birimi</th><th>Özel Teklif</th><th>Satış</th><th>Opsiyon Tarihi</th><th>Sil</th></tr></thead>
                     <tbody><tr v-for="(row, index) in visibleRows" :key="row.id">
                         <td><select :value="rowCourseKey(row)" @change="selectCourse(row, ($event.target as HTMLSelectElement).value)" :aria-label="`Golf Sahası ${index + 1}`" required><option value="">Seçiniz</option><option v-for="course in courseStore.records.value" :key="golfCourseKey(course)" :value="golfCourseKey(course)">{{ course.name }}</option><option v-if="!courseStore.records.value.some(course => golfCourseKey(course) === rowCourseKey(row))" :value="rowCourseKey(row)">{{ row.course }} (eski kayıt)</option></select></td>
-                        <td><input v-model="row.date" type="date" :aria-label="`Tarih ${index + 1}`" required></td>
+                        <td><DateInput v-model="row.date" :aria-label="`Tarih ${index + 1}`" required /></td>
                         <td><input v-model="row.time" type="time" :aria-label="`Saat ${index + 1}`" required></td>
                         <td><input v-model.number="row.pax" type="number" min="1" max="10000" :aria-label="`Pax ${index + 1}`" required></td>
                         <td><input v-model="row.price" inputmode="decimal" :aria-label="`Fiyat ${index + 1}`" required></td>
                         <td><select v-model="row.currency" :aria-label="`Para Birimi ${index + 1}`"><option v-for="currency in currencyCodes" :key="currency">{{ currency }}</option></select></td>
                         <td class="center"><input v-model="row.special" type="checkbox" :aria-label="`Özel Teklif ${index + 1}`"></td>
                         <td><input :value="teeTimeSales(row, reservationStore.records.value)" type="number" disabled :aria-label="`Satış ${index + 1}`"></td>
-                        <td><input v-model="row.optionDate" type="date" :aria-label="`Opsiyon Tarihi ${index + 1}`" required></td>
+                        <td><DateInput v-model="row.optionDate" :aria-label="`Opsiyon Tarihi ${index + 1}`" required /></td>
                         <td><VoxActionButton action="delete" :aria-label="`Satır ${index + 1} sil`" @click="remove(row)" /></td>
                     </tr><tr v-if="!visibleRows.length"><td colspan="10" class="empty">{{ busy ? 'TeeTimes yükleniyor…' : ready ? 'Kayıt bulunmuyor. Ekle ile yeni bir TeeTime oluşturabilirsiniz.' : 'Kayıtlar yüklenemedi.' }}</td></tr></tbody>
                 </table></div>

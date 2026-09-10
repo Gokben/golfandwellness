@@ -84,8 +84,8 @@ useVoxMessages([storageError, error, lookupError], [message]);
                 <colgroup><col class="date-col"><col class="date-col"><col class="description-col"><col v-for="n in 2" :key="'adult-' + n" class="price-col"><col class="option-col"><col class="option-col"><col class="check-col"><col class="age-col"><col v-for="n in 4" :key="'child-' + n" class="price-col"><col class="delete-col"></colgroup>
                 <thead><tr><th>İlk Tarih</th><th>Son Tarih</th><th>Açıklama</th><th>Alış Fiyatı</th><th>Satış Fiyatı</th><th>Para Birimi</th><th title="P.T — Price Type">Fiyat Tipi (P.T)</th><th>Zorunlu</th><th>Yaş Tablosu</th><th>Bebek Alış</th><th>Bebek Satış</th><th>Çocuk Alış</th><th>Çocuk Satış</th><th>Sil</th></tr></thead>
                 <tbody><tr v-for="(row, index) in rows" :key="row.id">
-                    <td><input v-model="row.firstDate" type="date" :aria-label="`İlk Tarih ${index + 1}`" required></td>
-                    <td><input v-model="row.lastDate" type="date" :min="row.firstDate" :aria-label="`Son Tarih ${index + 1}`" required></td>
+                    <td><DateInput :range-end="row.lastDate" v-model="row.firstDate" :aria-label="`İlk Tarih ${index + 1}`" required /></td>
+                    <td><DateInput :range-start="row.firstDate" v-model="row.lastDate" :min="row.firstDate" :aria-label="`Son Tarih ${index + 1}`" required /></td>
                     <td><select v-model="row.description" :aria-label="`Açıklama ${index + 1}`" required><option value="">Seçiniz</option><option v-for="name in descriptionOptions" :key="name">{{ name }}</option></select></td>
                     <td v-for="field in extraPriceFields.slice(0, 2)" :key="field"><input v-model="row[field]" inputmode="decimal" maxlength="14" :aria-label="`${priceLabels[field]} ${index + 1}`" required></td>
                     <td><select v-model="row.currency" :aria-label="`Para Birimi ${index + 1}`"><option v-for="currency in extraCurrencies" :key="currency">{{ currency }}</option></select></td>

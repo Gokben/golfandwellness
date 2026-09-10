@@ -1,3 +1,5 @@
+import DateInput from './components/DateInput.vue';
+import './setupDateLimits';
 import '../css/app.css';
 import './setupVoxDialogs';
 import { createApp } from 'vue';
@@ -9,5 +11,5 @@ if (mount) {
     createApp(VoxDesktop, {
         userName: mount.dataset.userName ?? 'Kullanıcı',
         loginUrl: mount.dataset.loginUrl ?? './login.html',
-    }).mount(mount);
+    }).component('DateInput', DateInput).mount(mount);
 }

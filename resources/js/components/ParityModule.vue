@@ -7,36 +7,8 @@ import { useCatalog } from '../catalogs';
 const roomCatalog = useCatalog('room');
 import { useMysqlRecords } from '../useMysqlRecords';
 
-type Parity = { pax: number; inf: number; chd: number; roomType: string; parity: string };
-const defaults: Parity[] = [
-    { pax: 5, inf: 0, chd: 0, roomType: 'VILLA', parity: '5' },
-    { pax: 5, inf: 0, chd: 0, roomType: 'VILLA', parity: '4.5' },
-    { pax: 4, inf: 0, chd: 0, roomType: 'Suite', parity: '3' },
-    { pax: 4, inf: 0, chd: 0, roomType: 'VILLA', parity: '4' },
-    { pax: 3, inf: 0, chd: 0, roomType: 'Suite', parity: '3' },
-    { pax: 3, inf: 0, chd: 0, roomType: 'VILLA', parity: '4' },
-    { pax: 3, inf: 0, chd: 0, roomType: 'STD', parity: '2.7' },
-    { pax: 2, inf: 0, chd: 1, roomType: 'STD', parity: '2.5' },
-    { pax: 2, inf: 0, chd: 0, roomType: 'Suite', parity: '3' },
-    { pax: 2, inf: 0, chd: 0, roomType: 'VILLA', parity: '4' },
-    { pax: 2, inf: 0, chd: 0, roomType: 'STD', parity: '2' },
-    { pax: 1, inf: 0, chd: 2, roomType: 'STD', parity: '2.5' },
-    { pax: 1, inf: 1, chd: 1, roomType: 'STD', parity: '2' },
-    { pax: 1, inf: 0, chd: 1, roomType: 'STD', parity: '2' },
-    { pax: 1, inf: 0, chd: 0, roomType: 'Suite', parity: '3' },
-    { pax: 1, inf: 0, chd: 0, roomType: 'VILLA', parity: '4' },
-    { pax: 1, inf: 0, chd: 0, roomType: 'VILLA', parity: '4' },
-    { pax: 1, inf: 0, chd: 0, roomType: 'STD', parity: '1.5' },
-];
-function validParity(value: unknown): value is Parity {
-    if (!value || typeof value !== 'object') return false;
-    const item = value as Parity;
-    return Number.isInteger(item.pax) && item.pax >= 1
-        && Number.isInteger(item.inf) && item.inf >= 0 && Number.isInteger(item.chd) && item.chd >= 0
-        && typeof item.roomType === 'string' && !!item.roomType.trim()
-        && typeof item.parity === 'string' && !!item.parity.trim() && Number.isFinite(Number(item.parity)) && Number(item.parity) >= 0;
-}
-const { records, storageError, busy, ready, commit, reload } = useMysqlRecords('parity', defaults, validParity);
+import { parityDefaults, validParity, type Parity } from '../parity';
+const { records, storageError, busy, ready, commit, reload } = useMysqlRecords('parity', parityDefaults, validParity);
 const formOpen = ref(false);
 const editingIndex = ref<number | null>(null);
 const draft = reactive<Parity>({ pax: 1, inf: 0, chd: 0, roomType: 'STD', parity: '1' });
