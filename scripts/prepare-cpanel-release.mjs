@@ -2,6 +2,7 @@ import {cpSync,mkdirSync,writeFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 const target=resolve(process.argv[2]||'storage/releases/github-release');
 mkdirSync(target,{recursive:true});
+writeFileSync(resolve(target,'.gitignore'),'error_log\n');
 for(const path of ['app/Support','app/Http/Controllers/SetupRecordsController.php','resources/js','resources/css','public/build']){
  mkdirSync(resolve(target,path,'..'),{recursive:true});
  cpSync(path,resolve(target,path),{recursive:true});
