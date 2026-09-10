@@ -104,8 +104,8 @@ useVoxMessages([storageError, error]);
                         <tr v-for="(row, index) in displayedRows" :key="row.id">
                             <td><div class="contract-name-cell"><input :value="row.game" @input="renameGroup(row, $event)" :aria-label="`Oyun ${index + 1}`" required maxlength="150"><button v-if="!activeGroup" type="button" class="contract-details-button" :aria-label="`${row.game || 'Yeni kontrat'} detaylarını aç`" title="Fiyat ve tarih detaylarını aç" @click="openedGroup = contractGroupId(row)">☞</button></div></td>
                             <td><select v-model="row.name" :aria-label="`Ad ${index + 1}`" required><option v-for="name in packages" :key="name">{{ name }}</option></select></td>
-                            <td><input v-model="row.firstDate" :aria-label="`İlk Tarih ${index + 1}`" type="date" required></td>
-                            <td><input v-model="row.lastDate" :aria-label="`Son Tarih ${index + 1}`" type="date" required :min="row.firstDate"></td>
+                            <td><DateInput :range-end="row.lastDate" v-model="row.firstDate" :aria-label="`İlk Tarih ${index + 1}`" required /></td>
+                            <td><DateInput :range-start="row.firstDate" v-model="row.lastDate" :aria-label="`Son Tarih ${index + 1}`" required :min="row.firstDate" /></td>
                             <td><input v-model="row.rrOhg" :aria-label="`RR-OHG ${index + 1}`" inputmode="decimal" required maxlength="14"></td>
                             <td><input v-model="row.toOhg" :aria-label="`TO-OHG ${index + 1}`" inputmode="decimal" required maxlength="14"></td>
                             <td><input v-model="row.toHg" :aria-label="`TOHG ${index + 1}`" inputmode="decimal" required maxlength="14"></td>

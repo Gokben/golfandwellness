@@ -6,6 +6,12 @@ import { useGolfCourses } from '../golfCourses';
 import HotelDetailFields from './HotelDetailFields.vue';
 import HotelContractDetails from './HotelContractDetails.vue';
 const props = defineProps<{ hotel: Hotel; tab: string }>();
+function addContract() {
+    const details = props.hotel.details ??= { contractsStatus: 'empty', accountingStatus: 'empty', extras: [], packages: [] };
+    details.contracts ??= [];
+    details.contracts.push({ id: crypto.randomUUID(), name: '', firstDate: '', lastDate: '', validityFirstDate: '', validityLastDate: '', roomType: '', roomName: '', allotment: '', guarantee: '', contractType: 'MAIN', status: 'PENDING', price: '', currency: 'EUR', market: '', submarket: '', board: '', calculationType: 'Accommodation', prices: [], conditions: [], rules: [] });
+    details.contractsStatus = 'available';
+}
 const selectedPackage = ref<string | null>(null);
 const packageTab = ref('detail');
 const packages = computed(() => props.hotel.details?.packages ?? []);
@@ -47,7 +53,7 @@ const conditionGroups = [
                 <template v-else><article v-for="rule in activePackage.rules" :key="rule.id"><HotelDetailFields :row="rule" :fields="ruleFields" /></article><p v-if="!activePackage.rules.length">Bu pakete bağlı kural kaydı yok.</p></template>
             </template>
         </template>
-        <template v-else-if="tab === 'contracts'"><h3>Kontratlar</h3><HotelContractDetails v-if="hotel.details?.contracts?.length" :contracts="hotel.details.contracts" /><p v-else>{{ hotel.details?.contractsStatus === 'empty' ? 'Kaynak otel kartının kontrat listesinde kayıt bulunmuyor.' : 'Otel kontratı kaydı yok.' }}</p></template>
+        <template v-else-if="tab === 'contracts'"><h3>Kontratlar</h3><HotelContractDetails :contracts="hotel.details?.contracts ?? []" :hotel-name="hotel.name" :room-types="hotel.roomType.split(',').map(value => value.trim()).filter(Boolean)" @add="addContract" /></template>
         <template v-else><h3>Muhasebe</h3><p>{{ hotel.details?.accountingStatus === 'unavailable' ? 'Kaynak otel kartında Muhasebe sekmesinin içeriği bulunmuyor.' : 'Muhasebe kaydı yok.' }}</p></template>
     </section>
 </template>

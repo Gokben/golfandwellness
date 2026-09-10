@@ -485,7 +485,7 @@ onBeforeUnmount(() => {
                     <ProposalsModule v-else-if="item.module.id === 'proposal-golf'" kind="golf" :user-name="userName" />
                     <ProposalsModule v-else-if="item.module.id === 'proposal-hotel'" kind="hotel" :user-name="userName" />
                     <ProposalsModule v-else-if="item.module.id === 'proposal-hotel-golf'" kind="hotel-golf" :user-name="userName" />
-                    <ReservationModule v-else-if="['reservation-hotel', 'reservation-hotel-golf'].includes(item.module.id)" />
+                    <ReservationModule v-else-if="['reservation-hotel', 'reservation-hotel-golf'].includes(item.module.id)" :combined="item.module.id === 'reservation-hotel-golf'" />
                     <AgenciesModule v-else-if="item.module.id === 'customers'" @record-title="item.recordTitle = $event" />
                     <VouchersModule v-else-if="item.module.id === 'agency-vouchers'" />
                     <HotelGolfPackagesModule v-else-if="item.module.id === 'hotel-golf-packages'" />

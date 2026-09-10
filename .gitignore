@@ -22,6 +22,7 @@
 /storage/mysql-setup/
 /storage/releases/
 /golf*.zip
+/krpsoftc_golf*.sql
 /vendor
 Homestead.json
 Homestead.yaml
