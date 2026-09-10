@@ -13,7 +13,7 @@ if(is_file($marker)&&json_decode(file_get_contents($marker),true)['commit']===$r
 $manifest=json_decode(file_get_contents($repo.'/public/build/manifest.json'),true,512,JSON_THROW_ON_ERROR);
 $assets=[];
 foreach($manifest as $entry){$assets[]=$entry['file'];foreach($entry['css']??[] as $css)$assets[]=$css;}
-foreach($assets as $asset)if(str_contains($asset,'..')||!is_file($repo.'/public/build/'.$asset))throw new RuntimeException('Incomplete build.');
+foreach($assets as $asset)if(strpos($asset,'..')!==false||!is_file($repo.'/public/build/'.$asset))throw new RuntimeException('Incomplete build.');
 $copy=function(string $source,string $target,int $mode=0600):void{
  if(is_link($source)||is_link($target))throw new RuntimeException('Symlink not allowed.');
  if(!is_dir(dirname($target))&&!mkdir(dirname($target),0755,true))throw new RuntimeException('Cannot create directory.');
