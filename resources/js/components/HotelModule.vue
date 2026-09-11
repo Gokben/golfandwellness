@@ -9,6 +9,7 @@ const emit = defineEmits<{ detailState: [open: boolean]; 'record-title': [name: 
 import { useHotels, type Hotel } from '../entities';
 import { useCatalog } from '../catalogs';
 import { useVoxMessages } from '../useVoxMessages';
+import { mergeHotelDraft } from '../mergeHotelDraft.mjs';
 const hotelStore = useHotels();
 const hotels = hotelStore.records;
 useVoxMessages([hotelStore.storageError]);
@@ -103,6 +104,18 @@ const selectedHotel = ref<Hotel | null>(null);
 watch(() => selectedHotel.value ? selectedHotel.value.name.trim() || 'Yeni Otel' : '', name => emit('record-title', name), { immediate: true });
 const selectedHotelId = ref<number | null>(null);
 const creatingHotel = ref(false);
+let draftBase: Hotel | null = null;
+const mergeConflicts = ref<string[]>([]);
+watch(hotels, rows => {
+    if (!selectedHotel.value || !draftBase || creatingHotel.value) return;
+    const remote = rows.find(row => row.id === selectedHotel.value?.id);
+    if (!remote) { mergeConflicts.value=['Otel kaydı']; return; }
+    const next = normalizeHotel(JSON.parse(JSON.stringify(remote)));
+    const merged = mergeHotelDraft(draftBase, selectedHotel.value, next);
+    selectedHotel.value = merged.value;
+    mergeConflicts.value = [...new Set([...mergeConflicts.value, ...merged.conflicts])];
+    draftBase = next;
+}, { flush: 'sync' });
 const selectedHotelTypes = computed<string[]>({
     get: () => selectedHotel.value?.type.split(',').map(type => type.trim()).filter(Boolean) ?? [],
     set: types => {
@@ -198,12 +211,15 @@ function beginHotelColumnResize(event: PointerEvent, key: HotelColumnKey) {
 function openHotel(hotel: Hotel) {
     selectedHotelId.value = hotel.id;
     selectedHotel.value = normalizeHotel(JSON.parse(JSON.stringify(hotel)));
+    draftBase = JSON.parse(JSON.stringify(selectedHotel.value));
+    mergeConflicts.value=[];
     creatingHotel.value = false;
     activeCardTab.value = 'information';
     emit('detailState', true);
 }
 
 function createHotel() {
+    draftBase=null; mergeConflicts.value=[];
     const now = new Intl.DateTimeFormat('tr-TR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date());
     const nextId = hotels.value.reduce((largest, hotel) => Math.max(largest, hotel.id), 0) + 1;
     selectedHotel.value = {
@@ -238,6 +254,7 @@ function createHotel() {
 }
 
 function closeHotelCard() {
+    draftBase=null; mergeConflicts.value=[];
     selectedHotel.value = null;
     creatingHotel.value = false;
     emit('detailState', false);
@@ -252,6 +269,7 @@ async function deleteHotel(hotel: Hotel) {
 
 async function saveHotel() {
     if (!selectedHotel.value) return;
+    if (mergeConflicts.value.length && !await voxConfirm('Sunucuyla aynı alanlarda farklı düzenlemeler var. Formdaki kendi değerlerinizi kaydetmek istiyor musunuz?')) return;
     selectedHotel.value.name = selectedHotel.value.name.trim();
     selectedHotel.value.code = selectedHotel.value.code.trim();
     if (!selectedHotel.value.name || !selectedHotel.value.code) {
@@ -368,6 +386,7 @@ onBeforeUnmount(() => {
                 <label class="web-field"><span>Web Adresi</span><input v-model="selectedHotel.website" type="text"></label>
             </form>
             <HotelDetailTabs v-else :hotel="selectedHotel" :tab="activeCardTab" />
+            <p v-if="mergeConflicts.length" role="alert">Sunucuyla {{mergeConflicts.length}} alanda çakışma var. Kaydedilmemiş değerleriniz korundu.</p>
             <footer class="card-commandbar"><button type="button" class="save-icon-button" aria-label="Kaydet" title="Kaydet" @click="saveHotel"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 3h12l2 2v16H5V3Z" /><path d="M8 3v6h8V3M8 21v-7h8v7" /></svg></button></footer>
         </template>
     </section>

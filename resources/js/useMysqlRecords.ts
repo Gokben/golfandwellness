@@ -5,6 +5,13 @@ import { apiUrl, apiHeaders } from './api.ts';
 type Snapshot<T> = { initialized: boolean; records: T[]; version: number; importHash: string | null; relatedKinds?: string[] };
 const shared = new Map<string, ReturnType<typeof createMysqlRecords<any>>>();
 export function clearMysqlRecordCache() { shared.clear(); }
+export async function refreshMysqlRecords(kind: string) {
+    const store = shared.get(kind);
+    if (!store) return;
+    if (store.busy.value) throw new Error('Kayıt tamamlandı; açık form başka bir işlemle meşgul olduğundan yenilenemedi.');
+    await store.reload();
+    if (!store.ready.value) throw new Error('Kayıt tamamlandı; açık form yenilenemedi. '+store.storageError.value);
+}
 export function useMysqlRecords<T>(kind: string, defaults: T[], valid: (value: unknown) => value is T, legacyKey?: string, beforeInitialize?: () => Promise<void>) {
     if (!shared.has(kind)) shared.set(kind, createMysqlRecords(kind, defaults, valid, legacyKey, beforeInitialize));
     return shared.get(kind)! as ReturnType<typeof createMysqlRecords<T>>;

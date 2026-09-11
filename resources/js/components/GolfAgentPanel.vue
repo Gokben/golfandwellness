@@ -2,6 +2,7 @@
 import { ref, watch, onBeforeUnmount } from 'vue';
 import { apiHeaders, apiUrl } from '../api';
 import agentLogo from '../assets/agent-logo.png?inline';
+import { refreshMysqlRecords } from '../useMysqlRecords';
 type Knowledge = { id:string; owner:string; title:string; content:string; scope:string; status:string; version:number };
 const open = ref(false);
 const emit = defineEmits<{ active: [value:boolean] }>();
@@ -61,7 +62,7 @@ function proposeAction() {
 function approveAction() {
     if (!actionProposal.value || !actionConfirmed.value) return;
     const token=actionProposal.value.token;
-    void run(async()=>{ const result=await request('agent/contracts/approve',{token,confirmed:true}); actionProposal.value=null; actionConfirmed.value=false; actionSaved.value=result.message; });
+    void run(async()=>{ const result=await request('agent/contracts/approve',{token,confirmed:true}); actionProposal.value=null; actionConfirmed.value=false; actionSaved.value=result.message; await refreshMysqlRecords('hotels'); actionSaved.value='Kontrat güncellendi. Açık otel verileri yenilendi.'; });
 }
 function reset() { editing.value=null; title.value=''; content.value=''; scope.value='personal'; }
 function teach(answer:string) { reset(); content.value=answer; tab.value='knowledge'; }
