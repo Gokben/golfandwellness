@@ -4,6 +4,7 @@ import { apiHeaders, apiUrl } from '../api';
 import { canReload, releaseChanged } from '../releasePolicy.mjs';
 
 const props = defineProps<{ openWindows: number }>();
+const emit = defineEmits<{ version: [value: string] }>();
 const available = ref(false);
 let timer: number | undefined;
 let checking = false;
@@ -25,6 +26,7 @@ async function check() {
         const response = await fetch(apiUrl('app-release'), { headers: apiHeaders(), cache: 'no-store', signal: AbortSignal.timeout(10000) });
         if (!response.ok) return;
         const release = await response.json();
+        if (!disposed && release.asset === loadedAsset && typeof release.version === 'string' && /^\d{5}\.\d{2,}$/.test(release.version)) emit('version', release.version);
         if (!disposed && releaseChanged(loadedAsset, release.asset)) {
             available.value = true;
             reloadWhenSafe();

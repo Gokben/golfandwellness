@@ -22,8 +22,8 @@ function limitCount(event: Event, row: Record<string, any>, key: string) {
 <style scoped>
 .price-entry { position: relative; display: flex; }
 .price-entry:has(.price-toggle) input { padding-right: 32px; }
-.price-toggle { position: absolute; right: 7px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; padding: 0; border: 1px solid #dc2626; border-radius: 50%; background: #ff7777; cursor: pointer; }
-.price-toggle[aria-pressed=true] { background: #dc2626; }
+.price-toggle { position: absolute; right: 7px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; padding: 0; border: 1px solid #ce9292; border-radius: 50%; background: #f2c6c6; cursor: pointer; }
+.price-toggle[aria-pressed=true] { background: #dfa5a5; }
 .price-toggle:focus-visible { outline: 2px solid #154c75; outline-offset: 2px; }
 .price-priority { border: 2px solid #dc2626 !important; background: #fff5f5 !important; font-weight: 700; }
 .detail-fields { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; }
