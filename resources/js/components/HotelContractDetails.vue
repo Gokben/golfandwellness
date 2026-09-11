@@ -10,7 +10,7 @@ import { parityDefaults, validParity } from '../parity';
 import { voxAlert, voxConfirm } from '../voxDialogs';
 import { lookupParity } from '../parityLookup.mjs';
 import HotelDetailFields from './HotelDetailFields.vue';
-const props = defineProps<{ contracts: HotelContract[]; roomTypes?: string[]; hotelName?: string }>();
+const props = defineProps<{ contracts: HotelContract[]; roomTypes?: string[]; hotelName?: string; reviewMode?: boolean }>();
 const newId = () => crypto.randomUUID();
 const emit = defineEmits<{ add: [] }>();
 const selected = ref<string | null>(null);
@@ -31,7 +31,7 @@ const parityTable = useMysqlRecords('parity', parityDefaults, validParity);
 const parityRoomType = computed(() => rooms.records.value.find(room => room.code === active.value?.roomType || room.name === active.value?.roomType)?.code ?? active.value?.roomType ?? '');
 const parityResult = (price: HotelContract['prices'][number]) => lookupParity(parityTable.records.value, parityRoomType.value, price.pax, price.infants, price.children);
 watch(() => [parityTable.ready.value, parityTable.records.value, parityRoomType.value, active.value?.prices.map(price => [price.id, price.pax, price.infants, price.children])], () => {
-    if (!parityTable.ready.value || !active.value) return;
+    if (props.reviewMode || !parityTable.ready.value || !active.value) return;
     for (const price of active.value.prices) price.parity = parityResult(price).value;
 }, { deep: true });
 async function useDirectPrice(price: HotelContract['prices'][number], event: MouseEvent) {
@@ -45,6 +45,7 @@ function priceFieldChanged(price: HotelContract['prices'][number], key: string) 
 }
 const parityWarnings = new Map<string, string>();
 async function warnParity(price: HotelContract['prices'][number], event?: FocusEvent) {
+    if (props.reviewMode) return;
     const priceInput = (event?.currentTarget as HTMLElement | undefined)?.querySelector<HTMLInputElement>('input[inputmode=decimal]');
 
     const result = parityResult(price);
@@ -65,7 +66,7 @@ async function contractFieldLeft() {
 const f = (key:string,label:string,type?:string,options?:string[]) => ({key,label,type,options});
 const dates = [f('firstDate','İlk Tarih','date'),f('lastDate','Son Tarih','date')];
 const fields = computed(() => [f('name','Kontrat Adı'),...dates,f('validityFirstDate','Geçerlilik Başlangıcı','date'),f('validityLastDate','Geçerlilik Bitişi','date'),f('roomType','Oda Tipi',undefined,props.roomTypes ?? []),f('roomName','Oda Adı',undefined,roomNames.value),f('allotment','Kontenjan','number'),f('guarantee','Garanti Oda','number'),f('contractType','Kontrat Tipi',undefined,['MAIN','ACTION']),f('status','Durum',undefined,['ACTIVE','PENDING']),f('price','Kişi Başı Fiyat','number'),f('currency','Para Birimi',undefined,[...currencyCodes]),f('market','Pazar',undefined,markets.records.value.map(r=>r.fields[0])),f('submarket','Alt Pazar'),f('board','Pansiyon',undefined,boards.records.value.map(r=>r.name)),f('calculationType','Hesaplama Tipi',undefined,['Accommodation','Chk / In','Average'])]);
-const priceFields = computed(() => [f('accommodation','Konaklama'),f('ageTable','Yaş Tablosu',undefined,ageTables.records.value.map(row => row.code)),f('pax','Yetişkin','number'),f('infants','Bebek','number'),f('children','Çocuk','number'),{ ...f('parity','Parite','number'), readonly: true },f('price','Fiyat','number'),f('currency','Para Birimi',undefined,[...currencyCodes])]);
+const priceFields = computed(() => [f('accommodation','Konaklama'),...(props.reviewMode ? [f('accommodationId','Konaklama Kodu')] : []),f('ageTable','Yaş Tablosu',undefined,ageTables.records.value.map(row => row.code)),f('pax','Yetişkin','number'),f('infants','Bebek','number'),f('children','Çocuk','number'),{ ...f('parity','Parite','number'), readonly: !props.reviewMode },f('price','Fiyat','number'),f('currency','Para Birimi',undefined,[...currencyCodes])]);
 const conditionTypes: Record<string,{label:string;fields:ReturnType<typeof f>[]}> = {
  reduction:{label:'İndirim ve Erken Rezervasyon',fields:[f('reduction','İndirim (%)','number'),f('payment','Ödeme (%)','number')]},
  stayPay:{label:'Kal ve Öde',fields:[f('stayDays','Konaklama Günü','number'),f('freeDays','Ücretsiz Gün','number'),f('paymentDays','Ödenecek Gün','number'),f('calculation','Ücretsiz Gün Hesabı')]},
@@ -77,7 +78,7 @@ const ruleFields = [f('appliesTo','Geçerli Olan Koşul'),f('excludes','Birlikte
 </script>
 <template>
  <template v-if="!active">
-  <button type="button" @click="emit('add')">＋ Yeni kontrat</button><p v-if="!contracts.length">Henüz kontrat eklenmedi.</p>
+  <button v-if="!reviewMode" type="button" @click="emit('add')">＋ Yeni kontrat</button><p v-if="!contracts.length">Henüz kontrat eklenmedi.</p>
   <table v-if="contracts.length"><thead><tr><th>Kontrat Adı</th><th>İlk Tarih</th><th>Son Tarih</th><th>Tip</th><th>Durum</th><th></th></tr></thead><tbody><tr v-for="contract in contracts" :key="contract.id"><td>{{ contract.name }}</td><td>{{ contract.firstDate }}</td><td>{{ contract.lastDate }}</td><td>{{ contract.contractType }}</td><td>{{ contract.status }}</td><td><button type="button" @click="selected=contract.id;tab='detail'">Detayları aç</button></td></tr></tbody></table>
  </template>
  <template v-else>

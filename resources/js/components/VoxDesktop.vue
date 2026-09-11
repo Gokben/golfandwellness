@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
+import ReleaseNotice from './ReleaseNotice.vue';
 import HotelBoardTypes from './HotelBoardTypes.vue';
 import HotelModule from './HotelModule.vue';
 import ReservationModule from './ReservationModule.vue';
@@ -424,6 +425,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+    <ReleaseNotice :open-windows="windows.length" />
     <div class="vox-desktop" :class="[`theme-${theme}`, { 'menu-open': startOpen, 'menu-closed': !startOpen }]" @pointerdown.capture="dismissDesktopSubmenus">
         <aside id="vox-sidebar" class="vox-sidebar" :class="{ 'is-open': startOpen }">
             <template v-if="sidebarView === 'main'">

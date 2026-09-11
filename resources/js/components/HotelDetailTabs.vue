@@ -5,7 +5,15 @@ import { currencyCodes } from '../currencies';
 import { useGolfCourses } from '../golfCourses';
 import HotelDetailFields from './HotelDetailFields.vue';
 import HotelContractDetails from './HotelContractDetails.vue';
+import ContractDocumentImport from './ContractDocumentImport.vue';
+import type { HotelContract } from '../hotelDetails';
 const props = defineProps<{ hotel: Hotel; tab: string }>();
+function importContracts(contracts: HotelContract[]) {
+    const details = props.hotel.details ??= { contractsStatus: 'empty', accountingStatus: 'empty', extras: [], packages: [] };
+    details.contracts ??= [];
+    details.contracts.push(...contracts);
+    details.contractsStatus = 'available';
+}
 function addContract() {
     const details = props.hotel.details ??= { contractsStatus: 'empty', accountingStatus: 'empty', extras: [], packages: [] };
     details.contracts ??= [];
@@ -53,7 +61,7 @@ const conditionGroups = [
                 <template v-else><article v-for="rule in activePackage.rules" :key="rule.id"><HotelDetailFields :row="rule" :fields="ruleFields" /></article><p v-if="!activePackage.rules.length">Bu pakete bağlı kural kaydı yok.</p></template>
             </template>
         </template>
-        <template v-else-if="tab === 'contracts'"><h3>Kontratlar</h3><HotelContractDetails :contracts="hotel.details?.contracts ?? []" :hotel-name="hotel.name" :room-types="hotel.roomType.split(',').map(value => value.trim()).filter(Boolean)" @add="addContract" /></template>
+        <template v-else-if="tab === 'contracts'"><h3>Kontratlar</h3><ContractDocumentImport :key="hotel.id" :hotel-name="hotel.name" :room-types="hotel.roomType.split(',').map(value => value.trim()).filter(Boolean)" @accept="importContracts" /><HotelContractDetails :contracts="hotel.details?.contracts ?? []" :hotel-name="hotel.name" :room-types="hotel.roomType.split(',').map(value => value.trim()).filter(Boolean)" @add="addContract" /></template>
         <template v-else><h3>Muhasebe</h3><p>{{ hotel.details?.accountingStatus === 'unavailable' ? 'Kaynak otel kartında Muhasebe sekmesinin içeriği bulunmuyor.' : 'Muhasebe kaydı yok.' }}</p></template>
     </section>
 </template>
