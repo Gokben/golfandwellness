@@ -21,6 +21,7 @@ Route::post('/agent/example', [\App\Http\Controllers\GolfAgentController::class,
 
 Route::get('/contract-document/status', [ContractDocumentController::class, 'status']);
 Route::post('/contract-document', [ContractDocumentController::class, 'store'])->middleware('throttle:6,1');
+Route::post('/contract-document/review', [ContractDocumentController::class, 'review'])->middleware('throttle:6,1');
 
 Route::get('/setup-users', [SetupUsersController::class, 'index']);
 Route::post('/setup-users', [SetupUsersController::class, 'store']);

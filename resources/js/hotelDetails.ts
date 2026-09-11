@@ -2,6 +2,7 @@ export type HotelExtra = { id: string; firstDate: string; lastDate: string; desc
 export type HotelPackageExtra = { id: string; firstDate: string; lastDate: string; description: string; buyPrice: string; sellPrice: string; priceType: string };
 export type HotelRule = { id: string; appliesTo: string; excludes: string };
 export type HotelContract = {
+    reviewRequired?: boolean; sourceNotes?: string[];
     id: string; name: string; firstDate: string; lastDate: string; validityFirstDate: string; validityLastDate: string;
     roomType: string; roomName: string; allotment: string; guarantee: string; contractType: string; status: string;
     price: string; currency: string; market: string; submarket: string; board: string; calculationType: string;
