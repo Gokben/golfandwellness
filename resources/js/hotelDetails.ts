@@ -6,7 +6,7 @@ export type HotelContract = {
     id: string; name: string; firstDate: string; lastDate: string; validityFirstDate: string; validityLastDate: string;
     roomType: string; roomName: string; allotment: string; guarantee: string; contractType: string; status: string;
     price: string; currency: string; market: string; submarket: string; board: string; calculationType: string;
-    prices: { id: string; accommodationId: string; accommodation: string; ageTable: string; pax: string; infants: string; children: string; parity: string; price: string; currency: string; manualPrice?: boolean }[];
+    prices: { id: string; accommodationId: string; accommodation: string; ageTable: string; pax: string; infants: string; children: string; parity: string; price: string; currency: string; manualPrice?: boolean; manualPriceEdited?: boolean }[];
     conditions: Record<string,string>[]; rules: HotelRule[];
 };
 export type HotelPackage = {

@@ -76,6 +76,7 @@ class HotelDetails
         foreach (['parity','price'] as $field) $rules['details.contracts.*.prices.*.'.$field] = 'required|numeric|min:0';
         $rules['details.contracts.*.prices.*.currency'] = 'required|in:USD,GBP,TL,EUR';
         $rules['details.contracts.*.prices.*.manualPrice'] = 'sometimes|boolean';
+        $rules['details.contracts.*.prices.*.manualPriceEdited'] = 'sometimes|boolean';
         $rules['details.contracts.*.conditions'] = 'present|array|max:1000';
         $rules['details.contracts.*.conditions.*.type'] = 'required|in:reduction,stayPay,longStay,ageReduction,freePax';
         $rules['details.contracts.*.conditions.*.id'] = 'required|string|max:150';
