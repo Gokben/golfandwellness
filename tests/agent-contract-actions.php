@@ -93,4 +93,13 @@ rejects(fn()=>Changes::approve($proposal['token'],'local-preview'),409,'Batch re
 $partial=$batch; $partial[0]['details']['contracts'][0]['allotment']='25';
 ok(count(Changes::batchPatch($partial,'1',$ids,$change)[1])===71,'Already matching values omitted from diff');
 $app->instance('env','production');
+foreach (['Accommodation','Chk / In','Average'] as $type) {
+    [$updated,$diff]=Changes::patch($records,'1','c1',[['rowId'=>'','field'=>'calculationType','value'=>$type]]);
+    ok($updated[0]['details']['contracts'][0]['calculationType']===$type && $diff[0]['label']==='Hesaplama Tipi','Calculation type allowed: '.$type);
+    ok($updated[0]['details']['contracts'][0]['prices']===$c['prices'],'Calculation type leaves prices and manual modes unchanged');
+}
+rejects(fn()=>Changes::patch($records,'1','c1',[['rowId'=>'','field'=>'calculationType','value'=>'INVALID']]),422,'Unknown calculation type rejected');
+rejects(fn()=>Changes::patch($records,'1','c1',[['rowId'=>'p1','field'=>'calculationType','value'=>'Average']]),422,'Calculation type cannot target price row');
+[$updated,$diff]=Changes::batchPatch($batch,'1',$ids,[['rowId'=>'','field'=>'calculationType','value'=>'Accommodation']]);
+ok(count($diff)===72 && count(array_filter($updated[0]['details']['contracts'],fn($c)=>$c['calculationType']==='Accommodation'))===72,'Bulk calculation type updates all selected contracts');
 rejects(fn()=>$controller->approveContract(Request::create('https://example.com','POST')),403,'Anonymous writes rejected');

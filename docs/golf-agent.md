@@ -19,6 +19,10 @@ Verification: scripts/php-local.ps1 tests/agent-smoke.php; node node_modules/vit
 Action tests: scripts/php-local.ps1 -d extension=pdo_sqlite tests/agent-contract-actions.php. These use an in-memory SQLite database and mocked OpenAI responses, never production data.
 # Bulk contract actions
 
+Calculation type is also an editable contract field, in single and bulk actions.
+Only the existing values Accommodation, Chk / In and Average are accepted.
+Changing this field does not alter occupancy labels, prices or manual-price flags.
+
 The action panel supports selecting up to 100 contracts belonging to one hotel.
 The model proposes one common set of absolute contract field values. Occupancy-row
 edits and percentage-based bulk price changes are not supported. Bulk prices must
