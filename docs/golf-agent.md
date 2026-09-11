@@ -17,3 +17,14 @@ Set GOLF_AGENT_ENABLED=false in server environment configuration to disable the 
 Verification: scripts/php-local.ps1 tests/agent-smoke.php; node node_modules/vite/bin/vite.js build. API responses are mocked in local tests; a live request is required to confirm billing and provider access.
 
 Action tests: scripts/php-local.ps1 -d extension=pdo_sqlite tests/agent-contract-actions.php. These use an in-memory SQLite database and mocked OpenAI responses, never production data.
+# Bulk contract actions
+
+The action panel supports selecting up to 100 contracts belonging to one hotel.
+The model proposes one common set of absolute contract field values. Occupancy-row
+edits and percentage-based bulk price changes are not supported. Bulk prices must
+use one currency. Matching existing values are omitted from the preview.
+Every changed field is labelled with its contract in the review table. Selection
+changes invalidate the proposal and its confirmation. Server-side validation,
+owner binding, expiry and version checks apply to the entire batch. Approval saves
+all selected changes in one database transaction, with a backup and audit record;
+one invalid contract prevents every change. Delete and activation remain forbidden.

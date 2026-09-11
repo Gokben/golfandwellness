@@ -61,5 +61,36 @@ ok($model['proposal']['changes'][0]['after']==='25' && (int)$db->table('setup_re
 ok(Http::recorded(fn($r)=>$r['store']===false && !isset($r['tools']) && $r['text']['format']['strict']===true)->count()===1,'Model never receives a write tool');
 config(['services.openai.agent_enabled'=>false]);
 rejects(fn()=>$controller->approveContract(req(['token'=>$model['proposal']['token'],'confirmed'=>true])),503,'Kill switch also blocks approvals');
+config(['services.openai.agent_enabled'=>true]);
+$batch=$records;
+$batch[0]['details']['contracts']=[];
+for ($i=1;$i<=72;$i++) {
+    $copy=$c; $copy['id']='batch-'.$i; $copy['name']='Contract '.$i;
+    foreach ($copy['prices'] as &$row) $row['id'].='-'.$i;
+    unset($row); $batch[0]['details']['contracts'][]=$copy;
+}
+$ids=array_column($batch[0]['details']['contracts'],'id');
+$change=[['rowId'=>'','field'=>'allotment','value'=>'25']];
+$db->table('setup_record_sets')->where('kind','hotels')->update(['records'=>json_encode($batch),'version'=>3]);
+$proposal=$controller->proposeContract(req(['hotelId'=>'1','contractIds'=>$ids,'message'=>'Hepsinin kontenjanini 25 yap']))->getData(true)['proposal'];
+ok(count($proposal['changes'])===72 && (int)$db->table('setup_record_sets')->value('version')===3,'72-contract model proposal has no writes');
+rejects(fn()=>Changes::batchPatch($batch,'1',[$ids[0],$ids[0]],$change),422,'Duplicate selection rejected');
+rejects(fn()=>Changes::batchPatch($batch,'1',array_merge($ids,['alien']),$change),404,'Unselected hotel contract rejected');
+rejects(fn()=>Changes::batchPatch($batch,'1',array_map(fn($i)=>'c'.$i,range(1,101)),$change),422,'Batch size limit enforced');
+rejects(fn()=>Changes::batchPatch($batch,'1',$ids,[['rowId'=>'p1-1','field'=>'price','value'=>'25']]),422,'Shared row edits rejected');
+$mixed=$batch; $mixed[0]['details']['contracts'][1]['currency']='EUR';
+rejects(fn()=>Changes::batchPatch($mixed,'1',$ids,[['rowId'=>'','field'=>'price','value'=>'110']]),422,'Mixed-currency batch prices rejected');
+$invalid=$batch; $invalid[0]['details']['contracts'][71]['firstDate']='2027-12-01';
+$db->table('setup_record_sets')->where('kind','hotels')->update(['records'=>json_encode($invalid)]);
+rejects(fn()=>Changes::approve($proposal['token'],'local-preview'),422,'Invalid final contract rolls back entire batch');
+ok((int)$db->table('setup_record_sets')->value('version')===3 && json_decode($db->table('setup_record_sets')->value('records'),true)[0]['details']['contracts'][0]['allotment']==='','Failed batch writes nothing');
+$db->table('setup_record_sets')->where('kind','hotels')->update(['records'=>json_encode($batch)]);
+rejects(fn()=>Changes::approve($proposal['token'],'other'),403,'Batch owner enforced');
+$controller->approveContract(req(['token'=>$proposal['token'],'confirmed'=>true]));
+$saved=json_decode($db->table('setup_record_sets')->value('records'),true);
+ok(count(array_filter($saved[0]['details']['contracts'],fn($c)=>$c['allotment']==='25'))===72 && $saved[1]===$batch[1],'72 approved contracts saved together; other hotel unchanged');
+rejects(fn()=>Changes::approve($proposal['token'],'local-preview'),409,'Batch replay rejected');
+$partial=$batch; $partial[0]['details']['contracts'][0]['allotment']='25';
+ok(count(Changes::batchPatch($partial,'1',$ids,$change)[1])===71,'Already matching values omitted from diff');
 $app->instance('env','production');
 rejects(fn()=>$controller->approveContract(Request::create('https://example.com','POST')),403,'Anonymous writes rejected');

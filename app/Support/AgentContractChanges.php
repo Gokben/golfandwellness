@@ -31,7 +31,7 @@ final class AgentContractChanges
         abort(404, 'Seçili kontrat bulunamadı.');
     }
 
-    public static function patch(array $records, string $hotelId, string $contractId, array $changes): array
+    public static function patch(array $records, string $hotelId, string $contractId, array $changes, bool $validate = true, bool $allowUnchanged = false): array
     {
         Validator::make(['changes'=>$changes], [
             'changes'=>'required|array|min:1|max:20', 'changes.*'=>'array:rowId,field,value',
@@ -85,10 +85,36 @@ final class AgentContractChanges
             if ($old['price'] !== $price['price']) $diff[] = ['label'=>'Konaklama: '.$price['accommodation'], 'before'=>(string) $old['price'], 'after'=>(string) $price['price'], 'currency'=>$price['currency']];
             if (empty($old['manualPrice']) && !empty($price['manualPrice'])) $diff[] = ['label'=>'Fiyat yöntemi: '.$price['accommodation'], 'before'=>'Otomatik', 'after'=>'Elle belirlenen fiyat', 'currency'=>''];
         }
-        abort_if(!$diff, 422, 'Kaydedilecek değişiklik bulunamadı.');
+        abort_if(!$diff && !$allowUnchanged, 422, 'Kaydedilecek değişiklik bulunamadı.');
         $records[$hi]['details']['contracts'][$ci] = $after;
-        HotelDetails::validate($records[$hi]['details']);
+        if ($validate) HotelDetails::validate($records[$hi]['details']);
         return [$records, $diff];
+    }
+
+    public static function batchPatch(array $records, string $hotelId, array $contractIds, array $changes): array
+    {
+        Validator::make(['ids'=>$contractIds], ['ids'=>'required|array|min:1|max:100','ids.*'=>'required|string|max:150|distinct'])->validate();
+        foreach ($changes as $change) abort_if(!empty($change['rowId']),422,'Toplu işlemde yalnızca ortak kontrat alanları değişebilir.');
+        $diff=[]; $currencies=[];
+        foreach ($contractIds as $id) {
+            [$hi,$ci]=self::locate($records,$hotelId,$id);
+            $name=$records[$hi]['details']['contracts'][$ci]['name'];
+            $currencies[]=$records[$hi]['details']['contracts'][$ci]['currency'];
+            [$records,$rows]=self::patch($records,$hotelId,$id,$changes,false,true);
+            foreach ($rows as $row) $diff[]=array_merge($row,['contractId'=>$id,'contractName'=>$name]);
+        }
+        abort_if(in_array('price',array_column($changes,'field'),true) && count(array_unique($currencies))>1,422,'Toplu fiyat değişikliğinde para birimleri aynı olmalı.');
+        abort_if(!$diff,422,'Kaydedilecek değişiklik bulunamadı.');
+        HotelDetails::validate($records[$hi]['details']);
+        return [$records,$diff];
+    }
+
+    public static function batchProposal(array $records, int $version, string $owner, string $hotelId, array $contractIds, array $changes): array
+    {
+        [, $diff]=self::batchPatch($records,$hotelId,$contractIds,$changes);
+        [$hi]=self::locate($records,$hotelId,$contractIds[0]);
+        $payload=['id'=>(string) Str::uuid(),'owner'=>$owner,'hotelId'=>$hotelId,'contractIds'=>$contractIds,'version'=>$version,'changes'=>$changes,'expires'=>time()+900];
+        return ['token'=>Crypt::encryptString(json_encode($payload,JSON_THROW_ON_ERROR)),'hotelName'=>$records[$hi]['name'],'contractName'=>count($contractIds).' kontrat','changes'=>$diff];
     }
 
     public static function proposal(array $records, int $version, string $owner, string $hotelId, string $contractId, array $changes): array
@@ -115,9 +141,12 @@ final class AgentContractChanges
         return $db->transaction(function () use ($db, $p, $owner) {
             $set = $db->table('setup_record_sets')->where('kind','hotels')->lockForUpdate()->first();
             abort_unless($set && (int) $set->version === $p['version'], 409, 'Kayıtlar değişti veya öneri zaten uygulandı. Yeniden öneri oluşturun.');
-            [$records, $diff] = self::patch(json_decode($set->records,true,512,JSON_THROW_ON_ERROR), $p['hotelId'], $p['contractId'], $p['changes']);
+            $original=json_decode($set->records,true,512,JSON_THROW_ON_ERROR);
+            [$records, $diff] = isset($p['contractIds'])
+                ? self::batchPatch($original,$p['hotelId'],$p['contractIds'],$p['changes'])
+                : self::patch($original, $p['hotelId'], $p['contractId'], $p['changes']);
             $db->table('setup_record_backups')->insert(['kind'=>'hotels','version'=>$set->version,'records'=>$set->records,'created_at'=>now()]);
-            $db->table('setup_record_backups')->insert(['kind'=>'agent-contract-audit','version'=>$set->version,'records'=>json_encode(['actor'=>$owner,'proposal'=>$p['id'],'hotelId'=>$p['hotelId'],'contractId'=>$p['contractId'],'changes'=>$diff],JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR),'created_at'=>now()]);
+            $db->table('setup_record_backups')->insert(['kind'=>'agent-contract-audit','version'=>$set->version,'records'=>json_encode(['actor'=>$owner,'proposal'=>$p['id'],'hotelId'=>$p['hotelId'],'contractIds'=>$p['contractIds'] ?? [$p['contractId']],'changes'=>$diff],JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR),'created_at'=>now()]);
             $db->table('setup_record_sets')->where('kind','hotels')->update(['records'=>json_encode($records,JSON_UNESCAPED_UNICODE|JSON_THROW_ON_ERROR),'version'=>$set->version+1,'updated_at'=>now()]);
             return ['saved'=>true, 'message'=>'Kontrat güncellendi. Diğer açık ekranlar eski veriyi gösterebilir.', 'version'=>$set->version+1];
         });
