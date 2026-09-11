@@ -1,6 +1,6 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-RLOojIBF.css",
+    "file": "assets/app-BNpu05IX.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "name": "app",
@@ -9,12 +9,19 @@
     ]
   },
   "resources/js/app.ts": {
-    "file": "assets/app-ZsCn-Dvo.js",
+    "file": "assets/app-gJAF9Sin.js",
     "name": "app",
     "src": "resources/js/app.ts",
     "isEntry": true,
     "css": [
-      "assets/app-BMk7dSoP.css"
+      "assets/app-X0c63apn.css"
+    ],
+    "assets": [
+      "assets/agent-logo-IHvTjuHj.png"
     ]
+  },
+  "resources/js/assets/agent-logo.png": {
+    "file": "assets/agent-logo-IHvTjuHj.png",
+    "src": "resources/js/assets/agent-logo.png"
   }
 }

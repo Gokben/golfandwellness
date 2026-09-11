@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onBeforeUnmount } from 'vue';
 import { apiHeaders, apiUrl } from '../api';
+import agentLogo from '../assets/agent-logo.png';
 type Knowledge = { id:string; owner:string; title:string; content:string; scope:string; status:string; version:number };
 const open = ref(false);
 const emit = defineEmits<{ active: [value:boolean] }>();
@@ -60,7 +61,9 @@ async function example(event:Event) {
 onBeforeUnmount(()=>controller?.abort());
 </script>
 <template>
-    <button class="agent-launch" type="button" @click="open ? open=false : show()" :aria-expanded="open" aria-controls="golf-agent-panel">Ajan</button>
+    <button class="agent-launch" type="button" @click="open ? open=false : show()" :aria-expanded="open" aria-controls="golf-agent-panel" aria-label="Ajan" title="Ajan">
+        <img :src="agentLogo" alt="" width="72" height="72" draggable="false">
+    </button>
     <aside v-show="open" id="golf-agent-panel" class="agent-panel" aria-label="Golf ajanı">
         <header><strong>Golf Ajanı</strong><button type="button" title="Kapat" aria-label="Ajanı kapat" @click="open=false">×</button></header>
         <nav aria-label="Ajan görünümleri"><button type="button" :aria-pressed="tab==='chat'" @click="tab='chat'">Sohbet</button><button type="button" :aria-pressed="tab==='knowledge'" @click="tab='knowledge'">Öğrettiklerim</button></nav>
@@ -86,7 +89,12 @@ onBeforeUnmount(()=>controller?.abort());
     </aside>
 </template>
 <style scoped>
-.agent-launch { position:fixed; right:14px; bottom:39px; z-index:90000; border:1px solid #648c9c; border-radius:4px; padding:8px 16px; background:#fff; color:#154c75; cursor:pointer; }
+.agent-launch { position:fixed; right:14px; bottom:39px; z-index:90000; display:flex; align-items:center; justify-content:center; width:56px; height:56px; overflow:hidden; border:1px solid #b9cbd4; border-radius:50%; padding:0; background:#fff; color:#154c75; cursor:pointer; box-shadow:0 2px 8px #183d5020; }
+.agent-launch img { flex:none; width:63px; height:63px; max-width:none; margin-left:-3.5px; margin-top:1.75px; clip-path:inset(8% 15% 15% 12%); transform-origin:50% 50%; animation:agent-nod 6s ease-in-out infinite; }
+.agent-launch:hover { border-color:#648c9c; }
+.agent-launch:focus-visible { outline:2px solid #17677f; outline-offset:3px; }
+@keyframes agent-nod { 0%,75%,100% { transform:translateY(0) rotate(0); } 82% { transform:translateY(-3px) rotate(-5deg); } 90% { transform:translateY(0) rotate(4deg); } }
+@media (prefers-reduced-motion:reduce) { .agent-launch img { animation:none; } }
 .agent-panel { position:fixed; right:0; top:0; bottom:32px; width:min(430px,100vw); z-index:90001; display:flex; flex-direction:column; background:#f8fbfd; color:#183d50; border-left:1px solid #a9bfcb; box-shadow:-4px 0 16px #0002; font:13px Tahoma,sans-serif; }
 header,nav { display:flex; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid #cbd9df; } header { justify-content:space-between; } header strong { font-size:16px; }
 .agent-body { overflow:auto; padding:12px; flex:1; min-height:0; } label { display:flex; flex-direction:column; gap:5px; margin-bottom:10px; } input,select,textarea { width:100%; box-sizing:border-box; border:1px solid #9cb5c4; border-radius:3px; background:#fff; color:#183d50; padding:8px; font:inherit; } textarea { resize:vertical; }
