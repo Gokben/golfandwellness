@@ -15,13 +15,15 @@ const knowledge = ref<Knowledge[]>([]);
 const hotels = ref<{id:string;name:string}[]>([]);
 const hotelId = ref('');
 const contractId = ref('');
+const bulk = ref(false);
+const contractIds = ref<string[]>([]);
 const contracts = ref<{id:string;name:string}[]>([]);
 const actionText = ref('');
 const actionExplanation = ref('');
-const actionProposal = ref<{token:string;hotelName:string;contractName:string;changes:{label:string;before:string;after:string;currency:string}[]}|null>(null);
+const actionProposal = ref<{token:string;hotelName:string;contractName:string;changes:{contractName?:string;label:string;before:string;after:string;currency:string}[]}|null>(null);
 const actionConfirmed = ref(false);
 const actionSaved = ref('');
-watch([hotelId,contractId,actionText],()=>{ actionProposal.value=null; actionConfirmed.value=false; actionExplanation.value=''; actionSaved.value=''; });
+watch([hotelId,contractId,contractIds,bulk,actionText],()=>{ actionProposal.value=null; actionConfirmed.value=false; actionExplanation.value=''; actionSaved.value=''; });
 const question = ref('');
 const messages = ref<{question:string;answer:string}[]>([]);
 const title = ref('');
@@ -49,12 +51,12 @@ async function load() {
 }
 function show() { open.value=true; void run(async()=>{ await load(); hotels.value=(await request('agent/hotels')).hotels; }); }
 function changeHotel() {
-    contractId.value=''; contracts.value=[];
+    contractId.value=''; contractIds.value=[]; contracts.value=[];
     if (hotelId.value) void run(async()=>{ contracts.value=(await request('agent/contracts?hotelId='+encodeURIComponent(hotelId.value))).contracts; });
 }
 function proposeAction() {
     actionProposal.value=null; actionConfirmed.value=false; actionSaved.value='';
-    void run(async()=>{ const result=await request('agent/contracts/propose',{hotelId:hotelId.value,contractId:contractId.value,message:actionText.value}); actionExplanation.value=result.explanation; actionProposal.value=result.proposal; });
+    void run(async()=>{ const result=await request('agent/contracts/propose',{hotelId:hotelId.value,...(bulk.value ? {contractIds:contractIds.value} : {contractId:contractId.value}),message:actionText.value}); actionExplanation.value=result.explanation; actionProposal.value=result.proposal; });
 }
 function approveAction() {
     if (!actionProposal.value || !actionConfirmed.value) return;
@@ -92,7 +94,13 @@ onBeforeUnmount(()=>controller?.abort());
         <p v-if="error" role="alert" class="agent-error">{{error}}</p>
         <div v-show="tab==='chat' || tab==='actions'" class="agent-selectors">
             <label>Otel<select v-model="hotelId" :disabled="busy" @change="changeHotel"><option value="">Otel listesi</option><option v-for="hotel in hotels" :key="hotel.id" :value="hotel.id">{{hotel.name}}</option></select></label>
-            <label>Kontrat<select v-model="contractId" :disabled="busy || !hotelId"><option value="">Kontrat seçin</option><option v-for="contract in contracts" :key="contract.id" :value="contract.id">{{contract.name}}</option></select></label>
+            <label v-if="tab==='actions'" class="action-confirm"><input v-model="bulk" type="checkbox" :disabled="busy">Toplu işlem</label>
+            <label v-if="tab!=='actions' || !bulk">Kontrat<select v-model="contractId" :disabled="busy || !hotelId"><option value="">Kontrat seçin</option><option v-for="contract in contracts" :key="contract.id" :value="contract.id">{{contract.name}}</option></select></label>
+            <template v-else>
+                <label class="action-confirm"><input type="checkbox" :checked="contracts.length>0 && contractIds.length===contracts.length" :disabled="busy || !contracts.length || contracts.length>100" @change="contractIds=($event.target as HTMLInputElement).checked ? contracts.map(c=>c.id) : []">Tümünü seç ({{contracts.length}})</label>
+                <div class="bulk-contracts"><label v-for="contract in contracts" :key="contract.id" class="action-confirm"><input v-model="contractIds" type="checkbox" :value="contract.id" :disabled="busy || contractIds.length>=100 && !contractIds.includes(contract.id)">{{contract.name}}</label></div>
+                <small>{{contractIds.length}} kontrat seçildi / 100</small>
+            </template>
         </div>
         <div class="agent-body" v-show="tab==='chat'">
             <p v-if="!configured && !busy" role="status">OpenAI bağlantısı yapılandırılmalı.</p>
@@ -102,13 +110,13 @@ onBeforeUnmount(()=>controller?.abort());
         <div v-if="admin" v-show="tab==='actions'" class="agent-body">
             <form @submit.prevent="proposeAction">
                 <label>İstenen değişiklik<textarea v-model="actionText" maxlength="4000" rows="3" :disabled="busy" required /></label>
-                <small>Seçili kontrat ve isteğiniz OpenAI ile paylaşılır.</small>
-                <button type="submit" :disabled="busy || !configured || !contractId || !actionText.trim()">Öneri hazırla</button>
+                <small>Seçili kontrat bilgileri ve isteğiniz OpenAI ile paylaşılır.</small>
+                <button type="submit" :disabled="busy || !configured || (bulk ? !contractIds.length : !contractId) || !actionText.trim()">Öneri hazırla</button>
             </form>
             <p v-if="actionExplanation">{{actionExplanation}}</p>
             <section v-if="actionProposal" class="action-review">
                 <strong>{{actionProposal.hotelName}}</strong><p>{{actionProposal.contractName}}</p>
-                <table><thead><tr><th>Alan</th><th>Önce</th><th>Sonra</th></tr></thead><tbody><tr v-for="(change,i) in actionProposal.changes" :key="i"><td>{{change.label}}</td><td>{{change.before || 'Boş'}} {{change.currency}}</td><td>{{change.after}} {{change.currency}}</td></tr></tbody></table>
+                <table><thead><tr><th>Alan</th><th>Önce</th><th>Sonra</th></tr></thead><tbody><tr v-for="(change,i) in actionProposal.changes" :key="i"><td><strong v-if="change.contractName">{{change.contractName}}<br></strong>{{change.label}}</td><td>{{change.before || 'Boş'}} {{change.currency}}</td><td>{{change.after}} {{change.currency}}</td></tr></tbody></table>
                 <label class="action-confirm"><input v-model="actionConfirmed" type="checkbox" :disabled="busy">Değişiklikleri kontrol ettim ve kaydedilmesini onaylıyorum.</label>
                 <button type="button" :disabled="busy || !actionConfirmed" @click="approveAction">Onayla ve kaydet</button>
                 <button type="button" :disabled="busy" @click="actionProposal=null;actionConfirmed=false">Vazgeç</button>
@@ -130,6 +138,7 @@ onBeforeUnmount(()=>controller?.abort());
     </aside>
 </template>
 <style scoped>
+.bulk-contracts { max-height:140px; overflow:auto; border:1px solid #cbd9df; padding:6px; }
 .agent-launch { position:fixed; right:14px; bottom:39px; z-index:90000; display:flex; align-items:center; justify-content:center; width:56px; height:56px; overflow:hidden; border:1px solid #b9cbd4; border-radius:50%; padding:0; background:#fff; color:#154c75; cursor:pointer; box-shadow:0 2px 8px #183d5020; }
 .agent-launch img { flex:none; width:63px; height:63px; max-width:none; margin-left:-3.5px; margin-top:1.75px; clip-path:inset(8% 15% 15% 12%); transform-origin:50% 50%; animation:agent-nod 6s ease-in-out infinite; }
 .agent-launch:hover { border-color:#648c9c; }
