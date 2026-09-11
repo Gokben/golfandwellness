@@ -14,18 +14,26 @@ const configured = ref(false);
 const knowledge = ref<Knowledge[]>([]);
 const hotels = ref<{id:string;name:string}[]>([]);
 const hotelId = ref('');
+const contractId = ref('');
+const contracts = ref<{id:string;name:string}[]>([]);
+const actionText = ref('');
+const actionExplanation = ref('');
+const actionProposal = ref<{token:string;hotelName:string;contractName:string;changes:{label:string;before:string;after:string;currency:string}[]}|null>(null);
+const actionConfirmed = ref(false);
+const actionSaved = ref('');
+watch([hotelId,contractId,actionText],()=>{ actionProposal.value=null; actionConfirmed.value=false; actionExplanation.value=''; actionSaved.value=''; });
 const question = ref('');
 const messages = ref<{question:string;answer:string}[]>([]);
 const title = ref('');
 const content = ref('');
 const scope = ref('personal');
 const editing = ref<Knowledge|null>(null);
-watch(() => open.value || busy.value || !!question.value || !!content.value || !!title.value, value => emit('active',value));
+watch(() => open.value || busy.value || !!question.value || !!content.value || !!title.value || !!actionText.value || !!actionProposal.value, value => emit('active',value));
 let controller: AbortController | null = null;
 async function request(path:string, body?:unknown) {
     const response = await fetch(apiUrl(path), {method: body ? 'POST' : 'GET', headers:apiHeaders(), body:body ? JSON.stringify(body) : undefined, signal:controller?.signal});
     const data = await response.json();
-    if (!response.ok) throw new Error(data.message || 'İşlem tamamlanamadı.');
+    if (!response.ok) throw new Error(Object.values(data.errors ?? {}).flat().join(' ') || data.message || 'İşlem tamamlanamadı.');
     return data;
 }
 async function run(action:()=>Promise<void>) {
@@ -40,6 +48,19 @@ async function load() {
     knowledge.value=data.knowledge; admin.value=data.admin; owner.value=data.owner; configured.value=data.configured;
 }
 function show() { open.value=true; void run(async()=>{ await load(); hotels.value=(await request('agent/hotels')).hotels; }); }
+function changeHotel() {
+    contractId.value=''; contracts.value=[];
+    if (hotelId.value) void run(async()=>{ contracts.value=(await request('agent/contracts?hotelId='+encodeURIComponent(hotelId.value))).contracts; });
+}
+function proposeAction() {
+    actionProposal.value=null; actionConfirmed.value=false; actionSaved.value='';
+    void run(async()=>{ const result=await request('agent/contracts/propose',{hotelId:hotelId.value,contractId:contractId.value,message:actionText.value}); actionExplanation.value=result.explanation; actionProposal.value=result.proposal; });
+}
+function approveAction() {
+    if (!actionProposal.value || !actionConfirmed.value) return;
+    const token=actionProposal.value.token;
+    void run(async()=>{ const result=await request('agent/contracts/approve',{token,confirmed:true}); actionProposal.value=null; actionConfirmed.value=false; actionSaved.value=result.message; });
+}
 function reset() { editing.value=null; title.value=''; content.value=''; scope.value='personal'; }
 function teach(answer:string) { reset(); content.value=answer; tab.value='knowledge'; }
 function edit(row:Knowledge) { editing.value=row; title.value=row.title; content.value=row.content; scope.value=row.scope; }
@@ -47,7 +68,7 @@ function save() { void run(async()=>{ await request('agent/knowledge',{id:editin
 function moderate(row:Knowledge,action:string) { void run(async()=>{ await request(`agent/knowledge/${row.id}`,{action,version:row.version}); await load(); }); }
 function send() {
     if (!question.value.trim()) return;
-    void run(async()=>{ const q=question.value; const result=await request('agent/chat',{message:q,hotelId:hotelId.value||null}); messages.value.push({question:q,answer:result.answer}); question.value=''; });
+    void run(async()=>{ const q=question.value; const result=await request('agent/chat',{message:q,hotelId:hotelId.value||null,contractId:contractId.value||null}); messages.value.push({question:q,answer:result.answer}); question.value=''; });
 }
 async function example(event:Event) {
     const input=event.target as HTMLInputElement; const file=input.files?.[0]; if (!file) return;
@@ -67,12 +88,32 @@ onBeforeUnmount(()=>controller?.abort());
     <aside v-show="open" id="golf-agent-panel" class="agent-panel" aria-label="Golf ajanı">
         <header><strong>Golf Ajanı</strong><button type="button" title="Kapat" aria-label="Ajanı kapat" @click="open=false">×</button></header>
         <nav aria-label="Ajan görünümleri"><button type="button" :aria-pressed="tab==='chat'" @click="tab='chat'">Sohbet</button><button type="button" :aria-pressed="tab==='knowledge'" @click="tab='knowledge'">Öğrettiklerim</button></nav>
+        <button v-if="admin" type="button" :aria-pressed="tab==='actions'" @click="tab='actions'">Kontrat işlemi</button>
         <p v-if="error" role="alert" class="agent-error">{{error}}</p>
+        <div v-show="tab==='chat' || tab==='actions'" class="agent-selectors">
+            <label>Otel<select v-model="hotelId" :disabled="busy" @change="changeHotel"><option value="">Otel listesi</option><option v-for="hotel in hotels" :key="hotel.id" :value="hotel.id">{{hotel.name}}</option></select></label>
+            <label>Kontrat<select v-model="contractId" :disabled="busy || !hotelId"><option value="">Kontrat seçin</option><option v-for="contract in contracts" :key="contract.id" :value="contract.id">{{contract.name}}</option></select></label>
+        </div>
         <div class="agent-body" v-show="tab==='chat'">
-            <label>Otel<select v-model="hotelId" :disabled="busy"><option value="">Otel listesi</option><option v-for="hotel in hotels" :key="hotel.id" :value="hotel.id">{{hotel.name}}</option></select></label>
             <p v-if="!configured && !busy" role="status">OpenAI bağlantısı yapılandırılmalı.</p>
             <div v-for="(message,i) in messages" :key="i" class="agent-message"><strong>{{message.question}}</strong><p>{{message.answer}}</p><button type="button" @click="teach(message.answer)">Düzelt ve öğret</button></div>
             <form @submit.prevent="send"><label>Sorunuz<textarea v-model="question" maxlength="4000" rows="4" :disabled="busy" required /></label><small>Gönderdiğiniz soru, seçili otelin kontratları ve onaylı örnekler OpenAI ile paylaşılır.</small><button type="submit" :disabled="busy || !configured || !question.trim()">Gönder</button><button v-if="busy" type="button" @click="controller?.abort()">Durdur</button></form>
+        </div>
+        <div v-if="admin" v-show="tab==='actions'" class="agent-body">
+            <form @submit.prevent="proposeAction">
+                <label>İstenen değişiklik<textarea v-model="actionText" maxlength="4000" rows="3" :disabled="busy" required /></label>
+                <small>Seçili kontrat ve isteğiniz OpenAI ile paylaşılır.</small>
+                <button type="submit" :disabled="busy || !configured || !contractId || !actionText.trim()">Öneri hazırla</button>
+            </form>
+            <p v-if="actionExplanation">{{actionExplanation}}</p>
+            <section v-if="actionProposal" class="action-review">
+                <strong>{{actionProposal.hotelName}}</strong><p>{{actionProposal.contractName}}</p>
+                <table><thead><tr><th>Alan</th><th>Önce</th><th>Sonra</th></tr></thead><tbody><tr v-for="(change,i) in actionProposal.changes" :key="i"><td>{{change.label}}</td><td>{{change.before || 'Boş'}} {{change.currency}}</td><td>{{change.after}} {{change.currency}}</td></tr></tbody></table>
+                <label class="action-confirm"><input v-model="actionConfirmed" type="checkbox" :disabled="busy">Değişiklikleri kontrol ettim ve kaydedilmesini onaylıyorum.</label>
+                <button type="button" :disabled="busy || !actionConfirmed" @click="approveAction">Onayla ve kaydet</button>
+                <button type="button" :disabled="busy" @click="actionProposal=null;actionConfirmed=false">Vazgeç</button>
+            </section>
+            <p v-if="actionSaved" role="status">{{actionSaved}}</p>
         </div>
         <div class="agent-body" v-show="tab==='knowledge'">
             <form @submit.prevent="save">
@@ -98,6 +139,8 @@ onBeforeUnmount(()=>controller?.abort());
 .agent-panel { position:fixed; right:0; top:0; bottom:32px; width:min(430px,100vw); z-index:90001; display:flex; flex-direction:column; background:#f8fbfd; color:#183d50; border-left:1px solid #a9bfcb; box-shadow:-4px 0 16px #0002; font:13px Tahoma,sans-serif; }
 header,nav { display:flex; align-items:center; gap:8px; padding:10px 12px; border-bottom:1px solid #cbd9df; } header { justify-content:space-between; } header strong { font-size:16px; }
 .agent-body { overflow:auto; padding:12px; flex:1; min-height:0; } label { display:flex; flex-direction:column; gap:5px; margin-bottom:10px; } input,select,textarea { width:100%; box-sizing:border-box; border:1px solid #9cb5c4; border-radius:3px; background:#fff; color:#183d50; padding:8px; font:inherit; } textarea { resize:vertical; }
+.agent-selectors { padding:10px 12px 0; border-bottom:1px solid #cbd9df; }
+.action-review { padding:12px 0; } .action-review table { width:100%; table-layout:fixed; border-collapse:collapse; margin:12px 0; } .action-review th,.action-review td { text-align:left; padding:6px; border:1px solid #cbd9df; overflow-wrap:anywhere; } .action-confirm { flex-direction:row; align-items:flex-start; line-height:1.5; } .action-confirm input { width:16px; height:16px; flex:none; }
 button { padding:7px 10px; border:1px solid #9cb5c4; border-radius:3px; background:#edf3f7; color:#154c75; cursor:pointer; } button:disabled { opacity:.55; cursor:default; } button[aria-pressed=true] { background:#17677f; color:white; }
 form { display:flex; flex-direction:column; gap:8px; } small { display:block; color:#556a75; font-size:11px; line-height:1.5; } .agent-message,.knowledge-row { padding:12px 0; border-bottom:1px solid #cbd9df; margin-bottom:10px; } p,strong { white-space:pre-wrap; overflow-wrap:anywhere; line-height:1.6; } .agent-error { margin:8px 12px; padding:8px; color:#9b2020; background:#fff0f0; } footer { padding:8px 12px; border-top:1px solid #cbd9df; }
 </style>
