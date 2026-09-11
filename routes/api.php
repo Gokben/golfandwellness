@@ -12,6 +12,13 @@ use App\Http\Controllers\AppReleaseController;
 
 Route::get('/app-release', AppReleaseController::class);
 
+Route::get('/agent', [\App\Http\Controllers\GolfAgentController::class, 'index']);
+Route::get('/agent/hotels', [\App\Http\Controllers\GolfAgentController::class, 'hotels']);
+Route::post('/agent/chat', [\App\Http\Controllers\GolfAgentController::class, 'chat'])->middleware('throttle:10,1');
+Route::post('/agent/knowledge', [\App\Http\Controllers\GolfAgentController::class, 'save'])->middleware('throttle:20,1');
+Route::post('/agent/knowledge/{id}', [\App\Http\Controllers\GolfAgentController::class, 'moderate'])->whereUuid('id');
+Route::post('/agent/example', [\App\Http\Controllers\GolfAgentController::class, 'example'])->middleware('throttle:6,1');
+
 Route::get('/contract-document/status', [ContractDocumentController::class, 'status']);
 Route::post('/contract-document', [ContractDocumentController::class, 'store'])->middleware('throttle:6,1');
 

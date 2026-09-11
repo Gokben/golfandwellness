@@ -3,6 +3,7 @@
 return [
 
     'openai' => [
+        'agent_enabled' => env('GOLF_AGENT_ENABLED', true),
         'key' => env('OPENAI_API_KEY'),
         'model' => env('OPENAI_CONTRACT_MODEL', 'gpt-4.1-mini'),
     ],
