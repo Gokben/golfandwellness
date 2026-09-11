@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onBeforeUnmount } from 'vue';
 import { apiHeaders, apiUrl } from '../api';
-import agentLogo from '../assets/agent-logo.png';
+import agentLogo from '../assets/agent-logo.png?inline';
 type Knowledge = { id:string; owner:string; title:string; content:string; scope:string; status:string; version:number };
 const open = ref(false);
 const emit = defineEmits<{ active: [value:boolean] }>();
