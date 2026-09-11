@@ -35,8 +35,8 @@ function choose(event: Event) {
 }
 async function extract() {
     if (!file.value || busy.value) return;
-    if (!/\.(docx|xlsx|pdf)$/i.test(file.value.name) || file.value.size > 4 * 1024 * 1024) {
-        error.value = 'En fazla 4 MB boyutunda PDF, DOCX veya XLSX dosyası seçin.'; return;
+    if (!/\.(docx|xlsx|pdf|json)$/i.test(file.value.name) || file.value.size > 4 * 1024 * 1024) {
+        error.value = 'En fazla 4 MB boyutunda PDF, DOCX, XLSX veya kontrol JSON dosyası seçin.'; return;
     }
     busy.value = true; error.value = ''; drafts.value = []; warnings.value = []; reviewed.value = false;
     controller = new AbortController();
@@ -49,7 +49,7 @@ async function extract() {
             reader.onerror = () => reject(new Error('Dosya okunamadı.'));
             reader.readAsDataURL(file.value!);
         });
-        const response = await fetch(apiUrl('contract-document'), {
+        const response = await fetch(apiUrl(file.value.name.toLowerCase().endsWith('.json') ? 'contract-document/review' : 'contract-document'), {
             method: 'POST', headers: apiHeaders(), signal: current.signal,
             body: JSON.stringify({ filename: file.value.name, document, hotelName: props.hotelName, roomTypes: props.roomTypes }),
         });
@@ -78,10 +78,10 @@ function accept() {
         <div class="document-body">
             <p class="hotel-name">{{ hotelName }}</p>
             <p v-if="configured === false" role="status" class="notice">Belge asistanı etkin değil. Sunucu yöneticisinin OpenAI bağlantısını yapılandırması gerekiyor.</p>
-            <label class="file-label">PDF, Word veya Excel belgesi<input type="file" accept=".pdf,.docx,.xlsx" :disabled="busy" @change="choose"></label>
-            <p class="file-note">PDF / DOCX / XLSX · En fazla 4 MB</p>
-            <p class="file-note">Taslak oluşturulduğunda belge içeriği (PDF için sayfa görüntüleri dahil) OpenAI ile paylaşılır.</p>
-            <button type="button" :disabled="!file || busy || configured !== true" @click="extract">{{ busy ? 'Belge okunuyor…' : 'Taslak oluştur' }}</button>
+            <label class="file-label">PDF, Word, Excel veya kontrol dosyası<input type="file" accept=".pdf,.docx,.xlsx,.json" :disabled="busy" @change="choose"></label>
+            <p class="file-note">PDF / DOCX / XLSX / JSON · En fazla 4 MB</p>
+            <p class="file-note">PDF, Word ve Excel içeriği OpenAI ile paylaşılır. Kontrol JSON dosyası yalnızca bu sunucuda doğrulanır.</p>
+            <button type="button" :disabled="!file || busy || (configured !== true && !file.name.toLowerCase().endsWith('.json'))" @click="extract">{{ busy ? 'Belge okunuyor…' : 'Taslak oluştur' }}</button>
             <p v-if="error" role="alert" class="notice">{{ error }}</p>
             <section v-if="warnings.length" class="warnings"><h4>Kontrol gereken bilgiler</h4><ul><li v-for="(warning, index) in warnings" :key="index">{{ warning }}</li></ul></section>
             <template v-if="drafts.length">

@@ -63,6 +63,23 @@ Http::fake(['api.openai.com/*' => Http::response(['status' => 'completed', 'outp
 $result = $controller->store($request, $reader)->getData(true);
 check($result['contracts'][0]['status'] === 'PENDING' && strlen($result['contracts'][0]['id']) === 36, 'Review draft receives server ID and pending status');
 check(count($result['warnings']) === 2, 'Missing required fields produce validation warning');
+$reviewInput = ['hotelName' => 'Example Resort', 'document' => base64_encode(json_encode(['hotelName' => 'Example Resort', 'draft' => ['contracts' => array_fill(0, 72, $contract), 'warnings' => []]]))];
+$reviewResult = $controller->review(Request::create('/', 'POST', $reviewInput))->getData(true);
+check(count($reviewResult['contracts']) === 72 && count(array_unique(array_column($reviewResult['contracts'], 'id'))) === 72, 'Reviewed import retains 72 drafts with unique server IDs');
+check($reviewResult['contracts'][0]['allotment'] === '' && $reviewResult['contracts'][0]['status'] === 'PENDING', 'Reviewed drafts preserve missing fields without activating');
+$sourceContract = array_replace($contract, ['firstDate'=>'2026-11-01','lastDate'=>'2026-11-22','validityFirstDate'=>'2026-11-01','validityLastDate'=>'2026-11-22','currency'=>'GBP']);
+$sourceContract['prices'] = [['accommodationId'=>'','accommodation'=>'1 Adult SGL','ageTable'=>'','pax'=>'1','infants'=>'0','children'=>'0','parity'=>'','price'=>'427.50','currency'=>'GBP']];
+$sourceReview = ['hotelName'=>'Example Resort','draft'=>['contracts'=>array_fill(0,72,$sourceContract),'warnings'=>['Source-only draft']]];
+$sourceRequest = Request::create('/', 'POST', ['hotelName'=>$sourceReview['hotelName'],'document'=>base64_encode(json_encode($sourceReview))]);
+$sourceResult = $controller->review($sourceRequest)->getData(true);
+$sourceDetails = ['contractsStatus'=>'available','accountingStatus'=>'empty','extras'=>[],'packages'=>[],'contracts'=>$sourceResult['contracts']];
+App\Support\HotelDetails::validate($sourceDetails);
+check(count($sourceResult['contracts']) === 72 && $sourceResult['contracts'][0]['prices'][0]['manualPrice'] === true, 'Source draft saves all periods and preserves explicit prices');
+$sourceDetails['contracts'][0]['status']='ACTIVE';
+try { App\Support\HotelDetails::validate($sourceDetails); check(false, 'Incomplete source cannot activate'); }
+catch (ValidationException) { check(true, 'Incomplete source cannot activate'); }
+try { $controller->review(Request::create('/', 'POST', array_replace($reviewInput, ['hotelName' => 'Other Hotel']))); check(false, 'Wrong hotel rejected'); }
+catch (Symfony\Component\HttpKernel\Exception\HttpException $error) { check($error->getStatusCode() === 422, 'Wrong hotel rejected'); }
 check(Http::recorded(fn ($r) => $r['store'] === false && $r['text']['format']['strict'] === true && !isset($r['tools']))->count() === 1, 'Structured extraction uses no tools and disables response storage');
 $pdf = "%PDF-1.4\n%%EOF";
 $pdfInput = array_replace($input, ['filename' => 'contract.PDF', 'document' => base64_encode($pdf)]);

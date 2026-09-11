@@ -87,6 +87,24 @@ class HotelDetails
             foreach (['id','appliesTo','excludes'] as $field) $rules['details.'.$group.'.*.rules.*.'.$field] = 'required|string|max:150';
         }
         foreach ($dated as $prefix) foreach (['firstDate','lastDate'] as $field) $rules[$prefix.'.'.$field] = 'required|date_format:Y-m-d';
+        Validator::make(['contracts' => $details['contracts'] ?? []], ['contracts'=>'array|max:1000','contracts.*.id'=>'required|string|distinct','contracts.*.reviewRequired'=>'sometimes|boolean','contracts.*.sourceNotes'=>'sometimes|array|max:1000','contracts.*.sourceNotes.*'=>'string|max:4000'])->validate();
+        $reviewDrafts = [];
+        foreach ($details['contracts'] ?? [] as $index => $contract) {
+            if (empty($contract['reviewRequired'])) continue;
+            // Incomplete source drafts stay pending; normal/active records keep strict validation.
+            $draftRules = [];
+            foreach ($rules as $key => $rule) {
+                if (!str_starts_with($key, 'details.contracts.*.')) continue;
+                $field = substr($key, strlen('details.contracts.*.'));
+                if (in_array($field, ['roomType','roomName','market','board','allotment','guarantee','price','contractType','calculationType','prices.*.accommodationId','prices.*.ageTable','prices.*.parity'])) $rule = str_replace('required|', 'present|nullable|', $rule);
+                $draftRules[$field] = str_replace('|distinct', '', $rule);
+            }
+            $draftRules['status'] = 'required|in:PENDING';
+            $draftRules['conditions'] = 'present|array|max:0';
+            Validator::make($contract, $draftRules)->validate();
+            $reviewDrafts[] = $contract;
+            unset($details['contracts'][$index]);
+        }
         Validator::make(['details' => $details], $rules)->validate();
         foreach ($details['extras'] as $extra) {
             $missing = empty($extra['firstDate']) || empty($extra['lastDate']);
@@ -109,5 +127,7 @@ class HotelDetails
             foreach ($value as $key => $child) if ($key !== 'sourceDateIssue') $checkDates($child);
         };
         $checkDates($details);
+        $checkDates($reviewDrafts);
+        foreach ($reviewDrafts as $contract) if ($contract['validityFirstDate'] > $contract['validityLastDate']) throw ValidationException::withMessages(['records'=>'Kontrat geçerlilik bitişi başlangıçtan önce olamaz.']);
     }
 }

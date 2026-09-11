@@ -15,6 +15,26 @@ final class ContractDocumentController extends Controller
         return response()->json(['configured' => (bool) config('services.openai.key')]);
     }
 
+    public function review(Request $request)
+    {
+        $data = $request->validate(['document' => 'required|string|max:5600000', 'hotelName' => 'required|string|max:200']);
+        $bytes = base64_decode($data['document'], true);
+        abort_if($bytes === false || strlen($bytes) > 4 * 1024 * 1024, 422, 'Kontrol dosyası geçersiz veya çok büyük.');
+        try { $file = json_decode($bytes, true, 512, JSON_THROW_ON_ERROR); }
+        catch (\JsonException) { abort(422, 'Kontrol dosyası okunamadı.'); }
+        abort_unless(is_array($file) && ($file['hotelName'] ?? null) === $data['hotelName'], 422, 'Kontrol dosyası seçili otele ait değil.');
+        $draft = $file['draft'] ?? null;
+        abort_unless(self::matches($draft, self::schema()), 422, 'Kontrol dosyasının alanları doğrulanamadı.');
+        abort_if(count($draft['contracts']) > 100, 422, 'Bir kontrol dosyasında en fazla 100 kontrat olabilir.');
+        foreach ($draft['contracts'] as &$contract) {
+            $contract['reviewRequired'] = true;
+            $contract['sourceNotes'] = $draft['warnings'];
+            foreach ($contract['prices'] as &$price) $price['manualPrice'] = true;
+        }
+        unset($contract, $price);
+        return self::draftResponse($draft);
+    }
+
     public function store(Request $request, ContractDocumentReader $reader)
     {
         $data = $request->validate([
@@ -59,6 +79,11 @@ final class ContractDocumentController extends Controller
         catch (\JsonException) { abort(502, 'Asistanın yanıtı okunamadı. Tekrar deneyin.'); }
         abort_unless(self::matches($draft, self::schema()), 502, 'Asistanın taslağı doğrulanamadı.');
         abort_if(count($draft['contracts']) > 30, 422, 'Belgede çok fazla kontrat var. Bölümler halinde yükleyin.');
+        return self::draftResponse($draft);
+    }
+
+    private static function draftResponse(array $draft)
+    {
         foreach ($draft['contracts'] as &$contract) {
             $contract['id'] = (string) Str::uuid();
             $contract['status'] = 'PENDING';
@@ -69,7 +94,8 @@ final class ContractDocumentController extends Controller
         try {
             \App\Support\HotelDetails::validate(['contractsStatus' => 'available', 'accountingStatus' => 'empty', 'contracts' => $draft['contracts'], 'extras' => [], 'packages' => []]);
         } catch (ValidationException $error) {
-            $draft['warnings'][] = 'Kaydetmeden önce eksik veya geçersiz alanlar tamamlanmalı: '.implode(', ', array_keys($error->errors()));
+            $fields = array_unique(array_map(fn ($key) => preg_replace('/\.\d+(?=\.|$)/', '.*', $key), array_keys($error->errors())));
+            $draft['warnings'][] = 'Kaydetmeden önce eksik veya geçersiz alanlar tamamlanmalı: '.implode(', ', $fields);
         }
         return response()->json($draft);
     }
