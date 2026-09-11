@@ -64,6 +64,15 @@ $result = $controller->store($request, $reader)->getData(true);
 check($result['contracts'][0]['status'] === 'PENDING' && strlen($result['contracts'][0]['id']) === 36, 'Review draft receives server ID and pending status');
 check(count($result['warnings']) === 2, 'Missing required fields produce validation warning');
 check(Http::recorded(fn ($r) => $r['store'] === false && $r['text']['format']['strict'] === true && !isset($r['tools']))->count() === 1, 'Structured extraction uses no tools and disables response storage');
+$pdf = "%PDF-1.4\n%%EOF";
+$pdfInput = array_replace($input, ['filename' => 'contract.PDF', 'document' => base64_encode($pdf)]);
+$pdfResult = $controller->store(Request::create('/', 'POST', $pdfInput), $reader)->getData(true);
+check($pdfResult['contracts'][0]['status'] === 'PENDING', 'PDF remains a review-only draft');
+check(Http::recorded(fn ($r) => is_array($r['input']) && $r['input'][0]['content'][1]['type'] === 'input_file' && $r['input'][0]['content'][1]['file_data'] === 'data:application/pdf;base64,'.base64_encode($pdf) && $r['store'] === false)->count() === 1, 'PDF bytes use inline file input without persistent upload');
+foreach (['invalid header' => base64_encode('not a PDF'), 'invalid base64' => '!!!', 'oversize' => base64_encode('%PDF-'.str_repeat('x', 4 * 1024 * 1024))] as $label => $document) {
+    try { $controller->store(Request::create('/', 'POST', array_replace($pdfInput, ['document' => $document])), $reader); check(false, $label.' PDF rejected'); }
+    catch (ValidationException) { check(true, $label.' PDF rejected'); }
+}
 Http::swap(new Illuminate\Http\Client\Factory);
 Http::preventStrayRequests();
 Http::fake(['api.openai.com/*' => Http::response(['status' => 'incomplete'])]);
