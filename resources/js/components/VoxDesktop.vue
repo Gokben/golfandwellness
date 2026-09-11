@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import ReleaseNotice from './ReleaseNotice.vue';
+const releaseVersion = ref<string | null>(null);
 import HotelBoardTypes from './HotelBoardTypes.vue';
 import HotelModule from './HotelModule.vue';
 import ReservationModule from './ReservationModule.vue';
@@ -425,7 +426,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <ReleaseNotice :open-windows="windows.length" />
+    <ReleaseNotice :open-windows="windows.length" @version="releaseVersion = $event" />
     <div class="vox-desktop" :class="[`theme-${theme}`, { 'menu-open': startOpen, 'menu-closed': !startOpen }]" @pointerdown.capture="dismissDesktopSubmenus">
         <aside id="vox-sidebar" class="vox-sidebar" :class="{ 'is-open': startOpen }">
             <template v-if="sidebarView === 'main'">
@@ -464,6 +465,7 @@ onBeforeUnmount(() => {
         </aside>
 
         <main ref="workspace" class="desktop-workspace" @pointerdown.self="notificationsOpen = false">
+            <span class="desktop-release-version">{{ releaseVersion ? `Versiyon ${releaseVersion}` : 'Versiyon —' }}</span>
             <div class="desktop-shortcuts" aria-label="Masaüstü kısayolları">
                 <template v-if="!desktopProposalMenu && !desktopReservationMenu && !desktopOperationMenu"><button v-for="item in modules.slice(1).filter(item => !['setup', 'customers', 'contracts', 'finance'].includes(item.id))" :key="item.id" type="button" @click="desktopModuleClick(item)">
                     <span class="desktop-shortcut-icon" :style="{ background: item.color }">{{ item.icon }}</span>

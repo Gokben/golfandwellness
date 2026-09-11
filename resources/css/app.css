@@ -233,6 +233,7 @@ button { cursor: pointer; }
 .sidebar-footer { margin: 10px 24px 0; color: #717083; font-size: 10px; }
 .desktop-workspace { inset: 0 0 31px 260px; background: #003c30; }
 .vox-desktop.menu-closed .desktop-workspace { left: 0; }
+.desktop-release-version { position: absolute; top: 10px; right: 14px; color: #fff; font: 12px Tahoma, sans-serif; pointer-events: none; }
 
 /* Centered desktop module shortcuts */
 .desktop-shortcuts {
