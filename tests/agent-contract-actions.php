@@ -16,6 +16,10 @@ function rejects(callable $action, int $status, string $label) {
     catch (Illuminate\Validation\ValidationException $e) { ok($status===422,$label); }
 }
 function req(array $data) { return Request::create('http://127.0.0.1/api/agent/contracts/approve','POST',[],[],[],['REMOTE_ADDR'=>'127.0.0.1','CONTENT_TYPE'=>'application/json','HTTP_X_REQUESTED_WITH'=>'XMLHttpRequest'],json_encode($data)); }
+foreach (['contracts'=>'GET','contracts/propose'=>'POST','contracts/approve'=>'POST'] as $path=>$method) {
+    $route=$app['router']->getRoutes()->match(Request::create('/api/agent/'.$path,$method));
+    ok($route->getController() instanceof GolfAgentController,'Agent route resolves: '.$path);
+}
 // Only an in-memory database is used; no local or live business records are changed.
 config(['database.connections.setup_mysql'=>['driver'=>'sqlite','database'=>':memory:','prefix'=>''], 'app.key'=>'base64:'.base64_encode(random_bytes(32))]);
 DB::purge('setup_mysql');

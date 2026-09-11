@@ -9,6 +9,7 @@ use App\Http\Controllers\SetupRecordsController;
 use App\Http\Controllers\SetupUsersController;
 use App\Http\Controllers\ContractDocumentController;
 use App\Http\Controllers\AppReleaseController;
+use App\Http\Controllers\GolfAgentController;
 
 Route::get('/app-release', AppReleaseController::class);
 
