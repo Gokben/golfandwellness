@@ -22,6 +22,8 @@ Action tests: scripts/php-local.ps1 -d extension=pdo_sqlite tests/agent-contract
 Calculation type is also an editable contract field, in single and bulk actions.
 Only the existing values Accommodation, Chk / In and Average are accepted.
 Changing this field does not alter occupancy labels, prices or manual-price flags.
+Contract type can also be changed to MAIN or ACTION in single and bulk proposals.
+It does not change contract status; activation and occupancy-type edits remain unavailable.
 
 The action panel supports selecting up to 100 contracts belonging to one hotel.
 The model proposes one common set of absolute contract field values. Occupancy-row

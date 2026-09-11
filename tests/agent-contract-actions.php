@@ -103,3 +103,12 @@ rejects(fn()=>Changes::patch($records,'1','c1',[['rowId'=>'p1','field'=>'calcula
 [$updated,$diff]=Changes::batchPatch($batch,'1',$ids,[['rowId'=>'','field'=>'calculationType','value'=>'Accommodation']]);
 ok(count($diff)===72 && count(array_filter($updated[0]['details']['contracts'],fn($c)=>$c['calculationType']==='Accommodation'))===72,'Bulk calculation type updates all selected contracts');
 rejects(fn()=>$controller->approveContract(Request::create('https://example.com','POST')),403,'Anonymous writes rejected');
+foreach (['MAIN','ACTION'] as $type) {
+    [$updated,$diff]=Changes::patch($records,'1','c1',[['rowId'=>'','field'=>'contractType','value'=>$type]]);
+    ok($updated[0]['details']['contracts'][0]['contractType']===$type && $diff[0]['label']==='Kontrat Tipi','Contract type allowed: '.$type);
+    ok($updated[0]['details']['contracts'][0]['status']==='PENDING' && $updated[0]['details']['contracts'][0]['prices']===$c['prices'],'Contract type preserves status and prices');
+}
+rejects(fn()=>Changes::patch($records,'1','c1',[['rowId'=>'','field'=>'contractType','value'=>'ACTIVE']]),422,'Activation is not a contract type');
+rejects(fn()=>Changes::patch($records,'1','c1',[['rowId'=>'p1','field'=>'contractType','value'=>'MAIN']]),422,'Contract type cannot target a price row');
+[$updated,$diff]=Changes::batchPatch($batch,'1',$ids,[['rowId'=>'','field'=>'contractType','value'=>'MAIN']]);
+ok(count($diff)===72 && count(array_filter($updated[0]['details']['contracts'],fn($c)=>$c['contractType']==='MAIN' && $c['status']==='PENDING'))===72,'Bulk contract type preserves pending status');
