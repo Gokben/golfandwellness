@@ -9,19 +9,12 @@
     ]
   },
   "resources/js/app.ts": {
-    "file": "assets/app-gJAF9Sin.js",
+    "file": "assets/app-BN2k9FHQ.js",
     "name": "app",
     "src": "resources/js/app.ts",
     "isEntry": true,
     "css": [
-      "assets/app-X0c63apn.css"
-    ],
-    "assets": [
-      "assets/agent-logo-IHvTjuHj.png"
+      "assets/app-RSyu7m8_.css"
     ]
-  },
-  "resources/js/assets/agent-logo.png": {
-    "file": "assets/agent-logo-IHvTjuHj.png",
-    "src": "resources/js/assets/agent-logo.png"
   }
 }
