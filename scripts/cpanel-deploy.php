@@ -18,7 +18,7 @@ $backup=$app.'/storage/deploy-backups/'.preg_replace('/[^a-zA-Z0-9_-]/','',$rele
 $copy=function(string $source,string $target,int $mode=0600)use($app,$public,$backup):void{
  if(is_link($source)||is_link($target))throw new RuntimeException('Symlink not allowed.');
  if(is_file($target)){
-  $relative=str_starts_with($target,$public.'/')?'public/'.substr($target,strlen($public)+1):'app/'.substr($target,strlen($app)+1);
+  $relative=strpos($target,$public.'/')===0?'public/'.substr($target,strlen($public)+1):'app/'.substr($target,strlen($app)+1);
   $previous=$backup.'/'.$relative;
   if(!is_file($previous)){
    if(!is_dir(dirname($previous))&&!mkdir(dirname($previous),0700,true))throw new RuntimeException('Cannot create backup directory.');
