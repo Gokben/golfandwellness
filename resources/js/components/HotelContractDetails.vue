@@ -10,6 +10,7 @@ import { parityDefaults, validParity } from '../parity';
 import { voxAlert, voxConfirm } from '../voxDialogs';
 import { lookupParity } from '../parityLookup.mjs';
 import HotelDetailFields from './HotelDetailFields.vue';
+import { updateContractPrice } from '../contractPricing.mjs';
 const props = defineProps<{ contracts: HotelContract[]; roomTypes?: string[]; hotelName?: string; reviewMode?: boolean }>();
 const newId = () => crypto.randomUUID();
 const emit = defineEmits<{ add: [] }>();
@@ -35,15 +36,20 @@ watch(() => [parityTable.ready.value, parityTable.records.value, parityRoomType.
     for (const price of active.value.prices) price.parity = parityResult(price).value;
 }, { deep: true });
 async function useDirectPrice(price: HotelContract['prices'][number], event: MouseEvent) {
+    price.manualPrice = !price.manualPrice;
+    if (!price.manualPrice) updateContractPrice(price, active.value?.price);
     const priceInput = (event.currentTarget as HTMLElement).closest('article')?.querySelector<HTMLInputElement>('input[inputmode=decimal]');
     await nextTick();
     priceInput?.focus();
 }
 function priceFieldChanged(price: HotelContract['prices'][number], key: string) {
-    if (key === 'parity' && price.parity !== '') price.price = '';
+    if (key === 'parity' && !props.reviewMode) updateContractPrice(price, active.value?.price);
 
 }
 const parityWarnings = new Map<string, string>();
+watch(() => [active.value?.price, active.value?.prices.map(price => [price.id, price.parity, price.manualPrice])], () => {
+    if (!props.reviewMode && active.value) for (const price of active.value.prices) updateContractPrice(price, active.value.price);
+}, { deep: true });
 async function warnParity(price: HotelContract['prices'][number], event?: FocusEvent) {
     if (props.reviewMode) return;
     const priceInput = (event?.currentTarget as HTMLElement | undefined)?.querySelector<HTMLInputElement>('input[inputmode=decimal]');
@@ -55,7 +61,7 @@ async function warnParity(price: HotelContract['prices'][number], event?: FocusE
     parityWarnings.set(price.id,signature);
     if (result.status === 'missing') {
         const accepted = await voxConfirm('Parite bulamadım. Seçilen oda tipi ve kişi sayıları için parite tablosunda kayıt yok. Bunun yerine fiyat girmek ister misiniz?', { title: 'Parite bulunamadı', confirmText: 'Evet, fiyat gir' });
-        if (accepted) { await nextTick(); priceInput?.focus(); }
+        if (accepted) { price.manualPrice = true; await nextTick(); priceInput?.focus(); }
     } else {
         void voxAlert('Aynı oda tipi ve kişi sayıları için birden fazla farklı parite bulundu. Parite tablosunu kontrol edin.', 'error');
     }
@@ -84,7 +90,7 @@ const ruleFields = [f('appliesTo','Geçerli Olan Koşul'),f('excludes','Birlikte
  <template v-else>
   <button type="button" class="contract-back" @click="selected=null">← Kontrat listesine dön</button><h3 v-if="active.name">{{ active.name }}</h3>
   <nav><button v-for="[key,label] in [['detail','Detay'],['conditions','Koşullar'],['rules','Kurallar']]" :key="key" type="button" :class="{active:tab===key}" @click="tab=key">{{ label }}</button></nav>
-  <template v-if="tab==='detail'"><article @focusout="contractFieldLeft"><HotelDetailFields :row="active" :fields="fields" /></article><h4>Oda ve Konaklama Fiyatları</h4><button type="button" @click="active.prices.push({ id: newId(), accommodationId: '', accommodation: '', ageTable: '', pax: '', infants: '0', children: '0', parity: '', price: '', currency: active.currency })">＋ Fiyat ekle</button><article v-for="price in active.prices" :key="price.id" @focusout="warnParity(price, $event)"><HotelDetailFields :row="price" :fields="priceFields" @field-change="priceFieldChanged(price, $event)" /><button v-if="price.parity !== ''" type="button" @click="useDirectPrice(price, $event)">Fiyat gir</button><p v-if="parityTable.storageError.value" role="alert">Parite tablosu yüklenemedi.</p><p v-else-if="parityResult(price).status === 'missing'" role="status">Bu oda tipi ve kişi dağılımı için parite kaydı yok.</p><p v-else-if="parityResult(price).status === 'ambiguous'" role="status">Bu kişi dağılımı için farklı pariteler var. Parite tablosundaki kayıtları düzeltin.</p></article></template>
+  <template v-if="tab==='detail'"><article @focusout="contractFieldLeft"><HotelDetailFields :row="active" :fields="fields" /></article><h4>Oda ve Konaklama Fiyatları</h4><button type="button" @click="active.prices.push({ id: newId(), accommodationId: '', accommodation: '', ageTable: '', pax: '', infants: '0', children: '0', parity: '', price: '', currency: active.currency })">＋ Fiyat ekle</button><article v-for="price in active.prices" :key="price.id" @focusout="warnParity(price, $event)"><HotelDetailFields :row="price" :fields="priceFields" :price-entry="!reviewMode" @toggle-price="useDirectPrice(price, $event)" @field-change="priceFieldChanged(price, $event)" /><p v-if="parityTable.storageError.value" role="alert">Parite tablosu yüklenemedi.</p><p v-else-if="parityResult(price).status === 'missing'" role="status">Bu oda tipi ve kişi dağılımı için parite kaydı yok.</p><p v-else-if="parityResult(price).status === 'ambiguous'" role="status">Bu kişi dağılımı için farklı pariteler var. Parite tablosundaki kayıtları düzeltin.</p></article></template>
   <template v-else-if="tab==='conditions'"><button v-for="(kind, key) in conditionTypes" :key="key" type="button" @click="active.conditions.push({ id: newId(), type: key, firstDate: '', lastDate: '' })">＋ {{ kind.label }}</button><article v-for="condition in active.conditions" :key="condition.type+'-'+condition.id"><h4>{{ conditionTypes[condition.type]?.label }}</h4><HotelDetailFields :row="condition" :fields="[...dates,...(conditionTypes[condition.type]?.fields ?? []),f('order','Sıra','number')]" /></article><p v-if="!active.conditions.length">Koşul kaydı yok.</p></template>
   <template v-else><button type="button" @click="active.rules.push({ id: newId(), appliesTo: '', excludes: '' })">＋ Kural ekle</button><article v-for="rule in active.rules" :key="rule.id"><HotelDetailFields :row="rule" :fields="ruleFields" /></article><p v-if="!active.rules.length">Kural kaydı yok.</p></template>
  </template>

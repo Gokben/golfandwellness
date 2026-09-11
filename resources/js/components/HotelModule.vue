@@ -2,9 +2,9 @@
 import HotelDetailTabs from './HotelDetailTabs.vue';
 import { voxConfirm, voxAlert } from '../voxDialogs';
 import VoxActionButton from './VoxActionButton.vue';
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 
-const emit = defineEmits<{ detailState: [open: boolean] }>();
+const emit = defineEmits<{ detailState: [open: boolean]; 'record-title': [name: string] }>();
 
 import { useHotels, type Hotel } from '../entities';
 import { useCatalog } from '../catalogs';
@@ -100,6 +100,7 @@ function normalizeHotel(hotel: Hotel): Hotel {
 
 const query = ref('');
 const selectedHotel = ref<Hotel | null>(null);
+watch(() => selectedHotel.value ? selectedHotel.value.name.trim() || 'Yeni Otel' : '', name => emit('record-title', name), { immediate: true });
 const selectedHotelId = ref<number | null>(null);
 const creatingHotel = ref(false);
 const selectedHotelTypes = computed<string[]>({
