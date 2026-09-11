@@ -511,7 +511,7 @@ onBeforeUnmount(() => {
                     <HotelBoardTypes v-else-if="item.module.id === 'vehicle-types'" kind="vehicle" />
                     <HotelBoardTypes v-else-if="item.module.id === 'guides'" kind="guide" />
                     <HotelBoardTypes v-else-if="item.module.id === 'hotel-room-types'" kind="room" /><HotelBoardTypes v-else-if="item.module.id === 'hotel-catalogs'" kind="catalog" />
-                    <HotelModule v-else-if="item.module.id === 'hotels'" @detail-state="hotelDetailOpen = $event" />
+                    <HotelModule v-else-if="item.module.id === 'hotels'" @detail-state="hotelDetailOpen = $event" @record-title="item.recordTitle = $event" />
                     <HotelBoardTypes v-else-if="item.module.id === 'hotel-board-types'" @edit-state="boardTypeEditing = $event" @record-count="resizeBoardTypeWindow" />
                     <HotelBoardTypes v-else-if="item.module.id === 'hotel-types'" kind="hotel" @edit-state="hotelTypeEditing = $event" @record-count="resizeHotelTypeWindow" />
                     <HotelBoardTypes v-else-if="item.module.id === 'hotel-regions'" kind="region" @edit-state="regionEditing = $event" @record-count="resizeHotelRegionWindow" />
