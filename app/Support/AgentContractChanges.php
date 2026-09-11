@@ -9,8 +9,8 @@ use Illuminate\Support\Str;
 
 final class AgentContractChanges
 {
-    public const FIELDS = ['allotment', 'guarantee', 'price', 'firstDate', 'lastDate', 'validityFirstDate', 'validityLastDate'];
-    private const LABELS = ['allotment'=>'Kontenjan', 'guarantee'=>'Garanti oda', 'price'=>'Kişi başı fiyat', 'firstDate'=>'İlk tarih', 'lastDate'=>'Son tarih', 'validityFirstDate'=>'Geçerlilik başlangıcı', 'validityLastDate'=>'Geçerlilik bitişi'];
+    public const FIELDS = ['allotment', 'guarantee', 'price', 'firstDate', 'lastDate', 'validityFirstDate', 'validityLastDate', 'calculationType'];
+    private const LABELS = ['allotment'=>'Kontenjan', 'guarantee'=>'Garanti oda', 'price'=>'Kişi başı fiyat', 'firstDate'=>'İlk tarih', 'lastDate'=>'Son tarih', 'validityFirstDate'=>'Geçerlilik başlangıcı', 'validityLastDate'=>'Geçerlilik bitişi', 'calculationType'=>'Hesaplama Tipi'];
 
     public static function schema(): array
     {
@@ -53,6 +53,8 @@ final class AgentContractChanges
             } elseif ($field === 'price') {
                 abort_unless(preg_match('/^\d{1,9}(\.\d{1,2})?$/D', $value), 422, 'Fiyat geçersiz.');
                 $value = number_format((float) $value, 2, '.', '');
+            } elseif ($field === 'calculationType') {
+                abort_unless(in_array($value, ['Accommodation','Chk / In','Average'], true), 422, 'Hesaplama tipi geçersiz.');
             } else {
                 Validator::make(['date'=>$value], ['date'=>'required|date_format:Y-m-d'])->validate();
             }
