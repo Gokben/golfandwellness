@@ -38,7 +38,7 @@ foreach(['app/Support','resources/js','resources/css'] as $directory){
   $copy($file->getPathname(),$app.'/'.$relative);
  }
 }
-foreach(['app/Http/Controllers/SetupRecordsController.php','app/Http/Controllers/ContractDocumentController.php','app/Http/Controllers/AppReleaseController.php','app/Http/Controllers/GolfLoginController.php','config/services.php','routes/api.php'] as $relative)$copy($repo.'/'.$relative,$app.'/'.$relative);
+foreach(['app/Http/Controllers/SetupRecordsController.php','app/Http/Controllers/ContractDocumentController.php','app/Http/Controllers/GolfAgentController.php','app/Http/Controllers/AppReleaseController.php','app/Http/Controllers/GolfLoginController.php','config/services.php','routes/api.php'] as $relative)$copy($repo.'/'.$relative,$app.'/'.$relative);
 // Clear generated config and routes without touching sessions or application data.
 foreach(glob($app.'/bootstrap/cache/routes*.php') as $cached)if(!unlink($cached))throw new RuntimeException('Cannot clear route cache.');
 if(is_file($app.'/bootstrap/cache/config.php')&&!unlink($app.'/bootstrap/cache/config.php'))throw new RuntimeException('Cannot clear configuration cache.');

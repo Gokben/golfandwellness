@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import ReleaseNotice from './ReleaseNotice.vue';
+import GolfAgentPanel from './GolfAgentPanel.vue';
 const releaseVersion = ref<string | null>(null);
+const agentActive = ref(false);
 import HotelBoardTypes from './HotelBoardTypes.vue';
 import HotelModule from './HotelModule.vue';
 import ReservationModule from './ReservationModule.vue';
@@ -426,7 +428,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <ReleaseNotice :open-windows="windows.length" @version="releaseVersion = $event" />
+    <ReleaseNotice :open-windows="windows.length + (agentActive ? 1 : 0)" @version="releaseVersion = $event" />
+    <GolfAgentPanel @active="agentActive = $event" />
     <div class="vox-desktop" :class="[`theme-${theme}`, { 'menu-open': startOpen, 'menu-closed': !startOpen }]" @pointerdown.capture="dismissDesktopSubmenus">
         <aside id="vox-sidebar" class="vox-sidebar" :class="{ 'is-open': startOpen }">
             <template v-if="sidebarView === 'main'">
