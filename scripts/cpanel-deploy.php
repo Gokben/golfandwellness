@@ -14,8 +14,17 @@ $manifest=json_decode(file_get_contents($repo.'/public/build/manifest.json'),tru
 $assets=[];
 foreach($manifest as $entry){$assets[]=$entry['file'];foreach($entry['css']??[] as $css)$assets[]=$css;}
 foreach($assets as $asset)if(strpos($asset,'..')!==false||!is_file($repo.'/public/build/'.$asset))throw new RuntimeException('Incomplete build.');
-$copy=function(string $source,string $target,int $mode=0600):void{
+$backup=$app.'/storage/deploy-backups/'.preg_replace('/[^a-zA-Z0-9_-]/','',$release['commit']);
+$copy=function(string $source,string $target,int $mode=0600)use($app,$public,$backup):void{
  if(is_link($source)||is_link($target))throw new RuntimeException('Symlink not allowed.');
+ if(is_file($target)){
+  $relative=str_starts_with($target,$public.'/')?'public/'.substr($target,strlen($public)+1):'app/'.substr($target,strlen($app)+1);
+  $previous=$backup.'/'.$relative;
+  if(!is_file($previous)){
+   if(!is_dir(dirname($previous))&&!mkdir(dirname($previous),0700,true))throw new RuntimeException('Cannot create backup directory.');
+   if(!copy($target,$previous)||!chmod($previous,0600))throw new RuntimeException('Cannot back up previous code.');
+  }
+ }
  if(!is_dir(dirname($target))&&!mkdir(dirname($target),0755,true))throw new RuntimeException('Cannot create directory.');
  $temp=$target.'.golf-deploy-tmp';
  if(!copy($source,$temp)||!chmod($temp,$mode)||!rename($temp,$target))throw new RuntimeException('File deployment failed.');
@@ -29,7 +38,18 @@ foreach(['app/Support','resources/js','resources/css'] as $directory){
   $copy($file->getPathname(),$app.'/'.$relative);
  }
 }
-$copy($repo.'/app/Http/Controllers/SetupRecordsController.php',$app.'/app/Http/Controllers/SetupRecordsController.php');
+foreach(['app/Http/Controllers/SetupRecordsController.php','app/Http/Controllers/ContractDocumentController.php','app/Http/Controllers/AppReleaseController.php','app/Http/Controllers/GolfLoginController.php','config/services.php','routes/api.php'] as $relative)$copy($repo.'/'.$relative,$app.'/'.$relative);
+// Clear generated config and routes without touching sessions or application data.
+foreach(glob($app.'/bootstrap/cache/routes*.php') as $cached)if(!unlink($cached))throw new RuntimeException('Cannot clear route cache.');
+if(is_file($app.'/bootstrap/cache/config.php')&&!unlink($app.'/bootstrap/cache/config.php'))throw new RuntimeException('Cannot clear configuration cache.');
+$htaccess=$public.'/.htaccess';
+$headers="\n# BEGIN GOLF RELEASE CACHE\n<IfModule mod_headers.c>\n<FilesMatch \"\\.(html|php|json)$\">\nHeader always set Cache-Control \"no-store, no-cache, must-revalidate, max-age=0\"\n</FilesMatch>\n</IfModule>\n# END GOLF RELEASE CACHE\n";
+$existing=file_get_contents($htaccess);
+if(strpos($existing,'# BEGIN GOLF RELEASE CACHE')===false){
+ $copy($htaccess,$app.'/storage/deploy-backups/'.basename($backup).'/previous.htaccess');
+ $temporary=$htaccess.'.golf-deploy-tmp';
+ if(file_put_contents($temporary,$existing.$headers)===false||!chmod($temporary,0644)||!rename($temporary,$htaccess))throw new RuntimeException('Cannot update cache headers.');
+}
 $copy($repo.'/public/build/manifest.json',$public.'/build/manifest.json',0644);
 $copy($repo.'/release.json',$public.'/build/release.json',0644);
 $copy($repo.'/release.json',$marker);

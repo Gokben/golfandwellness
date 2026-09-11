@@ -7,6 +7,13 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SetupRecordsController;
 use App\Http\Controllers\SetupUsersController;
+use App\Http\Controllers\ContractDocumentController;
+use App\Http\Controllers\AppReleaseController;
+
+Route::get('/app-release', AppReleaseController::class);
+
+Route::get('/contract-document/status', [ContractDocumentController::class, 'status']);
+Route::post('/contract-document', [ContractDocumentController::class, 'store'])->middleware('throttle:6,1');
 
 Route::get('/setup-users', [SetupUsersController::class, 'index']);
 Route::post('/setup-users', [SetupUsersController::class, 'store']);

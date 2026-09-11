@@ -19,9 +19,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: node --test tests/proposals.test.mjs
+      - run: node --test tests/release-policy.test.mjs
       - run: npm run build
       - name: Validate PHP files
-        run: find app/Support scripts/cpanel-deploy.php app/Http/Controllers/SetupRecordsController.php -name '*.php' -print0 | xargs -0 -n1 php -l
+        run: find app/Support scripts/cpanel-deploy.php app/Http/Controllers routes config/services.php -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Prepare deployment branch
         run: |
           git fetch origin cpanel-deploy || true

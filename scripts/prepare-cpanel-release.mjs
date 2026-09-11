@@ -3,7 +3,7 @@ import {resolve} from 'node:path';
 const target=resolve(process.argv[2]||'storage/releases/github-release');
 mkdirSync(target,{recursive:true});
 writeFileSync(resolve(target,'.gitignore'),'error_log\n');
-for(const path of ['app/Support','app/Http/Controllers/SetupRecordsController.php','resources/js','resources/css','public/build']){
+for(const path of ['app/Support','app/Http/Controllers/SetupRecordsController.php','app/Http/Controllers/ContractDocumentController.php','app/Http/Controllers/AppReleaseController.php','app/Http/Controllers/GolfLoginController.php','config/services.php','routes/api.php','resources/js','resources/css','public/build']){
  mkdirSync(resolve(target,path,'..'),{recursive:true});
  cpSync(path,resolve(target,path),{recursive:true});
 }
