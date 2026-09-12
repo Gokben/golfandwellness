@@ -84,8 +84,9 @@ function formatPhone(value: string) {
 }
 
 function normalizeHotel(hotel: Hotel): Hotel {
+    const { fax: _removedFax, ...current } = hotel as Hotel & { fax?: string };
     return {
-        ...hotel,
+        ...current,
         type: resolveHotelTypeCodes(resolveHotelTypeNames(hotel.type)),
         roomType: resolveRoomTypeCodes(hotel.roomType),
         location1: resolveRegionName(hotel.location1),
@@ -105,6 +106,8 @@ watch(() => selectedHotel.value ? selectedHotel.value.name.trim() || 'Yeni Otel'
 const selectedHotelId = ref<number | null>(null);
 const creatingHotel = ref(false);
 const detailSaveRevision = ref(0);
+const contractSaved = ref(false);
+let contractSavedTimer: ReturnType<typeof setTimeout> | undefined;
 let draftBase: Hotel | null = null;
 const mergeConflicts = ref<string[]>([]);
 watch(hotels, rows => {
@@ -239,7 +242,6 @@ function createHotel() {
         address: '',
         phone: '',
         smsPhone: '',
-        fax: '',
         email: '',
         website: '',
         createdBy: '',
@@ -269,7 +271,7 @@ async function deleteHotel(hotel: Hotel) {
 }
 
 async function saveHotel() {
-    if (!selectedHotel.value) return;
+    if (!selectedHotel.value || contractSaved.value) return;
     if (mergeConflicts.value.length && !await voxConfirm('Sunucuyla aynı alanlarda farklı düzenlemeler var. Formdaki kendi değerlerinizi kaydetmek istiyor musunuz?')) return;
     selectedHotel.value.name = selectedHotel.value.name.trim();
     selectedHotel.value.code = selectedHotel.value.code.trim();
@@ -289,7 +291,11 @@ async function saveHotel() {
         draftBase = JSON.parse(JSON.stringify(selectedHotel.value));
         mergeConflicts.value = [];
         creatingHotel.value = false;
-        detailSaveRevision.value++;
+        contractSaved.value = true;
+        contractSavedTimer = setTimeout(() => {
+            contractSaved.value = false;
+            if (selectedHotel.value?.id === savedHotel.id && activeCardTab.value === 'contracts') detailSaveRevision.value++;
+        }, 3000);
         return;
     }
     closeHotelCard();
@@ -317,6 +323,7 @@ onMounted(() => {
 
 });
 onBeforeUnmount(() => {
+    clearTimeout(contractSavedTimer);
     stopHotelColumnResize?.();
     window.removeEventListener('vox-hotels-back', closeHotelCard);
     emit('detailState', false);
@@ -324,7 +331,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <section class="hotel-module" aria-label="Otel modülü">
+    <Teleport to="body"><div v-if="contractSaved" class="contract-saved-overlay"><div class="contract-saved-message" role="status" aria-live="polite">Kaydedildi</div></div></Teleport>
+    <section class="hotel-module" aria-label="Otel modülü" :inert="contractSaved">
         <template v-if="!selectedHotel">
             <div class="hotel-list-header">
                 <h2>Otel Listesi</h2>
@@ -390,7 +398,6 @@ onBeforeUnmount(() => {
                 <label class="address-field"><span>Adres</span><textarea v-model="selectedHotel.address"></textarea></label>
                 <label class="telephone-field"><span>Telefon</span><input v-model="selectedHotel.phone" type="tel" placeholder="0242 710 05 00" @blur="selectedHotel.phone = formatPhone(selectedHotel.phone)"></label>
                 <label class="sms-field"><span>SMS Telefon</span><input v-model="selectedHotel.smsPhone" type="tel" placeholder="0242 710 05 00" @blur="selectedHotel.smsPhone = formatPhone(selectedHotel.smsPhone)"></label>
-                <label class="fax-field"><span>Faks</span><input v-model="selectedHotel.fax" type="tel"></label>
                 <label class="email-field"><span>E-posta</span><input v-model="selectedHotel.email" type="email"></label>
                 <label class="web-field"><span>Web Adresi</span><input v-model="selectedHotel.website" type="text"></label>
             </form>
@@ -619,6 +626,8 @@ onBeforeUnmount(() => {
 .hotel-information-form .web-field { grid-column: 10 / 13; grid-row: 4; }
 .hotel-section-placeholder { display: flex; flex: 1 1 auto; flex-direction: column; align-items: center; justify-content: center; min-height: 0; background: #f8fbfd; color: #60798a; }
 .hotel-section-placeholder > span { color: #168bd0; font-size: 38px; }.hotel-section-placeholder h3 { margin: 8px 0 4px; color: #07508a; font-size: 16px; }.hotel-section-placeholder p { margin: 0; font-size: 10px; }
+.contract-saved-overlay { position: fixed; inset: 0; z-index: 10000; display: grid; place-items: center; background: rgb(0 0 0 / 15%); }
+.contract-saved-message { padding: 24px 40px; max-width: calc(100vw - 32px); box-sizing: border-box; border: 1px solid #34865b; border-radius: 6px; background: #f0fff5; color: #17633a; font-size: 20px; font-weight: bold; box-shadow: 0 8px 28px rgb(0 0 0 / 20%); }
 .card-commandbar { display: flex; flex: 0 0 34px; align-items: center; justify-content: flex-end; min-height: 34px; padding: 3px 6px; border-top: 1px solid #8eb5a0; background: #e6f2ec; }
 .save-icon-button { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 29px; height: 29px; padding: 0; border: 1px solid #087d3c; border-radius: 3px; background: linear-gradient(#28b85b, #10933f); color: #fff; cursor: pointer; box-shadow: inset 0 1px rgba(255,255,255,.45); }
 .save-icon-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }

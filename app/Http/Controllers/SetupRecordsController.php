@@ -220,7 +220,7 @@ class SetupRecordsController extends Controller
                     }
                     $ids[$row['id']] = true;
                     $codes[$code] = true;
-                    if ($row['children'] && (!in_array($kind, ['extra-sellings', 'hotel-golf-extras'], true) || $depth > 0)) {
+                    if ($row['children'] && (!in_array($kind, ['markets', 'extra-sellings', 'hotel-golf-extras'], true) || $depth > 0)) {
                         throw ValidationException::withMessages(['records' => 'Geçersiz alt kalem seviyesi.']);
                     }
                     $validateRows($row['children'], $depth + 1);

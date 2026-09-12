@@ -23,7 +23,7 @@ class LinkedRecords
             $check = function (array &$rows, int $depth = 0) use (&$check) {
                 if ($depth > 2 || !array_is_list($rows)) throw ValidationException::withMessages(['records' => 'Geçersiz tanım listesi.']);
                 foreach ($rows as &$row) {
-                    Validator::make($row, ['name' => 'present|nullable|string|max:500', 'code' => 'required|string|max:150', 'hotel' => 'sometimes|nullable|string|max:200', 'children' => 'sometimes|array|max:1000'])->validate();
+                    Validator::make($row, ['name' => 'present|nullable|string|max:500', 'code' => 'required|string|max:150', 'hotel' => 'sometimes|nullable|string|max:200', 'hotels' => 'sometimes|array|max:5000', 'hotels.*' => 'required|string|max:200|distinct', 'children' => 'sometimes|array|max:1000'])->validate();
                     $row['name'] = $row['name'] ?? '';
                     $row['id'] = $row['id'] ?? (string) \Illuminate\Support\Str::uuid();
                     if (isset($row['children'])) $check($row['children'], $depth + 1);
@@ -45,6 +45,7 @@ class LinkedRecords
         $identities = []; $codes = [];
         foreach ($records as &$row) {
             if (!is_array($row)) throw ValidationException::withMessages(['records' => 'Geçersiz kayıt.']);
+            if ($kind === 'hotels') unset($row['fax']);
             Validator::make($row, $rules)->validate();
             if ($kind === 'agency-vouchers' && (int) $row['lastCount'] < (int) $row['count']) throw ValidationException::withMessages(['records'=>'Son sayaç başlangıç sayacından küçük olamaz.']);
             if ($kind === 'hotels' && isset($row['details'])) {
@@ -123,6 +124,7 @@ class LinkedRecords
                     }
                     if ($kind === 'hotels' && $set->kind === 'catalog-room-types') {
                         foreach ($row['children'] ?? [] as $i => $child) if (($child['hotel'] ?? '') === $old['name']) $row['children'][$i]['hotel'] = $new['name'];
+                        foreach ($row['children'] ?? [] as $i => $child) if (isset($child['hotels'])) $row['children'][$i]['hotels'] = array_values(array_unique(array_map(fn ($name) => $name === $old['name'] ? $new['name'] : $name, $child['hotels'])));
                     }
                     $hotelFields = ['catalog-hotel-types' => ['type', 'code'], 'catalog-room-types' => ['roomType', 'code'], 'catalog-regions' => ['location1', 'name'], 'catalog-catalogs' => ['catalog', 'code']];
                     if ($set->kind === 'hotels' && isset($hotelFields[$kind])) {

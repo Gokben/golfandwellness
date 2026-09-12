@@ -4,7 +4,6 @@ import { useVoxMessages } from '../useVoxMessages';
 import { computed, reactive, ref, shallowRef, watch } from 'vue';
 import VoxActionButton from './VoxActionButton.vue';
 import { makeStore } from '../setupCatalogs';
-
 type Kind = 'citizens' | 'markets' | 'cancel-reasons' | 'extra-sellings' | 'hotel-golf-extras';
 type RecordRow = { id: string; fields: [string, string]; children: RecordRow[] };
 const props = defineProps<{ kind: Kind }>();
@@ -73,7 +72,7 @@ useVoxMessages([storageError, error], [message]);
         <header>
             <h2>{{ title }}</h2><small>{{ busy ? 'MySQL işlemi sürüyor…' : ready ? 'MySQL bağlı' : 'MySQL bağlantısı bekleniyor' }}</small>
             <button v-if="parent && !formOpen" type="button" @click="selectedId = null; message = ''">← Listeye dön</button>
-            <button v-if="!formOpen && !groupRoot" type="button" :disabled="busy || !ready" @click="beginEdit()">＋ Yeni Kayıt</button>
+            <button v-if="!formOpen && !groupRoot" type="button" :disabled="busy || !ready" @click="beginEdit()">{{ kind === 'markets' && parent ? '＋ Yeni Alt Pazar' : '＋ Yeni Kayıt' }}</button>
         </header>
         <p v-if="storageError" role="alert" class="record-error">{{ storageError }} <button type="button" :disabled="busy" @click="store.reload()">Yeniden yükle</button></p>
         <p v-if="message" role="status" class="record-message">{{ message }}</p>
@@ -85,7 +84,7 @@ useVoxMessages([storageError, error], [message]);
             </div>
             <p v-if="error" role="alert" class="record-error">{{ error }}</p>
             <div class="record-commands">
-                <button type="button" :disabled="busy" @click="formOpen = false; error = ''">İptal</button>
+
                 <button type="submit" :disabled="busy || !ready">Kaydet</button>
             </div>
         </form>
@@ -96,7 +95,7 @@ useVoxMessages([storageError, error], [message]);
                     <tr v-for="row in rows" :key="row.id">
                         <td><b>{{ row.fields[0] }}</b></td><td v-if="!groupRoot">{{ row.fields[1] }}</td>
                         <td class="actions">
-                            <VoxActionButton v-if="(kind === 'extra-sellings' || kind === 'hotel-golf-extras') && !parent" action="link" :aria-label="row.fields[0] + ' alt kalemleri'" :disabled="busy || !ready" @click="openChildren(row)" />
+                            <VoxActionButton v-if="(kind === 'markets' || kind === 'extra-sellings' || kind === 'hotel-golf-extras') && !parent" action="link" :title="kind === 'markets' ? 'Alt pazarlar' : 'Alt kalemler'" :aria-label="row.fields[0] + (kind === 'markets' ? ' alt pazarları' : ' alt kalemleri')" :disabled="busy || !ready" @click="openChildren(row)" />
                             <VoxActionButton v-if="!groupRoot" action="edit" :aria-label="row.fields[0] + ' düzenle'" :disabled="busy || !ready" @click="beginEdit(row)" />
                             <VoxActionButton v-if="!groupRoot" action="delete" :aria-label="row.fields[0] + ' sil'" :disabled="busy || !ready" @click="deleteRecord(row)" />
                         </td>

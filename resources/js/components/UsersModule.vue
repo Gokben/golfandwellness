@@ -78,7 +78,7 @@ useVoxMessages([storageError, error], [message]);
                 </div>
             </fieldset>
             <p v-if="error" class="error" role="alert">{{ error }}</p>
-            <div class="commands"><button type="button" class="command" :disabled="busy" @click="closeForm">İptal</button><button type="submit" class="command" :disabled="busy || !ready">Kaydet</button></div>
+            <div class="commands"><button type="submit" class="command" :disabled="busy || !ready">Kaydet</button></div>
         </form>
         <div v-else class="table-wrap">
             <table>

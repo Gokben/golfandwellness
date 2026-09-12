@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import MoneyInput from './MoneyInput.vue';
 import { manualPriceAppearance } from '../manualPriceAppearance.mjs';
-defineProps<{ row: Record<string, any>; priceEntry?: boolean; sourcePrices?: boolean; fields: { key: string; label: string; type?: string; readonly?: boolean; options?: string[] }[] }>();
+defineProps<{ row: Record<string, any>; priceEntry?: boolean; sourcePrices?: boolean; invalidFields?: string[]; fields: { key: string; label: string; type?: string; readonly?: boolean; options?: string[] }[] }>();
 const emit = defineEmits<{ 'field-change': [key: string]; 'toggle-price': [event: MouseEvent] }>();
 const capped = (key: string) => ['allotment', 'guarantee'].includes(key);
 function limitCount(event: Event, row: Record<string, any>, key: string) {
@@ -14,13 +14,14 @@ function limitCount(event: Event, row: Record<string, any>, key: string) {
 <template>
     <div class="detail-fields">
         <label v-for="field in fields" :key="field.key"><span>{{ field.label }}</span>
-            <select v-if="field.options" v-model="row[field.key]" @change="emit('field-change', field.key)"><option value="">Seçiniz</option><option v-for="option in [...new Set([row[field.key], ...field.options])].filter(Boolean)" :key="option" :value="option">{{ option }}</option></select>
+            <select v-if="field.options" v-model="row[field.key]" :class="{ 'undefined-option': invalidFields?.includes(field.key) }" :aria-invalid="invalidFields?.includes(field.key) || undefined" :title="invalidFields?.includes(field.key) ? (field.key === 'market' ? 'Bu pazar, Pazar tanımlarında bulunmuyor.' : field.key === 'submarket' ? 'Bu alt pazar, seçili ana pazara bağlı tanımlarda bulunmuyor.' : 'Bu oda adı, seçili otel ve oda tipi için Otel Oda Tipleri ekranında tanımlı değil.') : undefined" @change="emit('field-change', field.key)"><option value="">Seçiniz</option><option v-for="option in [...new Set([row[field.key], ...field.options])].filter(Boolean)" :key="option" :value="option">{{ option }}</option></select>
             <input v-else-if="field.type === 'checkbox'" v-model="row[field.key]" type="checkbox">
             <DateInput :range-message="field.key.startsWith('validity') ? 'Geçerlilik başlangıcı geçerlilik bitişinden büyük olamaz.' : 'İlk tarih son tarihten büyük olamaz.'" :range-start="row[({lastDate:'firstDate',validityLastDate:'validityFirstDate',checkOut:'checkIn',closedTo:'closedFrom',buggyTo:'buggyFrom'} as Record<string,string>)[field.key]]" :range-end="row[({firstDate:'lastDate',validityFirstDate:'validityLastDate',checkIn:'checkOut',closedFrom:'closedTo',buggyFrom:'buggyTo'} as Record<string,string>)[field.key]]" v-else-if="field.type === 'date'" v-model="row[field.key]" /><span v-else-if="field.key === 'price'" class="price-entry"><MoneyInput :class="{ 'price-priority': priceEntry && manualPriceAppearance(row, sourcePrices) }" :readonly="priceEntry && !row.manualPrice" v-model="row[field.key]" @update:model-value="emit('field-change', field.key)" /><button v-if="priceEntry" type="button" class="price-toggle" :aria-pressed="!!row.manualPrice" :title="row.manualPrice ? 'Otomatik fiyata dön' : 'Kendi fiyatını gir'" :aria-label="row.manualPrice ? 'Otomatik fiyata dön' : 'Kendi fiyatını gir'" @click.prevent="emit('toggle-price', $event)"></button></span><input v-else-if="capped(field.key)" :value="row[field.key]" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{1,4}" @input="limitCount($event, row, field.key)"><input v-else @input="emit('field-change', field.key)" :readonly="field.readonly" v-model="row[field.key]" :type="field.type ?? 'text'" :min="field.type === 'number' ? '0' : undefined" :step="field.type === 'number' ? 'any' : undefined">
         </label>
     </div>
 </template>
 <style scoped>
+.detail-fields select.undefined-option { border: 2px solid #c62828; background: #fff2f2; }
 .price-entry { position: relative; display: flex; }
 .price-entry:has(.price-toggle) input { padding-right: 32px; }
 .price-toggle { position: absolute; right: 7px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; padding: 0; border: 1px solid #ce9292; border-radius: 50%; background: #f2c6c6; cursor: pointer; }

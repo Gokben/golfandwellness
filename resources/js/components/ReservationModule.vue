@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { roomMatchesHotel } from '../catalogs';
 import VoxActionButton from './VoxActionButton.vue';
 import { computed, ref, watch } from 'vue';
 import RecordSelect from './RecordSelect.vue';
@@ -41,7 +42,7 @@ const directionChoices = computed(() => linked.directions.records.value.map(row 
 const extraChoices = computed(() => linked.extras.records.value.flatMap(group => group.children.map(row => ({ id: row.id, name: row.fields[0] }))));
 
 const mainRoomChoices = computed(() => linked.rooms.records.value.map(row => ({ id: row.id ?? row.code, name: row.name, aliases: [row.code] })));
-const roomChoices = computed(() => linked.rooms.records.value.filter(row => (row.id ?? row.code) === choiceKey(mainRoomChoices.value, form.value.mainRoom)).flatMap(row => (row.children ?? []).filter(child => !child.hotel || child.hotel === choiceName(linked.hotelChoices.value, form.value.hotel)).map(child => ({ id: child.id ?? child.code, name: child.name, aliases: [child.code] }))));
+const roomChoices = computed(() => linked.rooms.records.value.filter(row => (row.id ?? row.code) === choiceKey(mainRoomChoices.value, form.value.mainRoom)).flatMap(row => (row.children ?? []).filter(child => roomMatchesHotel(child, choiceName(linked.hotelChoices.value, form.value.hotel))).map(child => ({ id: child.id ?? child.code, name: child.name, aliases: [child.code] }))));
 const boardChoices = computed(() => linked.boards.records.value.map(row => ({ id: row.id ?? row.code, name: row.name, aliases: [row.code] })));
 watch(() => [form.value.checkIn, form.value.night], () => { const date = new Date(form.value.checkIn); if (Number.isFinite(date.getTime()) && Number(form.value.night) > 0) { date.setUTCDate(date.getUTCDate() + Number(form.value.night)); form.value.checkOut = date.toISOString().slice(0,10); } });
 watch(() => [form.value.hotel, form.value.mainRoom], () => { if (!roomChoices.value.some(row => row.id === form.value.roomType)) form.value.roomType = ''; });

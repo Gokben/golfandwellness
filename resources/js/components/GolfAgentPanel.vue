@@ -1,10 +1,55 @@
 <script setup lang="ts">
-import { ref, watch, onBeforeUnmount } from 'vue';
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
 import { apiHeaders, apiUrl } from '../api';
 import agentLogo from '../assets/agent-logo.png?inline';
 import { refreshMysqlRecords } from '../useMysqlRecords';
 type Knowledge = { id:string; owner:string; title:string; content:string; scope:string; status:string; version:number };
 const open = ref(false);
+const launchPosition = ref<{ x:number; y:number } | null>(null);
+let drag: { id:number; x:number; y:number; left:number; top:number } | null = null;
+let suppressClick = false;
+const positionKey = 'golf-agent-launch-position';
+function clampPosition(x:number, y:number) {
+    return { x:Math.max(0, Math.min(x, window.innerWidth - 56)), y:Math.max(0, Math.min(y, window.innerHeight - 56)) };
+}
+function savePosition() {
+    try { window.localStorage.setItem(positionKey, JSON.stringify(launchPosition.value)); } catch {}
+}
+function fitPosition() {
+    if (launchPosition.value) launchPosition.value = clampPosition(launchPosition.value.x, launchPosition.value.y);
+}
+function startDrag(event:PointerEvent) {
+    if (event.button !== 0 || !event.isPrimary) return;
+    const button = event.currentTarget as HTMLElement;
+    const rect = button.getBoundingClientRect();
+    suppressClick = false;
+    drag = { id:event.pointerId, x:event.clientX, y:event.clientY, left:rect.left, top:rect.top };
+    button.setPointerCapture(event.pointerId);
+}
+function moveDrag(event:PointerEvent) {
+    if (!drag || drag.id !== event.pointerId) return;
+    const dx = event.clientX - drag.x, dy = event.clientY - drag.y;
+    if (!suppressClick && Math.hypot(dx, dy) < 5) return;
+    suppressClick = true;
+    launchPosition.value = clampPosition(drag.left + dx, drag.top + dy);
+}
+function endDrag(event:PointerEvent) {
+    if (!drag || drag.id !== event.pointerId) return;
+    drag = null;
+    if (suppressClick) savePosition();
+}
+function launchClick(event:MouseEvent) {
+    if (suppressClick && event.detail !== 0) { suppressClick = false; return; }
+    open.value ? open.value = false : show();
+}
+onMounted(() => {
+    try {
+        const saved = JSON.parse(window.localStorage.getItem(positionKey) ?? 'null');
+        if (saved && Number.isFinite(saved.x) && Number.isFinite(saved.y)) launchPosition.value = clampPosition(saved.x, saved.y);
+    } catch {}
+    window.addEventListener('resize', fitPosition);
+});
+onBeforeUnmount(() => window.removeEventListener('resize', fitPosition));
 const emit = defineEmits<{ active: [value:boolean] }>();
 const tab = ref('chat');
 const busy = ref(false);
@@ -85,7 +130,7 @@ async function example(event:Event) {
 onBeforeUnmount(()=>controller?.abort());
 </script>
 <template>
-    <button class="agent-launch" type="button" @click="open ? open=false : show()" :aria-expanded="open" aria-controls="golf-agent-panel" aria-label="Ajan" title="Ajan">
+    <button class="agent-launch" type="button" :style="launchPosition ? { left:launchPosition.x+'px', top:launchPosition.y+'px', right:'auto', bottom:'auto' } : undefined" @pointerdown="startDrag" @pointermove="moveDrag" @pointerup="endDrag" @pointercancel="endDrag" @lostpointercapture="endDrag" @dragstart.prevent @click="launchClick" :aria-expanded="open" aria-controls="golf-agent-panel" aria-label="Ajan" title="Ajan · Taşımak için sürükleyin">
         <img :src="agentLogo" alt="" width="72" height="72" draggable="false">
     </button>
     <aside v-show="open" id="golf-agent-panel" class="agent-panel" aria-label="Golf ajanı">
@@ -143,6 +188,8 @@ onBeforeUnmount(()=>controller?.abort());
 .agent-launch { position:fixed; right:14px; bottom:39px; z-index:90000; display:flex; align-items:center; justify-content:center; width:56px; height:56px; overflow:hidden; border:1px solid #b9cbd4; border-radius:50%; padding:0; background:#fff; color:#154c75; cursor:pointer; box-shadow:0 2px 8px #183d5020; }
 .agent-launch img { flex:none; width:63px; height:63px; max-width:none; margin-left:-3.5px; margin-top:1.75px; clip-path:inset(8% 15% 15% 12%); transform-origin:50% 50%; animation:agent-nod 6s ease-in-out infinite; }
 .agent-launch:hover { border-color:#648c9c; }
+.agent-launch { touch-action:none; user-select:none; }
+.agent-launch img { pointer-events:none; }
 .agent-launch:focus-visible { outline:2px solid #17677f; outline-offset:3px; }
 @keyframes agent-nod { 0%,75%,100% { transform:translateY(0) rotate(0); } 82% { transform:translateY(-3px) rotate(-5deg); } 90% { transform:translateY(0) rotate(4deg); } }
 @media (prefers-reduced-motion:reduce) { .agent-launch img { animation:none; } }
