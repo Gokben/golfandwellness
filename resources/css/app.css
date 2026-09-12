@@ -1,5 +1,25 @@
 @import 'tailwindcss';
 
+/* Important layer also overrides legacy component font shorthands. */
+@layer application-typography {
+    :root { --app-font: "Segoe UI", Arial, sans-serif; }
+    body, body :where(div, section, article, aside, main, header, footer, nav, form,
+        fieldset, legend, label, input, select, option, optgroup, textarea, button,
+        table, thead, tbody, tfoot, tr, th, td, caption, p, a, span, b, strong, em,
+        small, h1, h2, h3, h4, h5, h6, ul, ol, li, details, summary, dialog) {
+        font-family: var(--app-font) !important;
+        letter-spacing: 0 !important;
+    }
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+    select, textarea, option {
+        font-size: 14px !important;
+    }
+    label, legend, th {
+        font-size: 14px !important;
+        font-weight: 600 !important;
+    }
+}
+
 :root {
     --vox-green: #0f5a47;
     --vox-green-dark: #083d32;
