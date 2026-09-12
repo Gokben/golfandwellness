@@ -6,6 +6,27 @@ use Illuminate\Validation\ValidationException;
 
 class HotelDetails
 {
+    private static function check(array $data, array $rules, string $context = ''): void
+    {
+        $labels = ['status'=>'Durum','name'=>'Ad','id'=>'Kayıt kodu','allotment'=>'Kontenjan','guarantee'=>'Garanti oda','price'=>'Fiyat','currency'=>'Para birimi','contractType'=>'Kontrat tipi','calculationType'=>'Hesaplama tipi','roomType'=>'Oda tipi','roomName'=>'Oda adı','market'=>'Pazar','submarket'=>'Alt pazar','board'=>'Pansiyon','firstDate'=>'İlk tarih','lastDate'=>'Son tarih','validityFirstDate'=>'Geçerlilik başlangıcı','validityLastDate'=>'Geçerlilik bitişi','accommodationId'=>'Konaklama kodu','accommodation'=>'Konaklama','ageTable'=>'Yaş tablosu','parity'=>'Parite','pax'=>'Yetişkin','infants'=>'Bebek','children'=>'Çocuk','conditions'=>'Koşullar','rules'=>'Kurallar','prices'=>'Fiyat satırları','reviewRequired'=>'İnceleme durumu'];
+        $validator = Validator::make($data, $rules, [
+            'required'=>':attribute boş bırakılamaz.', 'present'=>':attribute bilgisi gönderilmedi.',
+            'in'=>':attribute için seçilen değer geçersiz. İzin verilen değerler: :values.',
+            'integer'=>':attribute tam sayı olmalıdır.', 'numeric'=>':attribute sayı olmalıdır.',
+            'min'=>':attribute en az :min olmalıdır.', 'max'=>':attribute izin verilen sınırı (:max) aşıyor.',
+            'date_format'=>':attribute geçerli bir tarih olmalıdır (:format).',
+            'boolean'=>':attribute evet/hayır değeri olmalıdır.', 'string'=>':attribute metin olmalıdır.',
+            'array'=>':attribute liste biçiminde olmalıdır.', 'distinct'=>':attribute tekrarlanamaz.',
+        ]);
+        $attributes=[];
+        foreach ($validator->getRules() as $path => $rule) {
+            $parts=explode('.',$path); $leaf=end($parts); $prefix=$context;
+            if (preg_match('/prices\\.(\\d+)\\./',$path,$match)) $prefix.=' / Fiyat satırı '.((int)$match[1]+1);
+            $attributes[$path]=($prefix ? $prefix.' / ' : '').($labels[$leaf] ?? $path);
+        }
+        $validator->setAttributeNames($attributes)->validate();
+    }
+
     public static function validate(array $details): void
     {
         $rules = [
@@ -88,11 +109,11 @@ class HotelDetails
             foreach (['id','appliesTo','excludes'] as $field) $rules['details.'.$group.'.*.rules.*.'.$field] = 'required|string|max:150';
         }
         foreach ($dated as $prefix) foreach (['firstDate','lastDate'] as $field) $rules[$prefix.'.'.$field] = 'required|date_format:Y-m-d';
-        Validator::make(['contracts' => $details['contracts'] ?? []], ['contracts'=>'array|max:1000','contracts.*.id'=>'required|string|distinct','contracts.*.reviewRequired'=>'sometimes|boolean','contracts.*.sourceNotes'=>'sometimes|array|max:1000','contracts.*.sourceNotes.*'=>'string|max:4000'])->validate();
+        self::check(['contracts' => $details['contracts'] ?? []], ['contracts'=>'array|max:1000','contracts.*.id'=>'required|string|distinct','contracts.*.reviewRequired'=>'sometimes|boolean','contracts.*.sourceNotes'=>'sometimes|array|max:1000','contracts.*.sourceNotes.*'=>'string|max:4000']);
         $reviewDrafts = [];
         foreach ($details['contracts'] ?? [] as $index => $contract) {
             if (empty($contract['reviewRequired'])) continue;
-            // Incomplete source drafts stay pending; normal/active records keep strict validation.
+            // Source records may be activated with the UI warning; missing source fields remain nullable.
             $draftRules = [];
             foreach ($rules as $key => $rule) {
                 if (!str_starts_with($key, 'details.contracts.*.')) continue;
@@ -100,13 +121,13 @@ class HotelDetails
                 if (in_array($field, ['roomType','roomName','market','board','allotment','guarantee','price','contractType','calculationType','prices.*.accommodationId','prices.*.ageTable','prices.*.parity'])) $rule = str_replace('required|', 'present|nullable|', $rule);
                 $draftRules[$field] = str_replace('|distinct', '', $rule);
             }
-            $draftRules['status'] = 'required|in:PENDING';
+            $draftRules['status'] = 'required|in:ACTIVE,PENDING';
             $draftRules['conditions'] = 'present|array|max:0';
-            Validator::make($contract, $draftRules)->validate();
+            self::check($contract, $draftRules);
             $reviewDrafts[] = $contract;
             unset($details['contracts'][$index]);
         }
-        Validator::make(['details' => $details], $rules)->validate();
+        self::check(['details' => $details], $rules);
         foreach ($details['extras'] as $extra) {
             $missing = empty($extra['firstDate']) || empty($extra['lastDate']);
             $quarantined = empty($extra['firstDate']) && empty($extra['lastDate']) && isset($extra['sourceDateIssue']);
@@ -119,7 +140,7 @@ class HotelDetails
                 $conditionRules = array_fill_keys($fieldsByType[$condition['type']], 'required|numeric|min:0');
                 if ($condition['type'] === 'stayPay') $conditionRules['calculation'] = 'required|string|max:100';
                 if ($condition['type'] === 'freePax') foreach (['roomType','roomName'] as $field) $conditionRules[$field] = 'required|string|max:150';
-                Validator::make($condition, $conditionRules)->validate();
+                self::check($condition, $conditionRules, 'Koşul');
             }
         }
         $checkDates = function ($value) use (&$checkDates) {
