@@ -59,7 +59,7 @@ useVoxMessages([storageError, error], [message]);
                 <label>Parity<input v-model="draft.parity" inputmode="decimal" required maxlength="20"></label>
             </div>
             <p v-if="error" class="error" role="alert">{{ error }}</p>
-            <div class="parity-commands"><button type="button" :disabled="busy" @click="formOpen = false; error = ''">İptal</button><button type="submit" :disabled="busy || !ready">Kaydet</button></div>
+            <div class="parity-commands"><button type="submit" :disabled="busy || !ready">Kaydet</button></div>
         </form>
         <div v-else class="parity-table-wrap"><table><thead><tr><th>Kişi Dağılımı</th><th>Pax</th><th>Inf</th><th>Chd</th><th>Oda Tipi</th><th>Parity</th><th></th></tr></thead><tbody><tr v-for="(item, index) in visibleRecords" :key="index"><td>{{ summary(item) }}</td><td>{{ item.pax }}</td><td>{{ item.inf }}</td><td>{{ item.chd }}</td><td>{{ item.roomType }}</td><td>{{ item.parity }}</td><td><VoxActionButton action="edit" title="Düzenle" :disabled="busy || !ready" @click="editRecord(item)" /><VoxActionButton action="delete" title="Sil" :disabled="busy || !ready" @click="deleteRecord(item)" /></td></tr></tbody></table></div>
         <footer>Toplam kayıt: <b>{{ records.length }}</b> · Sayfa sonu</footer>

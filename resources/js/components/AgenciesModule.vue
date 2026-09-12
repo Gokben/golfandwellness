@@ -84,7 +84,7 @@ async function deleteAgency(agency: Agency) { const index = agencies.value.index
                         <label class="wide">Web Adresi<input v-model="draft.webAddress"></label>
                         <label class="address">Adres<textarea v-model="draft.address"></textarea></label>
                     </div>
-                    <div class="agency-card-actions"><button type="button" class="cancel" @click="closeCard">İptal</button><button type="submit">Kaydet</button></div>
+                    <div class="agency-card-actions"><button type="submit">Kaydet</button></div>
                 </template>
                 <p v-else-if="activeTab === 6" class="card-note">Ekstra eklemeden önce acente bilgilerini kaydedin ve kartı yeniden açın.</p>
                 <p v-else class="card-note">Bu acente kartı sekmesi sonraki aşamada doldurulacaktır.</p>

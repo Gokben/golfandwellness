@@ -4,7 +4,7 @@ import { useVoxMessages } from '../useVoxMessages';
 import VoxActionButton from './VoxActionButton.vue';
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
 
-import { useCatalog, type BoardType } from '../catalogs';
+import { useCatalog, roomHotels, type BoardType } from '../catalogs';
 import { useHotels } from '../entities';
 const props = withDefaults(defineProps<{ kind?: 'board' | 'hotel' | 'region' | 'room' | 'catalog' | 'nationality' | 'market' | 'cancel-reason' | 'vehicle' | 'guide' | 'direction' }>(), { kind: 'board' });
 const emit = defineEmits<{ editState: [editing: boolean]; recordCount: [count: number]; parentLabel: [name: string]; childState: [open: boolean] }>();
@@ -34,6 +34,7 @@ const editing = ref(false);
 const editIndex = ref<number | null>(null);
 const validationMessage = ref('');
 const draft = reactive<BoardType>({ name: '', code: '' });
+const selectedRoomHotels = ref<string[]>([]);
 type BoardColumnKey = keyof BoardType;
 const boardColumnOrder = ref<BoardColumnKey[]>(['catalog', 'cancel-reason'].includes(props.kind) ? ['code', 'name'] : ['name', 'code']);
 const boardColumnLabels: Record<BoardColumnKey, string> = ['catalog', 'cancel-reason'].includes(props.kind) ? { name: 'Açıklama', code: 'Kod' } : props.kind === 'guide' ? { name: 'Ad Soyad', code: 'Kod' } : { name: 'Ad', code: 'Kod' };
@@ -59,7 +60,7 @@ const filteredChildren = computed(() => {
     const children = activeParent.value?.children ?? [];
     const query = childQuery.value.trim().toLocaleLowerCase('tr-TR');
     if (!query) return children;
-    return children.filter(child => [child.name, child.code, child.hotel ?? ''].some(value => value.toLocaleLowerCase('tr-TR').includes(query)));
+    return children.filter(child => [child.name, child.code, roomHotels(child).join(', ')].some(value => value.toLocaleLowerCase('tr-TR').includes(query)));
 });
 const childPageCount = computed(() => Math.max(1, Math.ceil(filteredChildren.value.length / childPageSize.value)));
 const visibleChildren = computed(() => {
@@ -130,6 +131,7 @@ function beginChildEdit(child: BoardType, index: number) {
     draft.name = child.name;
     draft.code = child.code;
     draft.hotel = child.hotel ?? '';
+    selectedRoomHotels.value = [...(child.hotels ?? (child.hotel ? [child.hotel] : []))];
     validationMessage.value = '';
     emit('editState', true);
 }
@@ -151,7 +153,7 @@ async function saveChildEdit() {
         validationMessage.value = 'Ad ve kod alanları zorunludur.';
         return;
     }
-    const child = { name, code, hotel: draft.hotel?.trim() || undefined };
+    const child = { name, code, hotel: undefined, hotels: [...selectedRoomHotels.value] };
     if (index === null) parent.children?.push(child);
     else parent.children?.splice(index, 1, { ...parent.children[index], ...child });
     if (!await persistCatalog()) return;
@@ -195,6 +197,7 @@ function beginChildCreate() {
     draft.name = '';
     draft.code = '';
     draft.hotel = '';
+    selectedRoomHotels.value = [];
     validationMessage.value = '';
     emit('editState', true);
 }
@@ -310,7 +313,7 @@ useVoxMessages([validationMessage, catalogStore.storageError]);
                 <table class="board-types-table sub-room-types-table">
                     <thead><tr><th>Ad</th><th>Kod</th><th>Otel</th><th aria-label="İşlem"></th></tr></thead>
                     <tbody>
-                        <tr v-for="child in visibleChildren" :key="`${activeParent.code}-${child.code}`"><td><b>{{ child.name }}</b></td><td>{{ child.code }}</td><td>{{ child.hotel || '—' }}</td><td class="board-row-actions"><div class="board-action-buttons"><VoxActionButton action="edit" :aria-label="`${child.name} kaydını düzenle`" title="Düzenle" @click="beginChildEdit(child, (activeParent.children ?? []).indexOf(child))" /><VoxActionButton action="delete" :aria-label="`${child.name} kaydını sil`" title="Sil" @click="deleteChild(child, (activeParent.children ?? []).indexOf(child))" /></div></td></tr>
+                        <tr v-for="child in visibleChildren" :key="`${activeParent.code}-${child.code}`"><td><b>{{ child.name }}</b></td><td>{{ child.code }}</td><td>{{ roomHotels(child).join(', ') || 'Tüm oteller' }}</td><td class="board-row-actions"><div class="board-action-buttons"><VoxActionButton action="edit" :aria-label="`${child.name} kaydını düzenle`" title="Düzenle" @click="beginChildEdit(child, (activeParent.children ?? []).indexOf(child))" /><VoxActionButton action="delete" :aria-label="`${child.name} kaydını sil`" title="Sil" @click="deleteChild(child, (activeParent.children ?? []).indexOf(child))" /></div></td></tr>
                         <tr v-if="!visibleChildren.length" class="empty-row"><td colspan="4">{{ childQuery ? 'Aramanızla eşleşen alt oda tipi bulunamadı.' : 'Bu oda tipi için henüz alt kayıt bulunmuyor.' }}</td></tr>
                     </tbody>
                 </table>
@@ -323,11 +326,11 @@ useVoxMessages([validationMessage, catalogStore.storageError]);
                 <div class="board-form-grid">
                     <label><span>{{ nameFieldLabel }} <i>*</i></span><input v-model="draft.name" type="text" autocomplete="off" autofocus></label>
                     <label><span>{{ codeFieldLabel }} <i>*</i></span><input v-model="draft.code" type="text" autocomplete="off"></label>
-                    <label><span>Otel</span><select v-model="draft.hotel"><option value="">Tüm oteller</option><option v-for="hotel in hotelStore.records.value" :key="hotel.id" :value="hotel.name">{{ hotel.name }}</option></select></label>
+                    <fieldset class="room-hotel-selection"><legend>Oteller</legend><label class="room-hotel-choice"><input type="checkbox" :checked="!selectedRoomHotels.length" @change="selectedRoomHotels = []"><span>Tüm oteller</span></label><div class="room-hotel-grid"><label v-for="hotel in hotelStore.records.value" :key="hotel.id" class="room-hotel-choice"><input v-model="selectedRoomHotels" type="checkbox" :value="hotel.name"><span>{{ hotel.name }}</span></label></div></fieldset>
                 </div>
                 <p v-if="validationMessage" class="board-validation">{{ validationMessage }}</p>
             </div>
-            <footer class="board-form-actions"><button type="button" class="classic-action" @click="cancelChildEdit">İptal</button><button type="submit" class="classic-action save">Kaydet</button></footer>
+            <footer class="board-form-actions"><button type="submit" class="classic-action save">Kaydet</button></footer>
         </form>
 
         <form v-else class="board-edit-form" @submit.prevent="saveEdit">
@@ -338,12 +341,19 @@ useVoxMessages([validationMessage, catalogStore.storageError]);
                 </div>
                 <p v-if="validationMessage" class="board-validation">{{ validationMessage }}</p>
             </div>
-            <footer class="board-form-actions"><button type="button" class="classic-action" @click="cancelEdit">İptal</button><button type="submit" class="classic-action save">Kaydet</button></footer>
+            <footer class="board-form-actions"><button type="submit" class="classic-action save">Kaydet</button></footer>
         </form>
     </section>
 </template>
 
 <style scoped>
+.room-hotel-selection { grid-column: 1 / -1; min-width: 0; border: 0; padding: 0; margin: 0; }
+.room-hotel-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.board-edit-form .room-hotel-choice { display: flex; flex-direction: row; align-items: flex-start; gap: 8px; min-width: 0; }
+.board-edit-form .room-hotel-choice input { width: 16px; height: 16px; min-height: 0; flex: 0 0 16px; margin: 2px 0 0; }
+.room-hotel-choice span { overflow-wrap: anywhere; }
+@media (max-width: 900px) { .room-hotel-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 550px) { .room-hotel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .board-types-module {
     display: flex;
     flex-direction: column;
