@@ -76,8 +76,16 @@ $sourceDetails = ['contractsStatus'=>'available','accountingStatus'=>'empty','ex
 App\Support\HotelDetails::validate($sourceDetails);
 check(count($sourceResult['contracts']) === 72 && $sourceResult['contracts'][0]['prices'][0]['manualPrice'] === true, 'Source draft saves all periods and preserves explicit prices');
 $sourceDetails['contracts'][0]['status']='ACTIVE';
-try { App\Support\HotelDetails::validate($sourceDetails); check(false, 'Incomplete source cannot activate'); }
-catch (ValidationException) { check(true, 'Incomplete source cannot activate'); }
+App\Support\HotelDetails::validate($sourceDetails);
+check(true, 'Source contract can activate without clearing review flag');
+$invalidDetails=$sourceDetails;
+$invalidDetails['contracts'][0]['status']='WRONG';
+try { App\Support\HotelDetails::validate($invalidDetails); check(false, 'Invalid status explained in Turkish'); }
+catch (ValidationException $error) { $message=implode(' ',array_merge(...array_values($error->errors()))); check(str_contains($message,'Durum') && str_contains($message,'ACTIVE') && str_contains($message,'geçersiz'), 'Invalid status explained in Turkish'); }
+$invalidDetails=$sourceDetails;
+$invalidDetails['contracts'][0]['prices'][0]['price']='-1';
+try { App\Support\HotelDetails::validate($invalidDetails); check(false, 'Negative active price rejected with cause'); }
+catch (ValidationException $error) { $message=implode(' ',array_merge(...array_values($error->errors()))); check(str_contains($message,'Fiyat') && str_contains($message,'en az'), 'Negative active price rejected with cause'); }
 try { $controller->review(Request::create('/', 'POST', array_replace($reviewInput, ['hotelName' => 'Other Hotel']))); check(false, 'Wrong hotel rejected'); }
 catch (Symfony\Component\HttpKernel\Exception\HttpException $error) { check($error->getStatusCode() === 422, 'Wrong hotel rejected'); }
 check(Http::recorded(fn ($r) => $r['store'] === false && $r['text']['format']['strict'] === true && !isset($r['tools']))->count() === 1, 'Structured extraction uses no tools and disables response storage');
