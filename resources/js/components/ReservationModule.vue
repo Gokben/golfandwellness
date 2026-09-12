@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { roomMatchesHotel } from '../catalogs';
+import { contractDateDisplay } from '../contractDateDisplay.mjs';
 import VoxActionButton from './VoxActionButton.vue';
 import { computed, ref, watch } from 'vue';
 import RecordSelect from './RecordSelect.vue';
@@ -31,6 +32,10 @@ function editReservation(row: any) { Object.assign(form.value, initialForm, row)
 async function deleteReservation(row: any) { if (await voxConfirm('Rezervasyon silinsin mi?')) await reservationStore.commit(reservations.value.filter(item => item.id !== row.id)); }
 async function save() {
     if (!reservationStore.ready.value || reservationStore.busy.value) return;
+    if (form.value.hotelContract && !hotelContractChoices.value.some(row => row.id === form.value.hotelContract)) {
+        error.value = 'Seçili kontrat otel, giriş tarihi veya oda seçimiyle eşleşmiyor. Otel kontratını yeniden seçin.';
+        return;
+    }
     const next: any = { ...form.value, id: editingId.value || crypto.randomUUID() };
     next.no = reservations.value.find(row => row.id === editingId.value)?.no || 'RSV-' + crypto.randomUUID().slice(0,8).toUpperCase();
     next.hotel = choiceKey(linked.hotelChoices.value, next.hotel);
@@ -44,6 +49,17 @@ const extraChoices = computed(() => linked.extras.records.value.flatMap(group =>
 const mainRoomChoices = computed(() => linked.rooms.records.value.map(row => ({ id: row.id ?? row.code, name: row.name, aliases: [row.code] })));
 const roomChoices = computed(() => linked.rooms.records.value.filter(row => (row.id ?? row.code) === choiceKey(mainRoomChoices.value, form.value.mainRoom)).flatMap(row => (row.children ?? []).filter(child => roomMatchesHotel(child, choiceName(linked.hotelChoices.value, form.value.hotel))).map(child => ({ id: child.id ?? child.code, name: child.name, aliases: [child.code] }))));
 const boardChoices = computed(() => linked.boards.records.value.map(row => ({ id: row.id ?? row.code, name: row.name, aliases: [row.code] })));
+const hotelContractChoices = computed(() => {
+    const hotel = linked.hotels.records.value.find(row => String(row.id) === choiceKey(linked.hotelChoices.value, form.value.hotel));
+    const mainRoom = mainRoomChoices.value.find(row => row.id === choiceKey(mainRoomChoices.value, form.value.mainRoom));
+    const room = roomChoices.value.find(row => row.id === choiceKey(roomChoices.value, form.value.roomType));
+    return (hotel?.details?.contracts ?? []).filter(contract =>
+        contract.status === 'ACTIVE'
+        && (!form.value.checkIn || contract.firstDate <= form.value.checkIn && contract.lastDate >= form.value.checkIn)
+        && (!form.value.mainRoom || !!mainRoom && [mainRoom.id, mainRoom.name, ...mainRoom.aliases].includes(contract.roomType))
+        && (!form.value.roomType || !!room && [room.id, room.name, ...room.aliases].includes(contract.roomName))
+    ).map(contract => ({ id: contract.id, name: `${contractDateDisplay(contract.name)} (${contractDateDisplay(contract.firstDate)} / ${contractDateDisplay(contract.lastDate)})` }));
+});
 watch(() => [form.value.checkIn, form.value.night], () => { const date = new Date(form.value.checkIn); if (Number.isFinite(date.getTime()) && Number(form.value.night) > 0) { date.setUTCDate(date.getUTCDate() + Number(form.value.night)); form.value.checkOut = date.toISOString().slice(0,10); } });
 watch(() => [form.value.hotel, form.value.mainRoom], () => { if (!roomChoices.value.some(row => row.id === form.value.roomType)) form.value.roomType = ''; });
 
@@ -61,7 +77,7 @@ watch(() => [form.value.hotel, form.value.mainRoom], () => { if (!roomChoices.va
       <form v-show="!props.combined || activeStep !== 3" class="reservation-form" @submit.prevent="save">
         <section v-show="activeStep === 1" class="form-step"><h3>Adım #1 <em>(Oluşturan: Admin / 1.9.2026)</em><button type="button" @click="screen = 'list'">Listeye dön</button></h3><div class="reservation-grid">
           <label>Tarih<DateInput v-model="form.date" required /></label><label>Giriş<DateInput :range-end="form.checkOut" v-model="form.checkIn" required /></label><label>Gece<input v-model="form.night" type="number" required min="1"></label><label>Çıkış<DateInput :range-start="form.checkIn" v-model="form.checkOut" required /></label><label>Otel<RecordSelect v-model="form.hotel" :choices="linked.hotelChoices.value" required /></label><label>Ana Oda<RecordSelect v-model="form.mainRoom" :choices="mainRoomChoices" /></label><label>Oda Tipi<RecordSelect v-model="form.roomType" :choices="roomChoices" /></label>
-          <label>Otel Kontratı<select v-model="form.hotelContract" disabled title="Bu kayıt için tanımlı kontrat bulunmuyor"><option value="">Seçiniz</option></select></label><label>Acente<RecordSelect v-model="form.agency" :choices="linked.agencyChoices.value" required /></label><label>Voucher<input v-model="form.voucher"></label><label>Acente Kontratı<select v-model="form.agencyContract" disabled title="Bu kayıt için tanımlı kontrat bulunmuyor"><option value="">Seçiniz</option></select></label><label>Pansiyon<RecordSelect v-model="form.pension" :choices="boardChoices" /></label><label>Durum<select v-model="form.state"><option>REQUEST</option><option>OPTION</option><option>CONFIRM</option></select></label>
+          <label>Otel Kontratı<RecordSelect v-model="form.hotelContract" :choices="hotelContractChoices" :disabled="!linked.hotels.ready.value" /><small v-if="linked.hotels.ready.value && form.hotel && !hotelContractChoices.length">Seçili otel, giriş tarihi ve oda için aktif kontrat bulunamadı.</small></label><label>Acente<RecordSelect v-model="form.agency" :choices="linked.agencyChoices.value" required /></label><label>Voucher<input v-model="form.voucher"></label><label>Acente Kontratı<select v-model="form.agencyContract" disabled title="Bu kayıt için tanımlı kontrat bulunmuyor"><option value="">Seçiniz</option></select></label><label>Pansiyon<RecordSelect v-model="form.pension" :choices="boardChoices" /></label><label>Durum<select v-model="form.state"><option>REQUEST</option><option>OPTION</option><option>CONFIRM</option></select></label>
           <label>Oda Sayısı<input v-model="form.roomCount" type="number" min="1"></label><label class="note">Not<textarea v-model="form.note" placeholder="not alanı."></textarea></label><fieldset><legend>Acente</legend><label><input v-model="form.agencyAllotment" type="checkbox"> Allotment</label><label><input v-model="form.agencyGuarantee" type="checkbox"> Guarantee</label></fieldset><fieldset><legend>Otel</legend><label><input v-model="form.hotelAllotment" type="checkbox"> Allotment</label><label><input v-model="form.hotelGuarantee" type="checkbox"> Guarantee</label></fieldset>
         </div><div class="form-buttons"><button type="submit" :disabled="!reservationStore.ready.value || reservationStore.busy.value">Kaydet</button></div></section>
         <section v-show="activeStep !== 1 && (!props.combined || activeStep !== 3)" class="later-step"><h3>Adım #{{ activeStep }}</h3><p>Bu adım, ilk rezervasyon kaydedildikten sonra etkinleşecektir.</p></section>
