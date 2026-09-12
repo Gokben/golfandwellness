@@ -45,6 +45,23 @@ class LinkedRecords
         $identities = []; $codes = [];
         foreach ($records as &$row) {
             if (!is_array($row)) throw ValidationException::withMessages(['records' => 'Geçersiz kayıt.']);
+            if ($kind === 'hotel-reservations') Validator::make($row, [
+                'persons'=>'sometimes|array|max:500', 'persons.*.id'=>'required|string|max:150|distinct',
+                'persons.*.title'=>'required|in:MR,MRS,MS,CHD,INF', 'persons.*.name'=>'required|string|max:200',
+                'persons.*.age'=>'nullable|integer|min:0|max:99', 'persons.*.birthDate'=>'nullable|date_format:Y-m-d',
+                'persons.*.roomType'=>'nullable|string|max:200', 'persons.*.transfer'=>'nullable|string|max:500',
+                'citizen'=>'sometimes|nullable|string|max:150', 'optionDate'=>'sometimes|nullable|date_format:Y-m-d',
+                'accommodation'=>'sometimes|nullable|string|max:200', 'pax'=>'sometimes|nullable|integer|min:1|max:999',
+                'children'=>'sometimes|nullable|integer|min:0|max:999', 'infants'=>'sometimes|nullable|integer|min:0|max:999',
+                'clientName'=>'sometimes|nullable|string|max:200',
+                'handling'=>'sometimes|nullable|string|max:200', 'transfer'=>'sometimes|nullable|string|max:200',
+                'transferNote'=>'sometimes|nullable|string|max:1000', 'extra'=>'sometimes|nullable|string|max:200',
+                'arrivalFlight'=>'sometimes|nullable|string|max:100', 'departureFlight'=>'sometimes|nullable|string|max:100',
+                'arrivalDestination'=>'sometimes|nullable|string|max:200', 'departureDestination'=>'sometimes|nullable|string|max:200',
+                'arrivalTime'=>'sometimes|nullable|date_format:H:i', 'departureTime'=>'sometimes|nullable|date_format:H:i',
+                'arrivalLocalTime'=>'sometimes|nullable|date_format:H:i', 'departureLocalTime'=>'sometimes|nullable|date_format:H:i',
+                'arrivalFrom'=>'sometimes|nullable|string|max:200', 'departureFrom'=>'sometimes|nullable|string|max:200',
+            ])->validate();
             if ($kind === 'hotels') unset($row['fax']);
             Validator::make($row, $rules)->validate();
             if ($kind === 'agency-vouchers' && (int) $row['lastCount'] < (int) $row['count']) throw ValidationException::withMessages(['records'=>'Son sayaç başlangıç sayacından küçük olamaz.']);

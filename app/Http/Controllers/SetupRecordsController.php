@@ -260,6 +260,19 @@ class SetupRecordsController extends Controller
             $voucherChanged=false;
             if(in_array($kind,['hotel-reservations','golf-reservations'],true)){
                 $before=json_decode($row->records,true);
+                $existingById = array_column($before, null, 'id');
+                $actor = \Illuminate\Support\Facades\Auth::guard('golf')->user();
+                foreach ($records as &$reservation) {
+                    $previous = $existingById[$reservation['id']] ?? null;
+                    foreach (['createdBy', 'createdAt'] as $field) unset($reservation[$field]);
+                    if ($previous) {
+                        foreach (['createdBy', 'createdAt'] as $field) if (isset($previous[$field])) $reservation[$field] = $previous[$field];
+                    } else {
+                        $reservation['createdBy'] = $actor ? (string) $actor->username : 'Yerel kullanıcı';
+                        $reservation['createdAt'] = now()->toIso8601String();
+                    }
+                }
+                unset($reservation);
                 $newIds=array_diff(array_column($records,'id'),array_column($before,'id'));
                 if($newIds){
                     $voucherSet=$db->table('setup_record_sets')->where('kind','agency-vouchers')->lockForUpdate()->first();
