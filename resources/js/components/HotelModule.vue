@@ -106,8 +106,6 @@ watch(() => selectedHotel.value ? selectedHotel.value.name.trim() || 'Yeni Otel'
 const selectedHotelId = ref<number | null>(null);
 const creatingHotel = ref(false);
 const detailSaveRevision = ref(0);
-const contractSaved = ref(false);
-let contractSavedTimer: ReturnType<typeof setTimeout> | undefined;
 let draftBase: Hotel | null = null;
 const mergeConflicts = ref<string[]>([]);
 watch(hotels, rows => {
@@ -271,7 +269,7 @@ async function deleteHotel(hotel: Hotel) {
 }
 
 async function saveHotel() {
-    if (!selectedHotel.value || contractSaved.value) return;
+    if (!selectedHotel.value) return;
     if (mergeConflicts.value.length && !await voxConfirm('Sunucuyla aynı alanlarda farklı düzenlemeler var. Formdaki kendi değerlerinizi kaydetmek istiyor musunuz?')) return;
     selectedHotel.value.name = selectedHotel.value.name.trim();
     selectedHotel.value.code = selectedHotel.value.code.trim();
@@ -291,11 +289,7 @@ async function saveHotel() {
         draftBase = JSON.parse(JSON.stringify(selectedHotel.value));
         mergeConflicts.value = [];
         creatingHotel.value = false;
-        contractSaved.value = true;
-        contractSavedTimer = setTimeout(() => {
-            contractSaved.value = false;
-            if (selectedHotel.value?.id === savedHotel.id && activeCardTab.value === 'contracts') detailSaveRevision.value++;
-        }, 3000);
+        detailSaveRevision.value++;
         return;
     }
     closeHotelCard();
@@ -323,7 +317,6 @@ onMounted(() => {
 
 });
 onBeforeUnmount(() => {
-    clearTimeout(contractSavedTimer);
     stopHotelColumnResize?.();
     window.removeEventListener('vox-hotels-back', closeHotelCard);
     emit('detailState', false);
@@ -331,8 +324,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-    <Teleport to="body"><div v-if="contractSaved" class="contract-saved-overlay"><div class="contract-saved-message" role="status" aria-live="polite">Kaydedildi</div></div></Teleport>
-    <section class="hotel-module" aria-label="Otel modülü" :inert="contractSaved">
+    <section class="hotel-module" aria-label="Otel modülü">
         <template v-if="!selectedHotel">
             <div class="hotel-list-header">
                 <h2>Otel Listesi</h2>

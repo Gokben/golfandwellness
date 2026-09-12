@@ -38,5 +38,17 @@ export function createDialogQueue() {
 }
 
 export const voxDialogs = createDialogQueue();
+let savedUntil = 0;
+export function voxSaved() {
+    return voxDialogs.request('Kayıt tamamlandı.', false, { kind: 'info' }).then(answer => {
+        savedUntil = Date.now() + 500;
+        return answer;
+    });
+}
 export const voxConfirm = (message: string, options?: Options) => voxDialogs.request(message, true, options);
-export const voxAlert = (message: string, kind: DialogKind = 'info') => voxDialogs.request(message, false, { kind });
+export const voxAlert = (message: string, kind: DialogKind = 'info') => {
+    if ((kind === 'info' || kind === 'success') && /kaydedildi|kayıt tamamlandı/i.test(message)) {
+        return Date.now() < savedUntil ? Promise.resolve(true) : voxSaved();
+    }
+    return voxDialogs.request(message, false, { kind });
+};
