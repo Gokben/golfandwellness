@@ -7,6 +7,7 @@ const dialog = ref<HTMLDialogElement | null>(null);
 const cancelButton = ref<HTMLButtonElement | null>(null);
 const acceptButton = ref<HTMLButtonElement | null>(null);
 let origin: HTMLElement | null = null;
+let savedTimer: ReturnType<typeof setTimeout> | undefined;
 let invoker: HTMLElement | null = null;
 function rememberInvoker(event: MouseEvent) {
     if (event.target instanceof Element && !dialog.value?.contains(event.target)) invoker = event.target.closest<HTMLElement>('button, input, select, textarea, a[href]');
@@ -18,16 +19,20 @@ watch(current, value => {
 watch(current, value => {
     const element = dialog.value;
     if (!element) return;
+    clearTimeout(savedTimer);
+    if (value && !value.confirm && value.message === 'Kayıt tamamlandı.') {
+        savedTimer = setTimeout(() => voxDialogs.answer(value.id, true), 4000);
+    }
     if (value) {
         if (!element.open) {
             element.showModal(); // Browser top layer: above every desktop window, regardless of z-index.
         }
-        (value.confirm ? cancelButton.value : acceptButton.value)?.focus();
+        (value.confirm ? cancelButton.value : acceptButton.value)?.focus({ preventScroll: true });
     } else if (element.open) {
         element.close();
         const target = origin;
         // Async callers first clear their pending/disabled state.
-        requestAnimationFrame(() => { if (!current.value && target?.isConnected) target.focus(); });
+        requestAnimationFrame(() => { if (!current.value && target?.isConnected) target.focus({ preventScroll: true }); });
         origin = null;
     }
 }, { flush: 'post' });
@@ -61,6 +66,7 @@ onMounted(() => {
     if (loginError) void voxAlert(loginError, 'error');
 });
 onBeforeUnmount(() => {
+    clearTimeout(savedTimer);
     document.removeEventListener('click', rememberInvoker, true);
     document.removeEventListener('invalid', invalidField, true);
     dialog.value?.close();
@@ -71,7 +77,7 @@ onBeforeUnmount(() => {
 <template>
     <Teleport to="body">
         <dialog ref="dialog" class="vox-dialog" role="alertdialog" aria-modal="true" aria-labelledby="vox-dialog-title" aria-describedby="vox-dialog-message" @cancel.prevent="answer(false)" @keydown="trapFocus">
-            <section v-if="current" :key="current.id" class="vox-dialog-window animate__animated animate__shakeX">
+            <section v-if="current" :key="current.id" class="vox-dialog-window">
                 <header><span id="vox-dialog-title">{{ current.title }}</span><button type="button" class="vox-dialog-close" aria-label="Kapat" @click="answer(false)">×</button></header>
                 <div class="vox-dialog-body"><span class="vox-dialog-icon" :class="current.kind" aria-hidden="true">{{ current.kind === 'success' ? '✓' : current.kind === 'info' ? 'i' : '!' }}</span><p id="vox-dialog-message">{{ current.message }}</p></div>
                 <footer><button v-if="current.confirm" ref="cancelButton" type="button" @click="answer(false)">Vazgeç</button><button ref="acceptButton" type="button" :class="current.confirm ? 'danger' : 'primary'" @click="answer(true)">{{ current.confirmText }}</button></footer>
@@ -97,9 +103,4 @@ onBeforeUnmount(() => {
 .vox-dialog-window button.danger { background:linear-gradient(#f36f6f,#d54444); border-color:#bd3b3b; color:#fff; }
 .vox-dialog-window button:focus-visible { outline:2px solid #064d80; outline-offset:2px; }
 .vox-dialog-window button.vox-dialog-close { min-width:22px; min-height:22px; padding:0; border-color:#b0dafa; background:linear-gradient(#64b8eb,#077ac3); color:#fff; font-size:17px; line-height:20px; }
-/* Same shakeX keyframes and 1s duration as Vuexy's Animate.css example. */
-.vox-dialog-window.animate__animated { animation-duration:1s; animation-fill-mode:both; }
-.vox-dialog-window.animate__shakeX { animation-name:shakeX; }
-@keyframes shakeX { from,to { transform:translate3d(0,0,0); } 10%,30%,50%,70%,90% { transform:translate3d(-10px,0,0); } 20%,40%,60%,80% { transform:translate3d(10px,0,0); } }
-@media (prefers-reduced-motion:reduce) { .vox-dialog-window.animate__animated { animation:none; } }
 </style>

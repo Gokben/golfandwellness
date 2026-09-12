@@ -1,6 +1,7 @@
 import { normalizeCurrencyRecords } from './currencies.ts';
 import { ref, type Ref } from 'vue';
 import { apiUrl, apiHeaders } from './api.ts';
+import { voxSaved } from './voxDialogs';
 
 type Snapshot<T> = { initialized: boolean; records: T[]; version: number; importHash: string | null; relatedKinds?: string[] };
 const shared = new Map<string, ReturnType<typeof createMysqlRecords<any>>>();
@@ -70,6 +71,7 @@ export function createMysqlRecords<T>(kind: string, defaults: T[], valid: (value
             const data = await request(url, 'PUT', { records: next, version });
             records.value = data.records; version = data.version;
             await Promise.all((data.relatedKinds ?? []).map(kind => shared.get(kind)?.reload()));
+            await voxSaved();
             return true;
         } catch (error) {
             storageError.value = error instanceof Error ? error.message : 'MySQL kaydı başarısız.';
