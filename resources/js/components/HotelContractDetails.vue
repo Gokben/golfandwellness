@@ -11,6 +11,7 @@ import { voxAlert } from '../voxDialogs';
 import { lookupParity } from '../parityLookup.mjs';
 import HotelDetailFields from './HotelDetailFields.vue';
 import { updateContractPrice } from '../contractPricing.mjs';
+import { contractDateDisplay } from '../contractDateDisplay.mjs';
 const props = defineProps<{ contracts: HotelContract[]; roomTypes?: string[]; hotelName?: string; reviewMode?: boolean }>();
 const newId = () => crypto.randomUUID();
 const emit = defineEmits<{ add: [] }>();
@@ -72,10 +73,10 @@ const ruleFields = [f('appliesTo','Geçerli Olan Koşul'),f('excludes','Birlikte
 <template>
  <template v-if="!active">
   <button v-if="!reviewMode" type="button" @click="emit('add')">＋ Yeni kontrat</button><p v-if="!contracts.length">Henüz kontrat eklenmedi.</p>
-  <table v-if="contracts.length"><thead><tr><th>Kontrat Adı</th><th>İlk Tarih</th><th>Son Tarih</th><th>Tip</th><th>Durum</th><th></th></tr></thead><tbody><tr v-for="contract in contracts" :key="contract.id"><td>{{ contract.name }}</td><td>{{ contract.firstDate }}</td><td>{{ contract.lastDate }}</td><td>{{ contract.contractType }}</td><td>{{ contract.status }}</td><td><button type="button" @click="selected=contract.id;tab='detail'">Detayları aç</button></td></tr></tbody></table>
+  <table v-if="contracts.length"><thead><tr><th>Kontrat Adı</th><th>İlk Tarih</th><th>Son Tarih</th><th>Tip</th><th>Durum</th><th></th></tr></thead><tbody><tr v-for="contract in contracts" :key="contract.id"><td>{{ contractDateDisplay(contract.name) }}</td><td>{{ contractDateDisplay(contract.firstDate) }}</td><td>{{ contractDateDisplay(contract.lastDate) }}</td><td>{{ contract.contractType }}</td><td>{{ contract.status }}</td><td><button type="button" @click="selected=contract.id;tab='detail'">Detayları aç</button></td></tr></tbody></table>
  </template>
  <template v-else>
-  <button type="button" class="contract-back" @click="selected=null">← Kontrat listesine dön</button><h3 v-if="active.name">{{ active.name }}</h3>
+  <button type="button" class="contract-back" @click="selected=null">← Kontrat listesine dön</button><h3 v-if="active.name">{{ contractDateDisplay(active.name) }}</h3>
   <p v-if="active.reviewRequired" role="status">İnceleme bekliyor · Eksik alanlar tamamlanmadı</p>
   <details v-if="active.sourceNotes?.length"><summary>Kaynak ve kontrol notları</summary><ul><li v-for="(note,index) in active.sourceNotes" :key="index">{{ note }}</li></ul></details>
   <button v-if="active.reviewRequired" type="button" @click="active.reviewRequired=false">İncelemeyi tamamla</button>
