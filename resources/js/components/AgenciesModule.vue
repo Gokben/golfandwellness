@@ -61,6 +61,10 @@ async function saveAgency() {
 function selectTab(tab: number) { activeTab.value = tab; if (tab === 6 && editingAgencyKey.value) extrasOpened.value = true; }
 async function closeCard() { if (!extraPanel.value || await extraPanel.value.canLeave()) cardOpen.value = false; }
 async function deleteAgency(agency: Agency) { const index = agencies.value.indexOf(agency); if (index >= 0 && await voxConfirm(`${agency.name} acentesini silmek istiyor musunuz?`)) await agencyStore.commit(agencies.value.filter((_, i) => i !== index)); }
+async function deleteContract(id: string) {
+    if (agencyStore.busy.value || !agencyStore.ready.value || !await voxConfirm('Acente kontratını ve tüm periyotlarını silmek istiyor musunuz? Kullanılmış kayıtlar silinemez.')) return;
+    await agencyStore.commit(agencies.value.map(row => (row.extrasKey ?? row.code) === editingAgencyKey.value ? { ...row, hotelContracts: (row.hotelContracts ?? []).filter(copy => copy.id !== id) } : row));
+}
 </script>
 
 <template>
@@ -90,7 +94,7 @@ async function deleteAgency(agency: Agency) { const index = agencies.value.index
                     </div>
                     <div class="agency-card-actions"><button type="submit">Kaydet</button></div>
                 </template>
-                <AgencyHotelContracts v-else-if="activeTab === 5" :contracts="copiedContracts" />
+                <AgencyHotelContracts v-else-if="activeTab === 5" :contracts="copiedContracts" :busy="agencyStore.busy.value" @delete="deleteContract" />
                 <p v-else-if="activeTab === 6" class="card-note">Ekstra eklemeden önce acente bilgilerini kaydedin ve kartı yeniden açın.</p>
                 <p v-else class="card-note">Bu acente kartı sekmesi sonraki aşamada doldurulacaktır.</p>
             </div>

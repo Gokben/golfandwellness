@@ -32,3 +32,11 @@ test('rounds fractional markup to two decimals',()=>{
  const input=structuredClone(source);input.contracts[0].price='19.99';
  assert.equal(copyAgencyContract(input,'percent','10',()=> 'new').contracts[0].price,'21.99');
 });
+test('rejects copying a booking window after season end',()=>{
+ const input=structuredClone(source);
+ input.contracts.forEach(row=>row.lastDate='2027-03-31');
+ input.contracts[0].bookingLastDate='2028-03-31';
+ assert.throws(()=>copyAgencyContract(input,'percent','10',()=> 'new'), /Geçerlilik Bitişi/);
+ input.contracts[0].bookingLastDate='2027-03-31';
+ assert.doesNotThrow(()=>copyAgencyContract(input,'percent','10',()=> 'new'));
+});

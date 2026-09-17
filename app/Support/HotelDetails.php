@@ -29,7 +29,23 @@ class HotelDetails
 
     public static function validate(array $details): void
     {
+        $seasonKey = function ($contract) {
+            foreach ($contract['sourceNotes'] ?? [] as $note) {
+                if (preg_match('/^Source: GLORIA SERENITY RESORT 2026 - 2027 WINTER SEASON POUND RATES(?: \\(1\\))?\\.pdf;/i', $note)) {
+                    return 'serenity|'.($contract['currency'] ?? '').'|'.($contract['market'] ?? '');
+                }
+            }
+            return $contract['id'] ?? '';
+        };
+        $ends = [];
         foreach ($details['contracts'] ?? [] as $contract) {
+            $key = $seasonKey($contract);
+            $ends[$key] = max($ends[$key] ?? '', $contract['lastDate'] ?? '');
+        }
+        foreach ($details['contracts'] ?? [] as $contract) {
+            if (!empty($contract['bookingLastDate']) && $contract['bookingLastDate'] > $ends[$seasonKey($contract)]) {
+                throw ValidationException::withMessages(['bookingLastDate'=>'Geçerlilik Bitişi, ana kontratın Son Tarih değerinden büyük olamaz.']);
+            }
             Validator::make($contract, [
                 'bookingFirstDate' => 'nullable|required_with:bookingLastDate|date_format:Y-m-d',
                 'bookingLastDate' => 'nullable|required_with:bookingFirstDate|date_format:Y-m-d|after_or_equal:bookingFirstDate',
