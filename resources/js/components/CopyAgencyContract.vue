@@ -42,8 +42,8 @@ async function save() {
   <header><h3>Acenteye kontrat kopyala</h3><button type="button" aria-label="Kapat" :disabled="saving" @click="emit('close')">×</button></header>
   <div class="copy-controls">
    <label>Acente<select v-model="agencyKey" :disabled="saving || !agencies.ready.value"><option value="">Seçiniz</option><option v-for="row in agencies.records.value" :key="row.extrasKey ?? row.code" :value="row.extrasKey ?? row.code">{{ row.name }}</option></select></label>
-   <label>Kâr yöntemi<select v-model="mode" :disabled="saving"><option value="percent">Yüzde (%)</option><option value="fixed">Sabit tutar ({{ source.currency }})</option></select></label>
-   <label>{{ mode === 'percent' ? 'Kâr (%)' : `Kâr (${source.currency})` }}<input v-model="amount" type="number" min="0" max="1000000" step="0.01" :disabled="saving"></label>
+   <label>Kâr yöntemi<select v-model="mode" :disabled="saving"><option value="percent">Yüzde (%)</option><option value="fixed">Yetişkin başı sabit tutar ({{ source.currency }})</option></select></label>
+   <label>{{ mode === 'percent' ? 'Kâr (%)' : `Yetişkin başı kâr (${source.currency})` }}<input v-model="amount" type="number" min="0" max="1000000" step="0.01" :disabled="saving"></label>
    <button type="button" :disabled="saving || !agencies.ready.value" @click="prepare">Önizle</button>
   </div>
   <p v-if="error || agencies.storageError.value" role="alert">{{ error || agencies.storageError.value }}</p>
