@@ -13,14 +13,19 @@ import HotelDetailFields from './HotelDetailFields.vue';
 import { updateContractPrice } from '../contractPricing.mjs';
 import { contractDateDisplay } from '../contractDateDisplay.mjs';
 import { sortContractsByDate } from '../contractDateSort.mjs';
+import { hotelContractSeasons } from '../hotelContractSeasons.mjs';
 const props = defineProps<{ contracts: HotelContract[]; roomTypes?: string[]; hotelName?: string; reviewMode?: boolean }>();
 const newId = () => crypto.randomUUID();
 const emit = defineEmits<{ add: [] }>();
 const selected = ref<string | null>(null);
+const selectedSeason = ref<string | null>(null);
+const seasons = computed(() => props.reviewMode ? [] : hotelContractSeasons(props.contracts));
+const season = computed(() => seasons.value.find(item => item.id === selectedSeason.value));
+const groupedIds = computed(() => new Set(seasons.value.flatMap(item => item.contracts.map(contract => contract.id))));
 const tab = ref('detail');
 const sortField = ref<'firstDate' | 'lastDate'>('firstDate');
 const sortDirection = ref(1);
-const sortedContracts = computed(() => sortContractsByDate(props.contracts, sortField.value, sortDirection.value));
+const sortedContracts = computed(() => sortContractsByDate(props.contracts.filter(contract => !groupedIds.value.has(contract.id)), sortField.value, sortDirection.value));
 function sortByDate(field: 'firstDate' | 'lastDate') {
     sortDirection.value = sortField.value === field ? -sortDirection.value : 1;
     sortField.value = field;
@@ -89,12 +94,24 @@ const conditionTypes: Record<string,{label:string;fields:ReturnType<typeof f>[]}
 const ruleFields = [f('appliesTo','Geçerli Olan Koşul'),f('excludes','Birlikte Geçerli Olmayan Koşul')];
 </script>
 <template>
- <template v-if="!active">
+ <template v-if="!active && season">
+  <button type="button" class="contract-back" @click="selectedSeason=null">← Kontrat listesine dön</button>
+  <h3>{{ season.name }}</h3>
+  <p>{{ contractDateDisplay(season.firstDate) }} / {{ contractDateDisplay(season.lastDate) }} · {{ season.currency }} · {{ season.market }}</p>
+  <details v-for="period in season.periods" :key="period.id" class="season-period">
+   <summary>{{ contractDateDisplay(period.firstDate) }} / {{ contractDateDisplay(period.lastDate) }} · {{ period.contracts.length }} oda kaydı</summary>
+   <table><thead><tr><th>Oda Adı</th><th>Pansiyon</th><th>Tip</th><th>Durum</th><th></th></tr></thead>
+    <tbody><tr v-for="contract in period.contracts" :key="contract.id"><td>{{ contract.roomName }}</td><td>{{ contract.board }}</td><td>{{ contract.contractType || '—' }}</td><td>{{ contract.status }}</td><td><button type="button" @click="selected=contract.id;tab='detail'">Oda fiyatları ve koşullar</button></td></tr></tbody>
+   </table>
+  </details>
+ </template>
+ <template v-else-if="!active">
   <button v-if="!reviewMode" type="button" @click="emit('add')">＋ Yeni kontrat</button><p v-if="!contracts.length">Henüz kontrat eklenmedi.</p>
-  <table v-if="contracts.length"><thead><tr><th>Kontrat Adı</th><th v-for="field in (['firstDate', 'lastDate'] as const)" :key="field" :aria-sort="sortField === field ? (sortDirection === 1 ? 'ascending' : 'descending') : 'none'"><button class="date-sort" type="button" :title="sortField === field && sortDirection === 1 ? 'Yeniden eskiye sırala' : 'Eskiden yeniye sırala'" @click="sortByDate(field)">{{ field === 'firstDate' ? 'İlk Tarih' : 'Son Tarih' }} <span aria-hidden="true">{{ sortField === field ? (sortDirection === 1 ? '↑' : '↓') : '↕' }}</span></button></th><th>Tip</th><th>Durum</th><th></th></tr></thead><tbody><tr v-for="contract in sortedContracts" :key="contract.id"><td>{{ contractDateDisplay(contract.name) }}</td><td>{{ contractDateDisplay(contract.firstDate) }}</td><td>{{ contractDateDisplay(contract.lastDate) }}</td><td>{{ contract.contractType }}</td><td>{{ contract.status }}</td><td><button type="button" @click="selected=contract.id;tab='detail'">Detayları aç</button></td></tr></tbody></table>
+  <table v-if="seasons.length"><thead><tr><th>Kontrat Adı</th><th>İlk Tarih</th><th>Son Tarih</th><th>Para Birimi</th><th>Pazar</th><th></th></tr></thead><tbody><tr v-for="item in seasons" :key="item.id"><td>{{ item.name }}</td><td>{{ contractDateDisplay(item.firstDate) }}</td><td>{{ contractDateDisplay(item.lastDate) }}</td><td>{{ item.currency }}</td><td>{{ item.market }}</td><td><button type="button" @click="selectedSeason=item.id">Periyotları aç</button></td></tr></tbody></table>
+  <table v-if="sortedContracts.length"><thead><tr><th>Kontrat Adı</th><th v-for="field in (['firstDate', 'lastDate'] as const)" :key="field" :aria-sort="sortField === field ? (sortDirection === 1 ? 'ascending' : 'descending') : 'none'"><button class="date-sort" type="button" :title="sortField === field && sortDirection === 1 ? 'Yeniden eskiye sırala' : 'Eskiden yeniye sırala'" @click="sortByDate(field)">{{ field === 'firstDate' ? 'İlk Tarih' : 'Son Tarih' }} <span aria-hidden="true">{{ sortField === field ? (sortDirection === 1 ? '↑' : '↓') : '↕' }}</span></button></th><th>Tip</th><th>Durum</th><th></th></tr></thead><tbody><tr v-for="contract in sortedContracts" :key="contract.id"><td>{{ contractDateDisplay(contract.name) }}</td><td>{{ contractDateDisplay(contract.firstDate) }}</td><td>{{ contractDateDisplay(contract.lastDate) }}</td><td>{{ contract.contractType }}</td><td>{{ contract.status }}</td><td><button type="button" @click="selected=contract.id;tab='detail'">Detayları aç</button></td></tr></tbody></table>
  </template>
  <template v-else>
-  <button type="button" class="contract-back" @click="selected=null">← Kontrat listesine dön</button><h3 v-if="active.name">{{ contractDateDisplay(active.name) }}</h3>
+  <button type="button" class="contract-back" @click="selected=null">{{ season ? '← Periyotlara dön' : '← Kontrat listesine dön' }}</button><h3 v-if="active.name">{{ contractDateDisplay(active.name) }}</h3>
   <p v-if="active.reviewRequired" role="status">İnceleme bekliyor · Eksik alanlar tamamlanmadı</p>
   <details v-if="active.sourceNotes?.length"><summary>Kaynak ve kontrol notları</summary><ul><li v-for="(note,index) in active.sourceNotes" :key="index">{{ note }}</li></ul></details>
   <button v-if="active.reviewRequired" type="button" @click="active.reviewRequired=false">İncelemeyi tamamla</button>
@@ -111,6 +128,8 @@ const ruleFields = [f('appliesTo','Geçerli Olan Koşul'),f('excludes','Birlikte
 .parity-warning { color: #b91c1c; }
 :global(.theme-dark) .parity-warning { color: #ff9b9b; }
 .contract-back { margin-bottom: 14px; }
+.season-period { margin: 14px 0; }
+.season-period summary { cursor: pointer; padding: 12px 0; font-weight: bold; border-bottom: 1px solid #bfd4e5; }
 table {width:100%;border-collapse:collapse} th,td {border:1px solid #bfd4e5;padding:10px;text-align:left} th {background:#e0eef9}
 article {padding:12px;margin:10px 0;border:1px solid #bfd4e5;background:#eef6fc} button {border:1px solid #8ab1ce;background:#e5f2fc;padding:7px 12px;color:#154c75;cursor:pointer} nav {display:flex;gap:6px} .active {background:#168bd0;color:white}
 </style>
