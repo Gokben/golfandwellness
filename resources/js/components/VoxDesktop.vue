@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue';
 import ReleaseNotice from './ReleaseNotice.vue';
+import RecordChangeNotice from './RecordChangeNotice.vue';
 import GolfAgentPanel from './GolfAgentPanel.vue';
 const releaseVersion = ref<string | null>(null);
 const agentActive = ref(false);
@@ -428,6 +429,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+    <RecordChangeNotice />
     <ReleaseNotice :open-windows="windows.length + (agentActive ? 1 : 0)" @version="releaseVersion = $event" />
     <GolfAgentPanel @active="agentActive = $event" />
     <div class="vox-desktop" :class="[`theme-${theme}`, { 'menu-open': startOpen, 'menu-closed': !startOpen }]" @pointerdown.capture="dismissDesktopSubmenus">
