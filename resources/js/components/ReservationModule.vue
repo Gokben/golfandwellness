@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { roomMatchesHotel } from '../catalogs';
 import { contractDateDisplay } from '../contractDateDisplay.mjs';
+import { bookingWindowAllows, bookingToday } from '../contractBookingWindow.mjs';
 import ReservationPersons from './ReservationPersons.vue';
 import { newReservationPerson, hasPersonDetails, type ReservationPerson } from '../reservationPersons';
 import ReservationStayDetails from './ReservationStayDetails.vue';
@@ -85,6 +86,7 @@ const hotelContractChoices = computed(() => {
     const room = roomChoices.value.find(row => row.id === choiceKey(roomChoices.value, form.value.roomType));
     return (hotel?.details?.contracts ?? []).filter(contract =>
         contract.status === 'ACTIVE'
+        && (reservations.value.some(saved => saved.id === editingId.value && saved.hotel === form.value.hotel && saved.hotelContract === contract.id) || bookingWindowAllows(contract, bookingToday()))
         && (!form.value.checkIn || contract.firstDate <= form.value.checkIn && contract.lastDate >= form.value.checkIn)
         && (!form.value.mainRoom || !!mainRoom && [mainRoom.id, mainRoom.name, ...mainRoom.aliases].includes(contract.roomType))
         && (!form.value.roomType || !!room && [room.id, room.name, ...room.aliases].includes(contract.roomName))
