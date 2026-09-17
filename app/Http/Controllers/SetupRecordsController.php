@@ -250,6 +250,10 @@ class SetupRecordsController extends Controller
         $data = $request->validate(['importHash' => 'nullable|regex:/^[a-f0-9]{64}$/']);
         $db = DB::connection('setup_mysql');
         return $db->transaction(function () use ($db, $kind, $records, $data) {
+            if ($kind === 'hotel-reservations') {
+                $hotelSet = $db->table('setup_record_sets')->where('kind', 'hotels')->lockForUpdate()->first();
+                \App\Support\ContractBookingWindow::validate($hotelSet ? json_decode($hotelSet->records, true) : [], [], $records, now('Europe/Istanbul')->format('Y-m-d'));
+            }
             // A second browser must never overwrite an already initialized set.
             $db->table('setup_record_sets')->insertOrIgnore([
                 'kind' => $kind, 'records' => json_encode($records, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR),
@@ -270,6 +274,10 @@ class SetupRecordsController extends Controller
             $row = $db->table('setup_record_sets')->where('kind', $kind)->lockForUpdate()->first();
             if (!$row || (int) $row->version !== (int) $version) return response()->json(['message' => 'Kayıtlar başka bir pencerede değişti. Listeyi yeniden yükleyin.'], 409);
             $voucherChanged=false;
+            if ($kind === 'hotel-reservations') {
+                $hotelSet = $db->table('setup_record_sets')->where('kind', 'hotels')->lockForUpdate()->first();
+                \App\Support\ContractBookingWindow::validate($hotelSet ? json_decode($hotelSet->records, true) : [], json_decode($row->records, true), $records, now('Europe/Istanbul')->format('Y-m-d'));
+            }
             if(in_array($kind,['hotel-reservations','golf-reservations'],true)){
                 $before=json_decode($row->records,true);
                 $existingById = array_column($before, null, 'id');

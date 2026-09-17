@@ -29,6 +29,12 @@ class HotelDetails
 
     public static function validate(array $details): void
     {
+        foreach ($details['contracts'] ?? [] as $contract) {
+            Validator::make($contract, [
+                'bookingFirstDate' => 'nullable|required_with:bookingLastDate|date_format:Y-m-d',
+                'bookingLastDate' => 'nullable|required_with:bookingFirstDate|date_format:Y-m-d|after_or_equal:bookingFirstDate',
+            ], ['required_with'=>'Rezervasyon geçerliliği için başlangıç ve bitiş birlikte girilmelidir.', 'date_format'=>'Rezervasyon geçerlilik tarihi geçersiz.', 'after_or_equal'=>'Rezervasyon geçerlilik bitişi başlangıçtan önce olamaz.'])->validate();
+        }
         $rules = [
             'details' => 'array:contractsStatus,accountingStatus,contracts,extras,packages',
             'details.contractsStatus' => 'required|in:available,empty,unavailable',

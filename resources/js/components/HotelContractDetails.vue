@@ -14,6 +14,7 @@ import { updateContractPrice } from '../contractPricing.mjs';
 import { contractDateDisplay } from '../contractDateDisplay.mjs';
 import { sortContractsByDate } from '../contractDateSort.mjs';
 import { hotelContractSeasons } from '../hotelContractSeasons.mjs';
+import DateInput from './DateInput.vue';
 const props = defineProps<{ contracts: HotelContract[]; roomTypes?: string[]; hotelName?: string; reviewMode?: boolean }>();
 const newId = () => crypto.randomUUID();
 const emit = defineEmits<{ add: [] }>();
@@ -21,6 +22,11 @@ const selected = ref<string | null>(null);
 const selectedSeason = ref<string | null>(null);
 const seasons = computed(() => props.reviewMode ? [] : hotelContractSeasons(props.contracts));
 const season = computed(() => seasons.value.find(item => item.id === selectedSeason.value));
+function setBookingDate(field: 'bookingFirstDate' | 'bookingLastDate', value: string) {
+    for (const contract of season.value?.contracts ?? []) contract[field] = value;
+}
+const bookingFirstDate = computed({ get: () => season.value?.contracts[0]?.bookingFirstDate ?? '', set: value => setBookingDate('bookingFirstDate', value) });
+const bookingLastDate = computed({ get: () => season.value?.contracts[0]?.bookingLastDate ?? '', set: value => setBookingDate('bookingLastDate', value) });
 const groupedIds = computed(() => new Set(seasons.value.flatMap(item => item.contracts.map(contract => contract.id))));
 const tab = ref('detail');
 const sortField = ref<'firstDate' | 'lastDate'>('firstDate');
@@ -97,6 +103,10 @@ const ruleFields = [f('appliesTo','Geçerli Olan Koşul'),f('excludes','Birlikte
  <template v-if="!active && season">
   <button type="button" class="contract-back" @click="selectedSeason=null">← Kontrat listesine dön</button>
   <h3>{{ season.name }}</h3>
+  <div class="booking-dates">
+   <label>Geçerlilik Başlangıcı (Rezervasyon Tarihi)<DateInput v-model="bookingFirstDate" :range-end="bookingLastDate" /></label>
+   <label>Geçerlilik Bitişi (Rezervasyon Tarihi)<DateInput v-model="bookingLastDate" :range-start="bookingFirstDate" /></label>
+  </div>
   <p>{{ contractDateDisplay(season.firstDate) }} / {{ contractDateDisplay(season.lastDate) }} · {{ season.currency }} · {{ season.market }}</p>
   <details v-for="period in season.periods" :key="period.id" class="season-period">
    <summary>{{ contractDateDisplay(period.firstDate) }} / {{ contractDateDisplay(period.lastDate) }} · {{ period.contracts.length }} oda kaydı</summary>
@@ -128,6 +138,8 @@ const ruleFields = [f('appliesTo','Geçerli Olan Koşul'),f('excludes','Birlikte
 .parity-warning { color: #b91c1c; }
 :global(.theme-dark) .parity-warning { color: #ff9b9b; }
 .contract-back { margin-bottom: 14px; }
+.booking-dates { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; max-width: 800px; margin: 16px 0; }
+.booking-dates label { display: grid; gap: 8px; }
 .season-period { margin: 14px 0; }
 .season-period summary { cursor: pointer; padding: 12px 0; font-weight: bold; border-bottom: 1px solid #bfd4e5; }
 table {width:100%;border-collapse:collapse} th,td {border:1px solid #bfd4e5;padding:10px;text-align:left} th {background:#e0eef9}
