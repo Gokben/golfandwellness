@@ -7,7 +7,7 @@ import { makeStore } from '../setupCatalogs';
 import { useMysqlRecords } from '../useMysqlRecords';
 import { ageTableDefaults, validAgeTable } from '../ageTables';
 import { parityDefaults, validParity } from '../parity';
-import { voxAlert } from '../voxDialogs';
+import { voxAlert, voxConfirm } from '../voxDialogs';
 import { lookupParity } from '../parityLookup.mjs';
 import HotelDetailFields from './HotelDetailFields.vue';
 import { updateContractPrice } from '../contractPricing.mjs';
@@ -24,10 +24,25 @@ const emit = defineEmits<{ add: [] }>();
 const selected = ref<string | null>(null);
 const hotelStore = useHotels();
 const savingDates = ref(false);
+async function deleteContracts(contracts: HotelContract[]) {
+    if (hotelStore.busy.value || !hotelStore.ready.value) return;
+    if (!await voxConfirm('Kontratı ve bağlı periyotlarını silmek istiyor musunuz? Kullanılmış kayıtlar silinemez.')) return;
+    const ids = new Set(contracts.map(row => row.id));
+    const hotel = hotelStore.records.value.find(row => row.name === props.hotelName && row.details?.contracts?.some(row => ids.has(row.id)));
+    if (!hotel) { await voxAlert('Kaydedilmiş kontrat bulunamadı.', 'error'); return; }
+    const next = hotelStore.records.value.map(row => row.id === hotel.id ? { ...row, details: { ...row.details!, contracts: row.details!.contracts.filter(row => !ids.has(row.id)) } } : row);
+    if (await hotelStore.commit(next)) {
+        for (let i = props.contracts.length - 1; i >= 0; i--) if (ids.has(props.contracts[i].id)) props.contracts.splice(i, 1);
+        selected.value = null; selectedSeason.value = null;
+    } else await voxAlert(hotelStore.storageError.value || 'Kontrat silinemedi.', 'error');
+}
 async function saveBookingDates(contracts: HotelContract[]) {
     if (savingDates.value || !hotelStore.ready.value || hotelStore.busy.value) return;
     const first = contracts[0]?.bookingFirstDate ?? '';
     const last = contracts[0]?.bookingLastDate ?? '';
+    if (last > contracts.map(row => row.lastDate).sort().at(-1)!) {
+        await voxAlert('Geçerlilik Bitişi, ana kontratın Son Tarih değerinden büyük olamaz.', 'error'); return;
+    }
     if (!first || !last || first > last) {
         await voxAlert('Geçerlilik başlangıcı ve bitişini girin. Bitiş başlangıçtan önce olamaz.', 'error');
         return;
@@ -50,6 +65,7 @@ const copySource = computed(() => seasons.value.find(item => item.id === copySea
 const season = computed(() => seasons.value.find(item => item.id === selectedSeason.value));
 function setBookingDate(contracts: HotelContract[], field: 'bookingFirstDate' | 'bookingLastDate', value: string) {
     for (const contract of contracts) contract[field] = value;
+    if (field === 'bookingLastDate' && value > contracts.map(row => row.lastDate).sort().at(-1)!) void voxAlert('Geçerlilik Bitişi, ana kontratın Son Tarih değerinden büyük olamaz.', 'error');
 }
 const groupedIds = computed(() => new Set(seasons.value.flatMap(item => item.contracts.map(contract => contract.id))));
 const tab = ref('detail');
@@ -67,6 +83,7 @@ async function saveListDates() {
     for (const item of seasons.value) {
         const first = item.contracts[0]?.bookingFirstDate;
         const last = item.contracts[0]?.bookingLastDate;
+        if (last && last > item.lastDate) { await voxAlert('Geçerlilik Bitişi, ana kontratın Son Tarih değerinden büyük olamaz.', 'error'); return true; }
         if (!first || !last || first > last) {
             await voxAlert('Geçerlilik başlangıcı ve bitişini girin. Bitiş başlangıçtan önce olamaz.', 'error');
             return true;
@@ -152,8 +169,8 @@ const ruleFields = [f('appliesTo','Geçerli Olan Koşul'),f('excludes','Birlikte
  </template>
  <template v-else-if="!active">
   <button v-if="!reviewMode" type="button" @click="emit('add')">＋ Yeni kontrat</button><p v-if="!contracts.length">Henüz kontrat eklenmedi.</p>
-<div v-if="seasons.length" class="season-table-wrap"><table><thead><tr><th>Kontrat Adı</th><th>Geçerlilik Başlangıcı</th><th>Geçerlilik Bitişi</th><th>İlk Tarih</th><th>Son Tarih</th><th>Para Birimi</th><th>Pazar</th><th></th></tr></thead><tbody><tr v-for="item in seasons" :key="item.id"><td>{{ item.name }}</td><td class="booking-date-cell"><DateInput :model-value="item.contracts[0]?.bookingFirstDate ?? ''" :range-end="item.contracts[0]?.bookingLastDate ?? ''" aria-label="Geçerlilik Başlangıcı (Rezervasyon Tarihi)" @update:model-value="setBookingDate(item.contracts, 'bookingFirstDate', $event)" /></td><td class="booking-date-cell"><DateInput :model-value="item.contracts[0]?.bookingLastDate ?? ''" :range-start="item.contracts[0]?.bookingFirstDate ?? ''" aria-label="Geçerlilik Bitişi (Rezervasyon Tarihi)" @update:model-value="setBookingDate(item.contracts, 'bookingLastDate', $event)" /></td><td>{{ contractDateDisplay(item.firstDate) }}</td><td>{{ contractDateDisplay(item.lastDate) }}</td><td>{{ item.currency }}</td><td>{{ item.market }}</td><td><button type="button" @click="selectedSeason=item.id">Periyotları aç</button><VoxActionButton class="agency-copy-action" action="copy" title="Acenteye kopyala" aria-label="Acenteye kopyala" @click="copySeasonId=item.id" /></td></tr></tbody></table></div>
-  <table v-if="sortedContracts.length"><thead><tr><th>Kontrat Adı</th><th v-for="field in (['firstDate', 'lastDate'] as const)" :key="field" :aria-sort="sortField === field ? (sortDirection === 1 ? 'ascending' : 'descending') : 'none'"><button class="date-sort" type="button" :title="sortField === field && sortDirection === 1 ? 'Yeniden eskiye sırala' : 'Eskiden yeniye sırala'" @click="sortByDate(field)">{{ field === 'firstDate' ? 'İlk Tarih' : 'Son Tarih' }} <span aria-hidden="true">{{ sortField === field ? (sortDirection === 1 ? '↑' : '↓') : '↕' }}</span></button></th><th>Tip</th><th>Durum</th><th></th></tr></thead><tbody><tr v-for="contract in sortedContracts" :key="contract.id"><td>{{ contractDateDisplay(contract.name) }}</td><td>{{ contractDateDisplay(contract.firstDate) }}</td><td>{{ contractDateDisplay(contract.lastDate) }}</td><td>{{ contract.contractType }}</td><td>{{ contract.status }}</td><td><button type="button" @click="selected=contract.id;tab='detail'">Detayları aç</button></td></tr></tbody></table>
+<div v-if="seasons.length" class="season-table-wrap"><table><thead><tr><th>Kontrat Adı</th><th>Geçerlilik Başlangıcı</th><th>Geçerlilik Bitişi</th><th>İlk Tarih</th><th>Son Tarih</th><th>Para Birimi</th><th>Pazar</th><th></th></tr></thead><tbody><tr v-for="item in seasons" :key="item.id"><td>{{ item.name }}</td><td class="booking-date-cell"><DateInput :model-value="item.contracts[0]?.bookingFirstDate ?? ''" :range-end="item.contracts[0]?.bookingLastDate ?? ''" aria-label="Geçerlilik Başlangıcı (Rezervasyon Tarihi)" @update:model-value="setBookingDate(item.contracts, 'bookingFirstDate', $event)" /></td><td class="booking-date-cell"><DateInput :model-value="item.contracts[0]?.bookingLastDate ?? ''" :range-start="item.contracts[0]?.bookingFirstDate ?? ''" aria-label="Geçerlilik Bitişi (Rezervasyon Tarihi)" @update:model-value="setBookingDate(item.contracts, 'bookingLastDate', $event)" /></td><td>{{ contractDateDisplay(item.firstDate) }}</td><td>{{ contractDateDisplay(item.lastDate) }}</td><td>{{ item.currency }}</td><td>{{ item.market }}</td><td><button type="button" @click="selectedSeason=item.id">Periyotları aç</button><VoxActionButton class="agency-copy-action" action="copy" title="Acenteye kopyala" aria-label="Acenteye kopyala" @click="copySeasonId=item.id" /><VoxActionButton action="delete" title="Kontratı sil" :disabled="hotelStore.busy.value" @click="deleteContracts(item.contracts)" /></td></tr></tbody></table></div>
+  <table v-if="sortedContracts.length"><thead><tr><th>Kontrat Adı</th><th v-for="field in (['firstDate', 'lastDate'] as const)" :key="field" :aria-sort="sortField === field ? (sortDirection === 1 ? 'ascending' : 'descending') : 'none'"><button class="date-sort" type="button" :title="sortField === field && sortDirection === 1 ? 'Yeniden eskiye sırala' : 'Eskiden yeniye sırala'" @click="sortByDate(field)">{{ field === 'firstDate' ? 'İlk Tarih' : 'Son Tarih' }} <span aria-hidden="true">{{ sortField === field ? (sortDirection === 1 ? '↑' : '↓') : '↕' }}</span></button></th><th>Tip</th><th>Durum</th><th></th></tr></thead><tbody><tr v-for="contract in sortedContracts" :key="contract.id"><td>{{ contractDateDisplay(contract.name) }}</td><td>{{ contractDateDisplay(contract.firstDate) }}</td><td>{{ contractDateDisplay(contract.lastDate) }}</td><td>{{ contract.contractType }}</td><td>{{ contract.status }}</td><td><button type="button" @click="selected=contract.id;tab='detail'">Detayları aç</button><VoxActionButton v-if="!reviewMode" action="delete" title="Kontratı sil" :disabled="hotelStore.busy.value" @click="deleteContracts([contract])" /></td></tr></tbody></table>
  </template>
  <template v-else>
   <button type="button" class="contract-back" @click="selected=null">{{ season ? '← Periyotlara dön' : '← Kontrat listesine dön' }}</button><h3 v-if="active.name">{{ contractDateDisplay(active.name) }}</h3>

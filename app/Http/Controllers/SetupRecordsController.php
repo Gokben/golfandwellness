@@ -250,6 +250,8 @@ class SetupRecordsController extends Controller
         $data = $request->validate(['importHash' => 'nullable|regex:/^[a-f0-9]{64}$/']);
         $db = DB::connection('setup_mysql');
         return $db->transaction(function () use ($db, $kind, $records, $data) {
+            $sets = \App\Support\ContractProtection::needsCheck($kind) ? $db->table('setup_record_sets')->orderBy('kind')->lockForUpdate()->get()->keyBy('kind') : collect();
+            \App\Support\ContractProtection::enforce($db, $kind, $records, $sets);
             if ($kind === 'hotel-reservations') {
                 $hotelSet = $db->table('setup_record_sets')->where('kind', 'hotels')->lockForUpdate()->first();
                 \App\Support\ContractBookingWindow::validate($hotelSet ? json_decode($hotelSet->records, true) : [], [], $records, now('Europe/Istanbul')->format('Y-m-d'));
@@ -271,9 +273,11 @@ class SetupRecordsController extends Controller
         $version = $request->validate(['version' => 'required|integer|min:1'])['version'];
         $db = DB::connection('setup_mysql');
         return $db->transaction(function () use ($db, $kind, $records, $version) {
+            $sets = \App\Support\ContractProtection::needsCheck($kind) ? $db->table('setup_record_sets')->orderBy('kind')->lockForUpdate()->get()->keyBy('kind') : collect();
             $row = $db->table('setup_record_sets')->where('kind', $kind)->lockForUpdate()->first();
             if (!$row || (int) $row->version !== (int) $version) return response()->json(['message' => 'Kayıtlar başka bir pencerede değişti. Listeyi yeniden yükleyin.'], 409);
             $voucherChanged=false;
+            \App\Support\ContractProtection::enforce($db, $kind, $records, $sets);
             if ($kind === 'hotel-reservations') {
                 $hotelSet = $db->table('setup_record_sets')->where('kind', 'hotels')->lockForUpdate()->first();
                 \App\Support\ContractBookingWindow::validate($hotelSet ? json_decode($hotelSet->records, true) : [], json_decode($row->records, true), $records, now('Europe/Istanbul')->format('Y-m-d'));
