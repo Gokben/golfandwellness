@@ -64,6 +64,27 @@ class LinkedRecords
             ])->validate();
             if ($kind === 'hotels') unset($row['fax']);
             Validator::make($row, $rules)->validate();
+            if ($kind === 'agencies' && isset($row['hotelContracts'])) {
+                Validator::make($row, [
+                    'hotelContracts'=>'array|max:100',
+                    'hotelContracts.*.id'=>'required|string|max:150|distinct',
+                    'hotelContracts.*.name'=>'required|string|max:500',
+                    'hotelContracts.*.hotelName'=>'required|string|max:200',
+                    'hotelContracts.*.sourceSeasonId'=>'required|string|max:1000',
+                    'hotelContracts.*.currency'=>'required|in:USD,GBP,TL,EUR',
+                    'hotelContracts.*.markupMode'=>'required|in:percent,fixed',
+                    'hotelContracts.*.markupAmount'=>'required|numeric|min:0|max:1000000',
+                    'hotelContracts.*.contracts'=>'required|array|max:1000',
+                ])->validate();
+                foreach ($row['hotelContracts'] as $copy) {
+                    HotelDetails::validate(['contractsStatus'=>'available', 'accountingStatus'=>'empty', 'extras'=>[], 'packages'=>[], 'contracts'=>$copy['contracts']]);
+                    foreach ($copy['contracts'] as $contract) {
+                        foreach (array_merge([$contract], $contract['prices']) as $price) {
+                            if ($price['currency'] !== $copy['currency']) throw ValidationException::withMessages(['hotelContracts'=>'Kopya fiyatları kaynak kontratın para biriminde olmalıdır.']);
+                        }
+                    }
+                }
+            }
             if ($kind === 'agency-vouchers' && (int) $row['lastCount'] < (int) $row['count']) throw ValidationException::withMessages(['records'=>'Son sayaç başlangıç sayacından küçük olamaz.']);
             if ($kind === 'hotels' && isset($row['details'])) {
                 Validator::make($row, ['details' => 'array'])->validate();

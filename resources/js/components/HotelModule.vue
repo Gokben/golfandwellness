@@ -11,6 +11,7 @@ import { useCatalog } from '../catalogs';
 import { useVoxMessages } from '../useVoxMessages';
 import { mergeHotelDraft } from '../mergeHotelDraft.mjs';
 const hotelStore = useHotels();
+const detailTabs = ref<InstanceType<typeof HotelDetailTabs>>();
 const hotels = hotelStore.records;
 useVoxMessages([hotelStore.storageError]);
 const typeStore = useCatalog('hotel');
@@ -270,6 +271,7 @@ async function deleteHotel(hotel: Hotel) {
 
 async function saveHotel() {
     if (!selectedHotel.value) return;
+    if (activeCardTab.value === 'contracts' && await detailTabs.value?.saveListDates()) return;
     if (mergeConflicts.value.length && !await voxConfirm('Sunucuyla aynı alanlarda farklı düzenlemeler var. Formdaki kendi değerlerinizi kaydetmek istiyor musunuz?')) return;
     selectedHotel.value.name = selectedHotel.value.name.trim();
     selectedHotel.value.code = selectedHotel.value.code.trim();
@@ -393,7 +395,7 @@ onBeforeUnmount(() => {
                 <label class="email-field"><span>E-posta</span><input v-model="selectedHotel.email" type="email"></label>
                 <label class="web-field"><span>Web Adresi</span><input v-model="selectedHotel.website" type="text"></label>
             </form>
-            <HotelDetailTabs v-else :key="detailSaveRevision" :hotel="selectedHotel" :tab="activeCardTab" />
+            <HotelDetailTabs v-else ref="detailTabs" :key="detailSaveRevision" :hotel="selectedHotel" :tab="activeCardTab" />
             <p v-if="mergeConflicts.length" role="alert">Sunucuyla {{mergeConflicts.length}} alanda çakışma var. Kaydedilmemiş değerleriniz korundu.</p>
             <footer class="card-commandbar"><button type="button" class="save-icon-button" aria-label="Kaydet" title="Kaydet" @click="saveHotel"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 3h12l2 2v16H5V3Z" /><path d="M8 3v6h8V3M8 21v-7h8v7" /></svg></button></footer>
         </template>
