@@ -32,6 +32,18 @@ class SetupRecordsController extends Controller
         return response()->json($this->payload(DB::connection('setup_mysql')->table('setup_record_sets')->where('kind', $kind)->first()))->header('Cache-Control', 'no-store');
     }
 
+    public function versions(Request $request)
+    {
+        GolfAccess::authorizeApi($request);
+        $data = $request->validate(['kinds' => 'required|array|max:100', 'kinds.*' => 'required|string|max:100|distinct']);
+        foreach ($data['kinds'] as $kind) {
+            abort_unless(in_array($kind, self::KINDS, true) || \App\Support\LinkedRecords::supports($kind), 404);
+        }
+        $versions = DB::connection('setup_mysql')->table('setup_record_sets')
+            ->whereIn('kind', $data['kinds'])->pluck('version', 'kind');
+        return response()->json(['versions' => $versions])->header('Cache-Control', 'no-store');
+    }
+
     private function records(Request $request, string $kind): array
     {
         $data = $request->validate(['records' => 'present|array|max:5000']);

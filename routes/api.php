@@ -33,6 +33,7 @@ Route::put('/setup-users/{id}', [SetupUsersController::class, 'update'])->whereN
 Route::delete('/setup-users/{id}', [SetupUsersController::class, 'destroy'])->whereNumber('id');
 
 Route::get('/setup-records/{kind}', [SetupRecordsController::class, 'show']);
+Route::post('/setup-record-versions', [SetupRecordsController::class, 'versions']);
 Route::post('/setup-records/{kind}/initialize', [SetupRecordsController::class, 'initialize']);
 Route::put('/setup-records/{kind}', [SetupRecordsController::class, 'update']);
 
