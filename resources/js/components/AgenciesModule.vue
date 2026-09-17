@@ -2,6 +2,7 @@
 import { voxConfirm } from '../voxDialogs';
 import VoxActionButton from './VoxActionButton.vue';
 import AgencyExtras from './AgencyExtras.vue';
+import AgencyHotelContracts from './AgencyHotelContracts.vue';
 import { computed, reactive, ref, watch } from 'vue';
 
 const emit = defineEmits<{ 'record-title': [name: string] }>();
@@ -30,6 +31,7 @@ const activeTab = ref(1);
 const extraPanel = ref<InstanceType<typeof AgencyExtras> | null>(null);
 const extrasOpened = ref(false);
 const editingAgencyKey = ref('');
+const copiedContracts = computed(() => agencies.value.find(row => (row.extrasKey ?? row.code) === editingAgencyKey.value)?.hotelContracts ?? []);
 const tabs = ['BİLGİ', 'TRANSFER FİYATLARI', 'HANDLING', 'MUHASEBE', 'KONTRATLAR', 'EKSTRALAR'];
 const draft = reactive({ name: '', code: '', citizen: '', market: 'EURO', subMarket: '', additionalInfo: '', contactName: '', contactEmail: '', contactPhone: '', webAddress: '', address: '' });
 watch(() => cardOpen.value ? draft.name.trim() || 'Yeni Acente' : '', name => emit('record-title', name), { immediate: true });
@@ -46,11 +48,13 @@ async function saveAgency() {
     if (activeTab.value === 6) { await extraPanel.value?.save(); return; }
     if (!agencyStore.ready.value || agencyStore.busy.value) return;
     if (extraPanel.value && !await extraPanel.value.canLeave()) return;
-    const agency: Agency = { ...draft, name: draft.name.trim(), code: draft.code.trim(), extrasKey: editingAgencyKey.value || crypto.randomUUID() };
+    const currentIndex = editingAgencyKey.value ? agencies.value.findIndex(row => (row.extrasKey ?? row.code) === editingAgencyKey.value) : -1;
+    if (editingAgencyKey.value && currentIndex < 0) { agencyError.value = 'Acente artık mevcut değil. Listeyi yenileyin.'; return; }
+    const agency: Agency = { ...draft, name: draft.name.trim(), code: draft.code.trim(), extrasKey: editingAgencyKey.value || crypto.randomUUID(), hotelContracts: editingAgencyKey.value ? copiedContracts.value : [] };
     if (!agency.name || !agency.code) return;
-    if (agencies.value.some((row, index) => index !== editingIndex.value && row.code.toLocaleUpperCase() === agency.code.toLocaleUpperCase())) { agencyError.value = 'Bu acente kodu zaten kullanılıyor.'; return; }
+    if (agencies.value.some((row, index) => index !== currentIndex && row.code.toLocaleUpperCase() === agency.code.toLocaleUpperCase())) { agencyError.value = 'Bu acente kodu zaten kullanılıyor.'; return; }
     const next = agencies.value.map(row => ({ ...row }));
-    if (editingIndex.value === null) next.unshift(agency); else next[editingIndex.value] = agency;
+    if (currentIndex < 0) next.unshift(agency); else next[currentIndex] = agency;
     if (await agencyStore.commit(next)) { editingIndex.value = null; cardOpen.value = false; }
 }
 
@@ -86,6 +90,7 @@ async function deleteAgency(agency: Agency) { const index = agencies.value.index
                     </div>
                     <div class="agency-card-actions"><button type="submit">Kaydet</button></div>
                 </template>
+                <AgencyHotelContracts v-else-if="activeTab === 5" :contracts="copiedContracts" />
                 <p v-else-if="activeTab === 6" class="card-note">Ekstra eklemeden önce acente bilgilerini kaydedin ve kartı yeniden açın.</p>
                 <p v-else class="card-note">Bu acente kartı sekmesi sonraki aşamada doldurulacaktır.</p>
             </div>
