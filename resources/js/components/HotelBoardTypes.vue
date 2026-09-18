@@ -16,6 +16,8 @@ const moduleLabel = props.kind === 'hotel' ? 'Otel tipleri' : props.kind === 're
 
 const catalogStore = useCatalog(props.kind);
 const hotelStore = useHotels();
+const currentRoomHotels = (room: BoardType) => roomHotels(room).filter(name => hotelStore.records.value.some(hotel => hotel.name === name));
+const roomHotelLabel = (room: BoardType) => !roomHotels(room).length ? 'Tüm oteller' : currentRoomHotels(room).join(', ') || 'Bağlı otel artık mevcut değil';
 const boardTypes = ref<BoardType[]>([]);
 watch(catalogStore.records, rows => { boardTypes.value = JSON.parse(JSON.stringify(rows)); }, { immediate: true });
 async function persistCatalog() {
@@ -28,6 +30,7 @@ const activeParent = ref<BoardType | null>(null);
 const childQuery = ref('');
 const childPageSize = ref(10);
 const childPage = ref(1);
+const childNameSort = ref<'asc' | 'desc' | null>(null);
 const childEditing = ref(false);
 const childEditIndex = ref<number | null>(null);
 const editing = ref(false);
@@ -59,15 +62,17 @@ const visibleBoardTypes = computed(() => {
 const filteredChildren = computed(() => {
     const children = activeParent.value?.children ?? [];
     const query = childQuery.value.trim().toLocaleLowerCase('tr-TR');
-    if (!query) return children;
-    return children.filter(child => [child.name, child.code, roomHotels(child).join(', ')].some(value => value.toLocaleLowerCase('tr-TR').includes(query)));
+    const filtered = query ? children.filter(child => [child.name, child.code, currentRoomHotels(child).join(', ')].some(value => value.toLocaleLowerCase('tr-TR').includes(query))) : children;
+    if (!childNameSort.value) return filtered;
+    const direction = childNameSort.value === 'asc' ? 1 : -1;
+    return [...filtered].sort((a, b) => a.name.localeCompare(b.name, 'tr-TR', { numeric: true, sensitivity: 'base' }) * direction);
 });
 const childPageCount = computed(() => Math.max(1, Math.ceil(filteredChildren.value.length / childPageSize.value)));
 const visibleChildren = computed(() => {
     const start = (childPage.value - 1) * childPageSize.value;
     return filteredChildren.value.slice(start, start + childPageSize.value);
 });
-watch([childQuery, childPageSize], () => { childPage.value = 1; });
+watch([childQuery, childPageSize, childNameSort], () => { childPage.value = 1; });
 
 function toggleSort(key: BoardColumnKey) {
     if (sortKey.value === key) sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc';
@@ -311,9 +316,9 @@ useVoxMessages([validationMessage, catalogStore.storageError]);
             <div class="board-types-table-wrap">
                 <div class="sub-room-types-tools"><h2>Oda Tipi Listesi</h2><div class="sub-room-types-filters"><label><span>Göster:</span><select v-model="childPageSize" aria-label="Sayfa başına kayıt sayısı"><option :value="10">10</option><option :value="25">25</option><option :value="50">50</option></select></label><label><span>Oda Ara:</span><input v-model="childQuery" type="search" placeholder="Ad, kod veya otel" aria-label="Alt oda tipi ara"></label><button type="button" class="list-new-record" @click="beginChildCreate">＋ Yeni Kayıt</button></div></div>
                 <table class="board-types-table sub-room-types-table">
-                    <thead><tr><th>Ad</th><th>Kod</th><th>Otel</th><th aria-label="İşlem"></th></tr></thead>
+                    <thead><tr><th :aria-sort="childNameSort === 'asc' ? 'ascending' : childNameSort === 'desc' ? 'descending' : 'none'"><button type="button" class="column-sort-button" @click="childNameSort = childNameSort === 'asc' ? 'desc' : 'asc'">Ad <span>{{ childNameSort === 'asc' ? '▲' : childNameSort === 'desc' ? '▼' : '↕' }}</span></button></th><th>Kod</th><th>Otel</th><th aria-label="İşlem"></th></tr></thead>
                     <tbody>
-                        <tr v-for="child in visibleChildren" :key="`${activeParent.code}-${child.code}`"><td><b>{{ child.name }}</b></td><td>{{ child.code }}</td><td>{{ roomHotels(child).join(', ') || 'Tüm oteller' }}</td><td class="board-row-actions"><div class="board-action-buttons"><VoxActionButton action="edit" :aria-label="`${child.name} kaydını düzenle`" title="Düzenle" @click="beginChildEdit(child, (activeParent.children ?? []).indexOf(child))" /><VoxActionButton action="delete" :aria-label="`${child.name} kaydını sil`" title="Sil" @click="deleteChild(child, (activeParent.children ?? []).indexOf(child))" /></div></td></tr>
+<tr v-for="child in visibleChildren" :key="`${activeParent.code}-${child.code}`"><td><b>{{ child.name }}</b></td><td>{{ child.code }}</td><td>{{ roomHotelLabel(child) }}</td><td class="board-row-actions"><div class="board-action-buttons"><VoxActionButton action="edit" :aria-label="`${child.name} kaydını düzenle`" title="Düzenle" @click="beginChildEdit(child, (activeParent.children ?? []).indexOf(child))" /><VoxActionButton action="delete" :aria-label="`${child.name} kaydını sil`" title="Sil" @click="deleteChild(child, (activeParent.children ?? []).indexOf(child))" /></div></td></tr>
                         <tr v-if="!visibleChildren.length" class="empty-row"><td colspan="4">{{ childQuery ? 'Aramanızla eşleşen alt oda tipi bulunamadı.' : 'Bu oda tipi için henüz alt kayıt bulunmuyor.' }}</td></tr>
                     </tbody>
                 </table>

@@ -43,3 +43,18 @@ $details['contracts']=[$a,$b];
 // The date bound must use the season, not its earliest period.
 App\Support\HotelDetails::validate($details);
 echo "PASS season end used across periods\n";
+
+$selectionSets = collect([
+ 'hotels'=>(object)['kind'=>'hotels','records'=>json_encode([['id'=>'h','name'=>'Hotel','details'=>['contracts'=>[]]]])],
+ 'agencies'=>(object)['kind'=>'agencies','records'=>json_encode([['code'=>'A','hotelContracts'=>[['id'=>'copy','hotelName'=>'Hotel','contracts'=>[['id'=>'c','status'=>'ACTIVE','firstDate'=>'2026-11-01','lastDate'=>'2026-11-30']]]]]])],
+]);
+$reservation=['id'=>'r','agency'=>'A','hotel'=>'h','agencyContract'=>'c','checkIn'=>'2026-11-15'];
+App\Support\ContractProtection::enforce($db,'hotel-reservations',[$reservation],$selectionSets);
+echo "PASS matching agency contract accepted\n";
+foreach (['agency'=>'B','hotel'=>'other','checkIn'=>'2026-12-01'] as $key=>$value) {
+ $blocked(fn()=>App\Support\ContractProtection::enforce($db,'hotel-reservations',[array_replace($reservation,[$key=>$value])],$selectionSets),"agency selection rejects wrong $key");
+}
+$agencies=json_decode($selectionSets['agencies']->records,true);
+$agencies[0]['hotelContracts'][0]['contracts'][0]['status']='PENDING';
+$selectionSets['agencies']->records=json_encode($agencies);
+$blocked(fn()=>App\Support\ContractProtection::enforce($db,'hotel-reservations',[$reservation],$selectionSets),'inactive agency contract rejected');

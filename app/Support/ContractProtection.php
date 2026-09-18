@@ -37,6 +37,7 @@ class ContractProtection
 
     public static function enforce($db, string $kind, array $records, $sets): void
     {
+        if ($kind === 'hotel-reservations') self::validateAgencySelection($records, $sets);
         if (!in_array($kind, ['hotels', 'agencies'], true)) {
             // These locks also serialize reservation creation against contract deletion.
             if (str_ends_with($kind, '-reservations') || str_starts_with($kind, 'proposals-')) {
@@ -73,5 +74,41 @@ class ContractProtection
     private static function used(): void
     {
         throw ValidationException::withMessages(['records'=>'Bu kontrat bir rezervasyonda, teklifte veya kayıt geçmişinde kullanılmış. Silinemez.']);
+    }
+
+    private static function validateAgencySelection(array $records, $sets): void
+    {
+        $read = fn ($kind) => isset($sets[$kind]) ? json_decode($sets[$kind]->records, true) : [];
+        $find = function ($rows, $value, $keys) {
+            foreach ($rows as $row) foreach ($keys as $key) if (isset($row[$key]) && (string)$row[$key] === (string)$value) return $row;
+            return null;
+        };
+        $previous = array_column($read('hotel-reservations'), null, 'id');
+        foreach ($records as $record) {
+            if (empty($record['agencyContract'])) continue;
+            $agency = $find($read('agencies'), $record['agency'] ?? '', ['extrasKey','code','name']);
+            $hotel = $find($read('hotels'), $record['hotel'] ?? '', ['id','code','name']);
+            $contract = null;
+            foreach ($agency['hotelContracts'] ?? [] as $copy) {
+                if (($copy['hotelName'] ?? '') !== ($hotel['name'] ?? null)) continue;
+                $contract = $find($copy['contracts'], $record['agencyContract'], ['id']);
+                if ($contract) break;
+            }
+            $valid = $contract && $contract['status'] === 'ACTIVE' && $contract['firstDate'] <= ($record['checkIn'] ?? '') && $contract['lastDate'] >= ($record['checkIn'] ?? '');
+            $groups = $read('catalog-room-types');
+            $main = $find($groups, $record['mainRoom'] ?? '', ['id','code','name']);
+            $rooms = $main['children'] ?? array_merge([], ...array_map(fn ($group) => $group['children'] ?? [], $groups));
+            $room = $find($rooms, $record['roomType'] ?? '', ['id','code','name']);
+            foreach (['mainRoom'=>[$main,'roomType'], 'roomType'=>[$room,'roomName']] as $field => [$choice,$target]) {
+                if (!empty($record[$field])) $valid = $valid && $choice && in_array($contract[$target] ?? '', [$choice['id'] ?? '',$choice['code'] ?? '',$choice['name'] ?? ''], true);
+            }
+            $old = $previous[$record['id'] ?? ''] ?? [];
+            $retained = ($old['agencyContract'] ?? '') === $record['agencyContract'] && ($old['agency'] ?? '') === ($record['agency'] ?? '') && ($old['hotel'] ?? '') === ($record['hotel'] ?? '');
+            if ($valid && !$retained && (!empty($contract['bookingFirstDate']) || !empty($contract['bookingLastDate']))) {
+                $today = now('Europe/Istanbul')->format('Y-m-d');
+                $valid = !empty($contract['bookingFirstDate']) && !empty($contract['bookingLastDate']) && $contract['bookingFirstDate'] <= $today && $contract['bookingLastDate'] >= $today;
+            }
+            if (!$valid) throw ValidationException::withMessages(['agencyContract'=>'Acente kontratı seçili acente, otel, giriş tarihi, oda veya rezervasyon geçerlilik aralığı ile eşleşmiyor. Yeniden seçin.']);
+        }
     }
 }
