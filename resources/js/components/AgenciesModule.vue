@@ -3,6 +3,7 @@ import { voxConfirm } from '../voxDialogs';
 import VoxActionButton from './VoxActionButton.vue';
 import AgencyExtras from './AgencyExtras.vue';
 import AgencyHotelContracts from './AgencyHotelContracts.vue';
+import AgencyHandling from './AgencyHandling.vue';
 import { computed, reactive, ref, watch } from 'vue';
 
 const emit = defineEmits<{ 'record-title': [name: string] }>();
@@ -50,7 +51,7 @@ async function saveAgency() {
     if (extraPanel.value && !await extraPanel.value.canLeave()) return;
     const currentIndex = editingAgencyKey.value ? agencies.value.findIndex(row => (row.extrasKey ?? row.code) === editingAgencyKey.value) : -1;
     if (editingAgencyKey.value && currentIndex < 0) { agencyError.value = 'Acente artık mevcut değil. Listeyi yenileyin.'; return; }
-    const agency: Agency = { ...draft, name: draft.name.trim(), code: draft.code.trim(), extrasKey: editingAgencyKey.value || crypto.randomUUID(), hotelContracts: editingAgencyKey.value ? copiedContracts.value : [] };
+const agency = { ...draft, handlings: currentIndex >= 0 ? (agencies.value[currentIndex] as any).handlings ?? [] : [], name: draft.name.trim(), code: draft.code.trim(), extrasKey: editingAgencyKey.value || crypto.randomUUID(), hotelContracts: editingAgencyKey.value ? copiedContracts.value : [] };
     if (!agency.name || !agency.code) return;
     if (agencies.value.some((row, index) => index !== currentIndex && row.code.toLocaleUpperCase() === agency.code.toLocaleUpperCase())) { agencyError.value = 'Bu acente kodu zaten kullanılıyor.'; return; }
     const next = agencies.value.map(row => ({ ...row }));
@@ -94,6 +95,7 @@ async function deleteContract(id: string) {
                     </div>
                     <div class="agency-card-actions"><button type="submit">Kaydet</button></div>
                 </template>
+                <AgencyHandling v-else-if="activeTab === 3 && editingAgencyKey" :key="editingAgencyKey" :agency-key="editingAgencyKey" />
                 <AgencyHotelContracts v-else-if="activeTab === 5" :contracts="copiedContracts" :busy="agencyStore.busy.value" @delete="deleteContract" />
                 <p v-else-if="activeTab === 6" class="card-note">Ekstra eklemeden önce acente bilgilerini kaydedin ve kartı yeniden açın.</p>
                 <p v-else class="card-note">Bu acente kartı sekmesi sonraki aşamada doldurulacaktır.</p>

@@ -2,6 +2,7 @@
 import { roomHotels, type BoardType } from '../catalogs';
 const roomMatchesHotel = (room: BoardType, hotel?: string) => !!hotel && roomHotels(room).includes(hotel);
 import { agencyReservationContracts } from '../agencyReservationContracts.mjs';
+import { calculateReservation } from '../reservationCalculation.mjs';
 import { contractDateDisplay } from '../contractDateDisplay.mjs';
 import { bookingWindowAllows, bookingToday } from '../contractBookingWindow.mjs';
 import ReservationPersons from './ReservationPersons.vue';
@@ -32,8 +33,19 @@ const hotelExtraChoices = computed(() => {
 });
 const serviceChoices = computed(() => {
     const hotel = linked.hotels.records.value.find(row => String(row.id) === choiceKey(linked.hotelChoices.value, form.value.hotel));
-    const matches = (row:any) => row.firstDate <= form.value.checkIn && row.lastDate >= form.value.checkOut;
-    return [...(hotel?.details?.extras ?? []).filter(matches).map(row => ({id:'hotel:'+row.id, name:row.description})), ...agencyExtras.records.value.filter(row => row.agencyKey === choiceKey(linked.agencyChoices.value, form.value.agency) && matches(row)).map(row => ({id:'agency:'+row.id, name:row.description}))];
+    const agency = linked.agencies.records.value.find(row => (row.extrasKey ?? row.code) === choiceKey(linked.agencyChoices.value, form.value.agency));
+    const contract = hotel?.details?.contracts?.find(row => row.id === form.value.hotelContract);
+    const currency = contract?.currency;
+    const start = form.value.arrivalDate || form.value.checkIn;
+    const end = form.value.departureDate || form.value.checkOut;
+    if (!currency || !start || !end) return [];
+    return ((agency as any)?.handlings ?? [])
+        .filter((row:any) => row.currency === currency && row.firstDate <= start && row.lastDate >= end)
+        .map((row:any) => ({ id: row.id, name: row.code, currency,
+            total: Math.round((Number(row.adultPrice || 0) * Number(form.value.pax || 0)
+                + Number(row.childPrice || 0) * Number(form.value.children || 0)
+                + Number(row.infPrice || 0) * Number(form.value.infants || 0)
+                + Number(row.fixPrice || 0)) * 100) / 100 }));
 });
 const editingId = ref('');
 const error = ref('');
@@ -50,6 +62,15 @@ const form = ref({ ...travelDefaults(), createdBy:'', createdAt:'', persons:[] a
 const rows = computed(() => reservations.value.filter(row => Object.values(row).join(' ').toLocaleLowerCase('tr-TR').includes(query.value.toLocaleLowerCase('tr-TR'))));
 
 const initialForm = JSON.parse(JSON.stringify(form.value));
+watch([serviceChoices, () => form.value.handling], ([choices, selected]) => {
+    if (linked.hotels.ready.value && linked.agencies.ready.value && selected && !choices.some(row => row.id === selected)) form.value.handling = '';
+});
+const filledSteps = computed(() => ({
+    persons: form.value.persons.some(person => hasPersonDetails({ ...person, roomType: '' })),
+    stay: ['citizen', 'optionDate', 'accommodation', 'clientName'].some(key => String(form.value[key] ?? '').trim() !== '')
+        || ['pax', 'children', 'infants'].some(key => Number(form.value[key]) > 0),
+    travel: ['optionDate', ...Object.keys(travelDefaults())].some(key => String(form.value[key] ?? '').trim() !== ''),
+}));
 const voucherStore=useAgencyVoucher(form,editingId,reservations);
 useVoxMessages([voucherStore.storageError]);
 function newReservation() { Object.assign(form.value, structuredClone(initialForm)); form.value.persons = [newReservationPerson()]; editingId.value = ''; activeStep.value=1; screen.value = 'new'; }
@@ -69,8 +90,19 @@ async function save() {
     next.no = reservations.value.find(row => row.id === editingId.value)?.no || 'RSV-' + crypto.randomUUID().slice(0,8).toUpperCase();
     next.hotel = choiceKey(linked.hotelChoices.value, next.hotel);
     next.agency = choiceKey(linked.agencyChoices.value, next.agency);
+    const hotel = linked.hotels.records.value.find(row => String(row.id) === next.hotel);
+    const agency = linked.agencies.records.value.find(row => (row.extrasKey ?? row.code) === next.agency);
+    next.calculation = calculateReservation(next,
+        hotel?.details?.contracts?.find(row => row.id === next.hotelContract),
+        agency?.hotelContracts?.flatMap(copy => copy.contracts).find(row => row.id === next.agencyContract),
+        serviceChoices.value.find(row => row.id === next.handling));
+    next.calculatedAt = new Date().toISOString();
 
-    if (await reservationStore.commit(editingId.value ? reservations.value.map(row => row.id === editingId.value ? next : row) : [...reservations.value, next])) { if(props.combined){editingId.value=next.id;form.value.voucher=String(reservations.value.find(row=>row.id===next.id)?.voucher||'');activeStep.value=3;}else screen.value='list'; }
+    if (await reservationStore.commit(editingId.value ? reservations.value.map(row => row.id === editingId.value ? next : row) : [...reservations.value, next])) {
+        Object.assign(form.value, next, reservations.value.find(row => row.id === next.id));
+        editingId.value = next.id;
+        activeStep.value = props.combined ? 3 : 2;
+    }
 }
 const directionChoices = computed(() => linked.directions.records.value.map(row => ({ id: row.id ?? row.code, name: row.name })));
 const personRoomChoices = computed(() => {
@@ -128,7 +160,7 @@ watch(() => [form.value.hotel, form.value.mainRoom], () => { if (!roomChoices.va
           <label>Otel Kontratı<RecordSelect v-model="form.hotelContract" :choices="hotelContractChoices" :disabled="!linked.hotels.ready.value" /><small v-if="linked.hotels.ready.value && form.hotel && !hotelContractChoices.length">Seçili otel, giriş tarihi ve oda için aktif kontrat bulunamadı.</small></label><label>Acente<RecordSelect v-model="form.agency" :choices="linked.agencyChoices.value" required /></label><label>Voucher<input v-model="form.voucher" disabled></label><label>Acente Kontratı<RecordSelect v-model="form.agencyContract" :choices="agencyContractChoices" :disabled="!linked.agencies.ready.value || !linked.hotels.ready.value || !form.agency || !form.hotel || !form.checkIn" /><small v-if="linked.agencies.ready.value && linked.hotels.ready.value && form.agency && form.hotel && form.checkIn && !agencyContractChoices.length">Seçili acente, otel, giriş tarihi ve oda için aktif acente kontratı bulunamadı.</small></label><label>Pansiyon<RecordSelect v-model="form.pension" :choices="boardChoices" /></label><label>Durum<select v-model="form.state"><option>REQUEST</option><option>OPTION</option><option>CONFIRM</option></select></label>
           <label>Oda Sayısı<input v-model="form.roomCount" type="number" min="1"></label><label class="note">Not<textarea v-model="form.note" placeholder="not alanı."></textarea></label><fieldset><legend>Acente</legend><label><input v-model="form.agencyAllotment" type="checkbox"> Allotment</label><label><input v-model="form.agencyGuarantee" type="checkbox"> Guarantee</label></fieldset><fieldset><legend>Otel</legend><label><input v-model="form.hotelAllotment" type="checkbox"> Allotment</label><label><input v-model="form.hotelGuarantee" type="checkbox"> Guarantee</label></fieldset>
         </div></details>
-<details class="reservation-accordion"><summary>Adım #2 · Kişiler</summary><ReservationPersons :locked-room-type="form.roomType" :persons="form.persons" :room-choices="personRoomChoices" :transfer-choices="directionChoices" :rooms-ready="!!form.hotel && linked.rooms.ready.value && linked.hotels.ready.value" :transfers-ready="linked.directions.ready.value" :check-in="form.checkIn" /></details><details class="reservation-accordion"><summary>Adım #3 · Konaklama</summary><ReservationStayDetails :row="form" :contract="linked.hotels.records.value.find(hotel => String(hotel.id) === choiceKey(linked.hotelChoices.value, form.hotel))?.details?.contracts?.find(contract => contract.id === form.hotelContract)" /></details><details class="reservation-accordion"><summary>Adım #4 · Transfer ve Ek Hizmetler</summary><ReservationTravelDetails :row="form" :services="serviceChoices" :hotel-extras="hotelExtraChoices" :hotel-extras-ready="!!form.hotel && linked.hotels.ready.value" :transfers="directionChoices" :locations="linked.hotelChoices.value" :ready="linked.hotels.ready.value && linked.directions.ready.value && agencyExtras.ready.value" /></details><div class="form-buttons"><button type="submit" :disabled="!reservationStore.ready.value || reservationStore.busy.value">Kaydet</button></div></div><HotelReservationPricing :agency-contract="linked.agencies.records.value.find(agency => (agency.extrasKey ?? agency.code) === choiceKey(linked.agencyChoices.value, form.agency))?.hotelContracts?.flatMap(copy => copy.contracts).find(contract => contract.id === form.agencyContract)" v-if="activeStep === 2" :reservation="form" :saved="!!editingId" :contract="linked.hotels.records.value.find(hotel => String(hotel.id) === choiceKey(linked.hotelChoices.value, form.hotel))?.details?.contracts.find(contract => contract.id === form.hotelContract)" />
+<details :open="filledSteps.persons" class="reservation-accordion"><summary>Adım #2 · Kişiler</summary><ReservationPersons :locked-room-type="form.roomType" :persons="form.persons" :room-choices="personRoomChoices" :transfer-choices="directionChoices" :rooms-ready="!!form.hotel && linked.rooms.ready.value && linked.hotels.ready.value" :transfers-ready="linked.directions.ready.value" :check-in="form.checkIn" /></details><details :open="filledSteps.stay" class="reservation-accordion"><summary>Adım #3 · Konaklama</summary><ReservationStayDetails :row="form" :contract="linked.hotels.records.value.find(hotel => String(hotel.id) === choiceKey(linked.hotelChoices.value, form.hotel))?.details?.contracts?.find(contract => contract.id === form.hotelContract)" /></details><details :open="filledSteps.travel" class="reservation-accordion"><summary>Adım #4 · Transfer ve Ek Hizmetler</summary><ReservationTravelDetails :row="form" :services="serviceChoices" :hotel-extras="hotelExtraChoices" :hotel-extras-ready="!!form.hotel && linked.hotels.ready.value" :transfers="directionChoices" :locations="linked.hotelChoices.value" :ready="linked.hotels.ready.value && linked.directions.ready.value && agencyExtras.ready.value" /></details><div class="form-buttons"><button type="submit" :disabled="!reservationStore.ready.value || reservationStore.busy.value">Kaydet</button></div></div><HotelReservationPricing :handling="serviceChoices.find(row => row.id === form.handling)" :agency-contract="linked.agencies.records.value.find(agency => (agency.extrasKey ?? agency.code) === choiceKey(linked.agencyChoices.value, form.agency))?.hotelContracts?.flatMap(copy => copy.contracts).find(contract => contract.id === form.agencyContract)" v-if="activeStep === 2" :reservation="form" :saved="!!editingId" :contract="linked.hotels.records.value.find(hotel => String(hotel.id) === choiceKey(linked.hotelChoices.value, form.hotel))?.details?.contracts.find(contract => contract.id === form.hotelContract)" />
       </form>
       <GolfReservationModule v-if="props.combined" v-show="activeStep === 3" embedded :hotel-reservation-id="editingId" :hotel="form.hotel" :agency="form.agency" :voucher="form.voucher" :game-date="form.checkIn" />
     </template>
