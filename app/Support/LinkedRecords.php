@@ -56,6 +56,7 @@ class LinkedRecords
                 'clientName'=>'sometimes|nullable|string|max:200',
                 'handling'=>'sometimes|nullable|string|max:200', 'transfer'=>'sometimes|nullable|string|max:200',
                 'transferNote'=>'sometimes|nullable|string|max:1000', 'extra'=>'sometimes|nullable|string|max:200',
+                'arrivalDate'=>'sometimes|nullable|date_format:Y-m-d', 'departureDate'=>'sometimes|nullable|date_format:Y-m-d',
                 'arrivalFlight'=>'sometimes|nullable|string|max:100', 'departureFlight'=>'sometimes|nullable|string|max:100',
                 'arrivalDestination'=>'sometimes|nullable|string|max:200', 'departureDestination'=>'sometimes|nullable|string|max:200',
                 'arrivalTime'=>'sometimes|nullable|date_format:H:i', 'departureTime'=>'sometimes|nullable|date_format:H:i',
@@ -64,6 +65,11 @@ class LinkedRecords
             ])->validate();
             if ($kind === 'hotels') unset($row['fax']);
             Validator::make($row, $rules)->validate();
+            if ($kind === 'agencies' && isset($row['handlings'])) {
+                $rules = ['handlings'=>'array|max:1000', 'handlings.*.id'=>'required|string|max:150|distinct', 'handlings.*.code'=>'required|string|max:200', 'handlings.*.ageTable'=>'required|string|max:100', 'handlings.*.firstDate'=>'required|date_format:Y-m-d', 'handlings.*.lastDate'=>'required|date_format:Y-m-d|after_or_equal:handlings.*.firstDate', 'handlings.*.currency'=>'required|in:EUR,GBP,USD,TL'];
+                foreach (['infPrice','childPrice','adultPrice','fixPrice','buyingPrice','buyingFixPrice'] as $field) $rules['handlings.*.'.$field] = 'required|numeric|min:0|max:100000000';
+                \Illuminate\Support\Facades\Validator::make($row, $rules)->validate();
+            }
             if ($kind === 'agencies' && isset($row['hotelContracts'])) {
                 Validator::make($row, [
                     'hotelContracts'=>'array|max:100',

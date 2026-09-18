@@ -1,18 +1,26 @@
 <script lang="ts">
-export const travelDefaults = () => ({ handling:'', transfer:'', transferNote:'', extra:'', arrivalFlight:'', arrivalDestination:'', arrivalTime:'', arrivalLocalTime:'', arrivalFrom:'', departureFlight:'', departureDestination:'', departureTime:'', departureLocalTime:'', departureFrom:'' });
+export const travelDefaults = () => ({ arrivalDate:'', departureDate:'', handling:'', transfer:'', transferNote:'', extra:'', arrivalFlight:'', arrivalDestination:'', arrivalTime:'', arrivalLocalTime:'', arrivalFrom:'', departureFlight:'', departureDestination:'', departureTime:'', departureLocalTime:'', departureFrom:'' });
 </script>
 <script setup lang="ts">
+import { computed, watch } from 'vue';
 import DateInput from './DateInput.vue';
 import RecordSelect from './RecordSelect.vue';
 import type { Choice } from '../linkedRecords';
-defineProps<{ row: ReturnType<typeof travelDefaults> & {optionDate:string}; services:Choice[]; hotelExtras:Choice[]; hotelExtrasReady:boolean; transfers:Choice[]; locations:Choice[]; ready:boolean }>();
+const props = defineProps<{ row: ReturnType<typeof travelDefaults> & {optionDate:string; checkIn?:string; checkOut?:string}; services:(Choice & {total?:number; currency?:string})[]; hotelExtras:Choice[]; hotelExtrasReady:boolean; transfers:Choice[]; locations:Choice[]; ready:boolean }>();
+const selectedHandling = computed(() => props.services.find(service => service.id === props.row.handling));
+watch(() => [props.row.checkIn, props.row.checkOut], ([start, end], previous) => {
+    if (!props.row.arrivalDate || props.row.arrivalDate === previous?.[0]) props.row.arrivalDate = start ?? '';
+    if (!props.row.departureDate || props.row.departureDate === previous?.[1]) props.row.departureDate = end ?? '';
+}, { immediate: true });
 const legs = [{title:'Varış', flight:'arrivalFlight', destination:'arrivalDestination', time:'arrivalTime', localTime:'arrivalLocalTime', from:'arrivalFrom'}, {title:'Ayrılış', flight:'departureFlight', destination:'departureDestination', time:'departureTime', localTime:'departureLocalTime', from:'departureFrom'}] as const;
 </script>
 <template>
     <section class="travel-details">
         <div class="service-grid">
+            <label>Giriş Tarihi<DateInput v-model="row.arrivalDate" /></label>
+            <label>Çıkış Tarihi<DateInput v-model="row.departureDate" /></label>
             <label>Opsiyon Tarihi<DateInput v-model="row.optionDate" /></label>
-            <label>Handling<RecordSelect v-model="row.handling" :choices="services" :disabled="!ready" /></label>
+            <label>Handling<RecordSelect v-model="row.handling" :choices="services" :disabled="!ready" /><span v-if="selectedHandling?.total !== undefined" aria-live="polite">Toplam: {{ selectedHandling.total.toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2}) }} {{ selectedHandling.currency }}</span></label>
             <label>Transfer<RecordSelect v-model="row.transfer" :choices="transfers" :disabled="!ready" /></label>
             <label>Transfer Notu<input v-model="row.transferNote" maxlength="1000"></label>
             <label>Ekstralar<RecordSelect v-model="row.extra" :choices="hotelExtras" :disabled="!hotelExtrasReady" /></label>
