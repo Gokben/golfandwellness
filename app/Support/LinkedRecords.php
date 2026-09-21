@@ -20,11 +20,15 @@ class LinkedRecords
         if ($kind === 'hotel-stop-sales') return HotelStopSales::validate($records);
         if ($kind === 'hotel-golf-package-definitions') return HotelGolfPackageDefinitions::validate($records);
         if (str_starts_with($kind, 'catalog-')) {
-            $check = function (array &$rows, int $depth = 0) use (&$check) {
+            $check = function (array &$rows, int $depth = 0) use (&$check, $kind) {
                 if ($depth > 2 || !array_is_list($rows)) throw ValidationException::withMessages(['records' => 'Geçersiz tanım listesi.']);
                 foreach ($rows as &$row) {
                     Validator::make($row, ['name' => 'present|nullable|string|max:500', 'code' => 'required|string|max:150', 'hotel' => 'sometimes|nullable|string|max:200', 'hotels' => 'sometimes|array|max:5000', 'hotels.*' => 'required|string|max:200|distinct', 'children' => 'sometimes|array|max:1000'])->validate();
                     $row['name'] = $row['name'] ?? '';
+                    if ($kind === 'catalog-directions') Validator::make($row, [
+                        'price' => ['nullable', 'required_with:currency', 'numeric', 'min:0', 'max:100000000', 'regex:/^\d+(\.\d{1,2})?$/'],
+                        'currency' => 'nullable|required_with:price|in:GBP,EUR,USD,TL',
+                    ])->validate();
                     $row['id'] = $row['id'] ?? (string) \Illuminate\Support\Str::uuid();
                     if (isset($row['children'])) $check($row['children'], $depth + 1);
                 }

@@ -1,5 +1,5 @@
 import { useMysqlRecords } from './useMysqlRecords.ts';
-export type BoardType = { id?: string; name: string; code: string; hotel?: string; hotels?: string[]; children?: BoardType[] };
+export type BoardType = { id?: string; name: string; code: string; price?: string; currency?: string; hotel?: string; hotels?: string[]; children?: BoardType[] };
 export const roomHotels = (room: BoardType): string[] => room.hotels ?? (room.hotel ? [room.hotel] : []);
 export const roomMatchesHotel = (room: BoardType, hotel?: string): boolean => !roomHotels(room).length || roomHotels(room).includes(hotel ?? '');
 const boardDefaults: BoardType[] = [

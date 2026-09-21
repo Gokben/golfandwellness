@@ -38,7 +38,7 @@ const editIndex = ref<number | null>(null);
 const validationMessage = ref('');
 const draft = reactive<BoardType>({ name: '', code: '' });
 const selectedRoomHotels = ref<string[]>([]);
-type BoardColumnKey = keyof BoardType;
+type BoardColumnKey = 'name' | 'code';
 const boardColumnOrder = ref<BoardColumnKey[]>(['catalog', 'cancel-reason'].includes(props.kind) ? ['code', 'name'] : ['name', 'code']);
 const boardColumnLabels: Record<BoardColumnKey, string> = ['catalog', 'cancel-reason'].includes(props.kind) ? { name: 'Açıklama', code: 'Kod' } : props.kind === 'guide' ? { name: 'Ad Soyad', code: 'Kod' } : { name: 'Ad', code: 'Kod' };
 const nameFieldLabel = ['catalog', 'cancel-reason'].includes(props.kind) ? 'Açıklama' : props.kind === 'guide' ? 'Ad Soyad' : 'Ad';
@@ -179,11 +179,15 @@ function beginEdit(boardType: BoardType, index: number) {
     editIndex.value = index;
     draft.name = boardType.name;
     draft.code = boardType.code;
+    draft.price = boardType.price ?? '';
+    draft.currency = boardType.currency ?? '';
     validationMessage.value = '';
     emit('editState', true);
 }
 
 function beginCreate() {
+    draft.price = '';
+    draft.currency = '';
     if (activeParent.value) {
         beginChildCreate();
         return;
@@ -245,8 +249,13 @@ async function saveEdit() {
         validationMessage.value = 'Ad ve kod alanları zorunludur.';
         return;
     }
-    if (editIndex.value === null) boardTypes.value.push({ name, code });
-    else boardTypes.value[editIndex.value] = { ...boardTypes.value[editIndex.value], name, code };
+    const pricing = props.kind === 'direction' ? { price: String(draft.price ?? '').trim(), currency: draft.currency ?? '' } : {};
+    if (props.kind === 'direction' && (!/^\d+(\.\d{1,2})?$/.test(pricing.price!) || Number(pricing.price) > 100000000 || !['GBP', 'EUR', 'USD', 'TL'].includes(pricing.currency!))) {
+        validationMessage.value = 'Geçerli bir fiyat (en fazla iki ondalık basamak) ve para birimi girin.';
+        return;
+    }
+    if (editIndex.value === null) boardTypes.value.push({ name, code, ...pricing });
+    else boardTypes.value[editIndex.value] = { ...boardTypes.value[editIndex.value], name, code, ...pricing };
     selectedCode.value = code;
     if (!await persistCatalog()) return;
     emit('recordCount', boardTypes.value.length);
@@ -288,16 +297,18 @@ useVoxMessages([validationMessage, catalogStore.storageError]);
             <div class="board-types-header"><h2>{{ moduleLabel }} Listesi</h2><button type="button" class="list-new-record" @click="beginCreate">＋ Yeni Kayıt</button></div>
             <div class="board-types-table-wrap">
                 <table class="board-types-table">
-                    <colgroup><col v-for="key in boardColumnOrder" :key="key" :style="{ width: `${columnWidths[key]}px` }"><col :style="{ width: `${actionColumnWidth}px` }"></colgroup>
+                    <colgroup><col v-for="key in boardColumnOrder" :key="key" :style="{ width: `${columnWidths[key]}px` }"><template v-if="kind === 'direction'"><col style="width:120px"><col style="width:110px"></template><col :style="{ width: `${actionColumnWidth}px` }"></colgroup>
                     <thead>
                         <tr>
                             <th v-for="key in boardColumnOrder" :key="key" draggable="true" :class="{ 'column-dragging': draggingBoardColumn === key }" @dragstart="draggingBoardColumn = key" @dragover.prevent @drop.prevent="moveBoardColumn(key)" @dragend="draggingBoardColumn = null"><button type="button" class="column-sort-button" @click="toggleSort(key)">{{ boardColumnLabels[key] }} <span>{{ sortKey === key ? (sortDirection === 'asc' ? '▲' : '▼') : '↕' }}</span></button><i class="column-resize-handle" draggable="false" @dragstart.prevent @pointerdown.stop="beginColumnResize($event, key)"></i></th>
+                            <template v-if="kind === 'direction'"><th>Fiyat</th><th>Para Birimi</th></template>
                             <th aria-label="İşlem"></th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="boardType in visibleBoardTypes" :key="`${boardType.code}-${sourceIndex(boardType)}`" :class="{ selected: selectedCode === boardType.code }" tabindex="0" @click="selectedCode = boardType.code" @dblclick="beginEdit(boardType, sourceIndex(boardType))" @keydown.enter="beginEdit(boardType, sourceIndex(boardType))">
                             <td v-for="key in boardColumnOrder" :key="key"><b v-if="key === 'name'">{{ boardType[key] }}</b><template v-else>{{ boardType[key] }}</template></td>
+                            <template v-if="kind === 'direction'"><td>{{ boardType.price !== undefined && boardType.price !== '' ? Number(boardType.price).toLocaleString('tr-TR', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—' }}</td><td>{{ boardType.currency || '—' }}</td></template>
                             <td class="board-row-actions">
                                 <div class="board-action-buttons">
                                     <VoxActionButton action="link" v-if="kind === 'room'" :aria-label="`${boardType.name} alt oda tiplerini aç`" title="Alt oda tipleri" @click.stop="openChildren(boardType)" />
@@ -341,6 +352,10 @@ useVoxMessages([validationMessage, catalogStore.storageError]);
         <form v-else class="board-edit-form" @submit.prevent="saveEdit">
             <div class="board-form-body">
                 <div class="board-form-grid">
+                    <template v-if="kind === 'direction'">
+                        <label><span>Fiyat <i>*</i></span><input v-model="draft.price" type="number" min="0" max="100000000" step="0.01" required></label>
+                        <label><span>Para Birimi <i>*</i></span><select v-model="draft.currency" required><option value="">Seçiniz</option><option v-for="currency in ['GBP', 'EUR', 'USD', 'TL']" :key="currency" :value="currency">{{ currency }}</option></select></label>
+                    </template>
                     <label><span>{{ nameFieldLabel }} <i>*</i></span><input v-model="draft.name" type="text" autocomplete="off" autofocus></label>
                     <label><span>{{ codeFieldLabel }} <i>*</i></span><input v-model="draft.code" type="text" autocomplete="off"></label>
                 </div>
@@ -491,7 +506,7 @@ useVoxMessages([validationMessage, catalogStore.storageError]);
 .board-form-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 8px; padding: 1px; }
 .board-form-grid label { display: flex; flex-direction: column; gap: 2px; min-width: 0; color: #17382f; font: 700 10px/15px Arial, sans-serif; }
 .board-form-grid label span { height: 15px; }.board-form-grid label i { color: #b92727; font-style: normal; }
-.board-form-grid input {
+.board-form-grid input, .board-form-grid select {
     box-sizing: border-box;
     width: 100%;
     height: 27px;
